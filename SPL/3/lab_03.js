@@ -1,5 +1,3 @@
-
-
 function flatArray(arr) {
     let resultArray = [];
 
@@ -39,7 +37,7 @@ console.log(findSumOfJaggedArray(jaggedArray));
 
 function groupStudents(students) {
     const result = {};
-    console.log(typeof result);
+
     for (const student of students) {
         if (student.age > 17) {
             if (!result[student.groupId]) {
@@ -53,8 +51,56 @@ function groupStudents(students) {
 }
 
 let students = [
-    { name: 'John', age: 18, groupId: 1 },
-    { name: 'Alice', age: 16, groupId: 2 },
-    { name: 'Bob', age: 19, groupId: 1 }]
+    { name: 'Валерий', age: 18, groupId: 1 },
+    { name: 'Акакий', age: 16, groupId: 2 },
+    { name: 'Владимир', age: 19, groupId: 1 }]
 
 console.log(groupStudents(students));
+
+// Задание 4
+
+const asciiString = "ABC";
+
+let result1 = "";
+
+for (let i = 0; i < asciiString.length; i++) {
+    result1 += asciiString.charCodeAt(i).toString();
+}
+
+const result2 = result1.replace('7', '1')
+
+console.log(result1)
+console.log(result2);
+
+// Задание 5
+
+function extend(params) {
+    let result = {};
+    for (let i = 0; i < params.length; i++) {
+        for (const key of Object.keys(params[i])) {
+            result[key] = params[i][key];
+        }
+    }
+    return result;
+}
+
+const result11 = extend([{ a: 1, b: 2 }, { c: 3 }]);
+console.log(result11);
+
+const result22 = extend([{ a: 1, b: 2 }, { c: 3 }, { d: 4 }]);
+console.log(result22);
+
+const result3 = extend([{ a: 1, b: 2 }, { a: 3, c: 3 }]);
+console.log(result3);
+
+// Задание 6
+
+function printCenteredStarPyramid(count) {
+    for (let i = 1; i <= count; i++) {
+        row = "*".repeat(2 * i - 1);
+        row = row.padStart(count + i - 1, " ");
+        console.log(row);
+    }
+}
+
+printCenteredStarPyramid(5);
