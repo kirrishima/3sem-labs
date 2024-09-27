@@ -1,12 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace OOP_Lab03
 {
-    internal partial class Array
+    public partial class Array
     {
         protected int[] _array;
         public Array(int size)
@@ -17,7 +12,13 @@ namespace OOP_Lab03
         public Array(Array other)
         {
             _array = new int[other.Length];
-            System.Array.Copy(_array, other._array, Length);
+            System.Array.Copy(other._array, _array, Length);
+        }
+
+        public Array(int[] arr)
+        {
+            _array = new int[arr.Length];
+            System.Array.Copy(arr, _array, Length);
         }
 
         public int[] Data { get { return _array; } }
@@ -55,25 +56,12 @@ namespace OOP_Lab03
 
         public static bool operator <(Array obj, int value)
         {
-            return !obj._array.Contains(value);
+            return !(obj > value);
         }
 
         public static bool operator !=(Array obj, Array other)
         {
-            if (other.Length != obj.Length)
-            {
-                return true;
-            }
-
-            for (int i = 0; i < obj.Length; i++)
-            {
-                if (obj[i] != other[i])
-                {
-                    return true;
-                }
-            }
-
-            return false;
+            return !(obj == other);
         }
 
         public static bool operator ==(Array obj, Array other)
@@ -106,7 +94,7 @@ namespace OOP_Lab03
 
         public override string ToString()
         {
-            return '[' + String.Join(", ", _array) + ']';
+            return $"[{string.Join(", ", _array)}]";
         }
     }
 }

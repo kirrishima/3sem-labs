@@ -1,12 +1,6 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace OOP_Lab03
+﻿namespace OOP_Lab03
 {
-    internal partial class Array
+    public partial class Array
     {
         public class Production
         {
@@ -21,19 +15,19 @@ namespace OOP_Lab03
                 _id = id;
                 _name = name;
             }
+        }
 
-            public class Developer
+        public class Developer
+        {
+            private string _fullName;
+            private int _id;
+            private string _department;
+
+            public Developer(string fullName, int id, string department)
             {
-                private string _fullName;
-                private int _id;
-                private string _department;
-
-                public Developer(string fullName, int id, string department)
-                {
-                    _fullName = fullName;
-                    _id = id;
-                    _department = department;
-                }
+                _fullName = fullName;
+                _id = id;
+                _department = department;
             }
         }
     }
