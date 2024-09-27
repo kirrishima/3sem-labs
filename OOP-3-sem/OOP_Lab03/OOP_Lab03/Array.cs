@@ -1,5 +1,4 @@
-﻿
-namespace OOP_Lab03
+﻿namespace OOP_Lab03
 {
     public partial class Array
     {
@@ -24,6 +23,36 @@ namespace OOP_Lab03
         public int[] Data { get { return _array; } }
 
         public int Length { get { return _array.Length; } }
+
+        public override bool Equals(object? obj)
+        {
+            if (obj == null || this.GetType() != obj.GetType())
+            {
+                return false;
+            }
+
+            Array other = (Array)obj;
+
+            if (this.Length != other.Length)
+            {
+                return false;
+            }
+
+            for (int i = 0; i < this.Length; i++)
+            {
+                if (this[i] != other[i])
+                {
+                    return false;
+                }
+            }
+
+            return true;
+        }
+
+        public override int GetHashCode()
+        {
+            return _array.Aggregate(26, (hash, value) => hash + value.GetHashCode());
+        }
 
         public static Array operator -(Array obj, int value)
         {
@@ -61,25 +90,12 @@ namespace OOP_Lab03
 
         public static bool operator !=(Array obj, Array other)
         {
-            return !(obj == other);
+            return !obj.Equals(other);
         }
 
         public static bool operator ==(Array obj, Array other)
         {
-            if (other.Length != obj.Length)
-            {
-                return false;
-            }
-
-            for (int i = 0; i < obj.Length; i++)
-            {
-                if (obj[i] != other[i])
-                {
-                    return false;
-                }
-            }
-
-            return true;
+            return obj.Equals(other);
         }
 
         public static Array operator +(Array obj1, Array obj2)

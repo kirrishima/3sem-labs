@@ -1,4 +1,6 @@
-﻿namespace OOP_Lab03
+﻿using System.Runtime.CompilerServices;
+
+namespace OOP_Lab03
 {
     public static class StatisticOperation
     {
@@ -19,12 +21,12 @@
             return array.Length;
         }
 
-        public static string DeleteVolwes(string str)
+        public static string DeleteVolwes(this string str)
         {
             return new string(str.Where(c => !vowels.Contains(char.ToLower(c))).ToArray());
         }
 
-        public static string Delete5First(string str)
+        public static string Delete5First(this string str)
         {
             if (str.Length <= 5)
             {

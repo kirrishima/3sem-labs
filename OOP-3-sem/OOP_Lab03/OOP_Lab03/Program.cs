@@ -45,11 +45,14 @@ namespace OOP_Lab03
             Console.WriteLine($"\nКоличество элементов в массиве: {count}");
 
             string testString = "Валерий Абоба";
-            string actualResult = StatisticOperation.DeleteVolwes(testString);
+            string result = testString.DeleteVolwes();
 
             Console.WriteLine($"\nИсходная строка: {testString}");
-            Console.WriteLine($"Результат: {actualResult}");
+            Console.WriteLine($"Результат: {result}");
 
+            result = testString.Delete5First();
+            Console.WriteLine($"\nИсходная строка: {testString}");
+            Console.WriteLine($"Результат: {result}");
 
             var p = new Array.Production(12, "Валера");
 
