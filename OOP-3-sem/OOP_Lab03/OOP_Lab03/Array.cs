@@ -8,6 +8,10 @@
             _array = new int[size];
         }
 
+        public int[] Data { get { return _array; } }
+
+        public int Length { get { return _array.Length; } }
+
         public Array(Array other)
         {
             _array = new int[other.Length];
@@ -19,10 +23,6 @@
             _array = new int[arr.Length];
             System.Array.Copy(arr, _array, Length);
         }
-
-        public int[] Data { get { return _array; } }
-
-        public int Length { get { return _array.Length; } }
 
         public override bool Equals(object? obj)
         {
@@ -47,11 +47,6 @@
             }
 
             return true;
-        }
-
-        public override int GetHashCode()
-        {
-            return _array.Aggregate(26, (hash, value) => hash + value.GetHashCode());
         }
 
         public static Array operator -(Array obj, int value)
