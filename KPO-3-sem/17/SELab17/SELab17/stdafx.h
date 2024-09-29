@@ -16,5 +16,9 @@
 #include "Parm.h"		//обработка параметров
 #include "Log.h"		//работа с протоколом
 #include "In.h"			//ввод исходного файла
+#include "FST.h"
+#include "IT.h"
+#include "LT.h"
+#include "LexerAutomata.h"
 
 #endif // !STDAFX_H
