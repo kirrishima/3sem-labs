@@ -25,7 +25,7 @@ namespace IT
 			struct
 			{
 				int len;						// кол-во символов в string
-				char _str[TI_STR_MAXSIZE - 1];	// символы string
+				char str[TI_STR_MAXSIZE - 1];	// символы string
 			}	vstr[TI_STR_MAXSIZE];			// значение string
 		} value;	// значение идентификатора
 	};
@@ -43,7 +43,7 @@ namespace IT
 
 	void Add(                   // добавить строку в таблицу идентификаторов
 		IdTable& idtable,       // экземпляр таблицы идентификаторов
-		Entry* entry             // строка таблицы идентификаторов
+		Entry entry             // строка таблицы идентификаторов
 	);
 
 	Entry GetEntry(             // получить строку таблицы идентификаторов

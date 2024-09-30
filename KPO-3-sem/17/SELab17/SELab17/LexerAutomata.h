@@ -21,17 +21,19 @@
 #define EQUAL '='
 #define DIRSLASH '/'
 
+constexpr int ID_SIZE = ID_MAXSIZE - 1;
+
 namespace LexAn
 {
 	struct LexicalAnalyzer
 	{
-		bool _isStringLiteral = false;
-		bool _isDeclare = false;
+		bool stringFlag = false; // stringFlag
+		bool _isDeclare = false; // _isDeclare
 
-		LT::LexTable _lexTable = LT::Create(LT_MAXSIZE - 1);
-		IT::IdTable _idTable = IT::Create(TI_MAXSIZE - 1);
+		LT::LexTable __LexTable = LT::Create(LT_MAXSIZE - 1);
+		IT::IdTable __IdTable = IT::Create(TI_MAXSIZE - 1);
 
-		char* _str = new char[MAX_LEX_SIZE];
+		char* str = new char[MAX_LEX_SIZE];
 
 		char _determineLexeme();
 		void _lexAnalize(Parm::PARM  param, In::IN in);

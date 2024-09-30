@@ -18,13 +18,13 @@ namespace IT
 		return *tabl;
 	}
 
-	void Add(IdTable& idtable, Entry* entry)
+	void Add(IdTable& idtable, Entry entry)
 	{
 		if (idtable.size + 1 > idtable.maxsize)
 		{
 			throw ERROR_THROW(117);
 		}
-		idtable.table[idtable.size] = *entry;
+		idtable.table[idtable.size] = entry;
 		idtable.size += 1;
 	}
 

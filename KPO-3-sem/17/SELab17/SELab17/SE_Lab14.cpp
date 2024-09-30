@@ -106,13 +106,13 @@ int _tmain(int argc, _TCHAR* argv[])
 	a[4] = '\0';
 
 	cout << strlen(a);
-	//const char* _str = "string ";
+	//const char* str = "string ";
 
 	//LexAn::LexicalAnalyzer l;
-	//l._str = _str;
+	//l.str = str;
 	//cout << l._determineLexeme();
 
-	//if (FST::execute(*LexAn::CreateIdentifierFST(_str)))
+	//if (FST::execute(*LexAn::CreateIdentifierFST(str)))
 	//{
 	//	cout << "ANOBA";
 	//}
