@@ -41,6 +41,9 @@ namespace FST
 
 	bool execute(         // выполнить распознавание цепочки
 		FST& fst);        // недетерминированный конечный автомат
+
+	bool execute(const char* regex, const char* str);
 }
+
 
 #endif // !FST_H

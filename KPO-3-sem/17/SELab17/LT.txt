@@ -1,0 +1,9 @@
+1	dti;
+2	tfi(ti,ti)
+3	{
+4	dt;
+5	dtf(ti,ti,
+6	ti);
+7	i=(i,l,l)vi;
+8	ri;
+9	}

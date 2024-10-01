@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include <cstring>
 #include "FST.h"
+#include <regex>
 
 namespace FST
 {
@@ -68,5 +69,11 @@ namespace FST
 
 		delete[] rstates;
 		return rc ? fst.rstates[fst.nstates - 1] == lstring : rc;  // проверяем, достигли ли конечного состояния
+	}
+
+	bool execute(const char* regex, const char* str)
+	{
+		std::regex pattern(regex);
+		return std::regex_match(str, pattern);
 	}
 }

@@ -48,6 +48,12 @@
     <ClCompile Include="LexerAutomata.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="SVV.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Utils.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Error.h">
@@ -80,10 +86,10 @@
     <ClInclude Include="LexerAutomata.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="SVV.cpp">
-      <Filter>Resource Files</Filter>
-    </ClInclude>
     <ClInclude Include="SVV.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Utils.h">
       <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>

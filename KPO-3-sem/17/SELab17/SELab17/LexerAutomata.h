@@ -22,7 +22,6 @@ constexpr char MINUS = '-';
 constexpr char STAR = '*';
 constexpr char EQUAL = '=';
 constexpr char DIRSLASH = '/';
-
 constexpr int ID_SIZE = ID_MAXSIZE - 1;
 
 namespace LexAn

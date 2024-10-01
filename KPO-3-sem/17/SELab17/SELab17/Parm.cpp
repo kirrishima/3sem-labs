@@ -2,6 +2,9 @@
 #include "Parm.h"
 #include <tchar.h>
 #include "Error.h"
+#include <filesystem>
+
+namespace fs = std::filesystem;
 
 namespace Parm {
 
@@ -25,7 +28,10 @@ namespace Parm {
 				log = true;
 			}
 		}
+		parm.it = (fs::path(fs::absolute(parm.out)).parent_path() / "IT.txt").wstring();
+		parm.lt = (fs::path(fs::absolute(parm.out)).parent_path() / "LT.txt").wstring();
 
+		std::wcout << parm.it << L"   " << parm.lt << L"\n";
 		if (!in)
 			throw ERROR_THROW(100);
 

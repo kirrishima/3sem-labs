@@ -8,7 +8,7 @@
 #define IN_CODE_TABLE {\
 IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, '|', IN::T, IN::T, IN::T, IN::T, IN::T, \
 IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, \
-IN::Space, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::LeftParen, IN::RightParen, IN::Asterisk, IN::Plus, IN::T, IN::Minus, IN::T, IN::Slash, \
+IN::Space, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::LeftParen, IN::RightParen, IN::Asterisk, IN::Plus, IN::Comma, IN::Minus, IN::T, IN::Slash, \
 IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::Semicolon, IN::T, IN::Equal, IN::T, IN::T, \
 IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, \
 IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, \
@@ -43,6 +43,7 @@ namespace In
 			Slash,     // '/'
 			Equal,     // '='
 			Newline,   // '\n'
+			Comma,     // ','
 			T = 1024,
 			F = 2048,
 			I = 4096

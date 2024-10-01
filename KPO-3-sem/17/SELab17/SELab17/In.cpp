@@ -8,23 +8,21 @@ namespace In
 {
 	IN getin(std::wstring infile)
 	{
-		IN in_result;
-		unsigned char symbol;
-		in_result.size = 0;
-		in_result.lines = 0;
-		bool failSpace = true;
-		std::ifstream file;
+		IN in;
 
-		int tmpLength = 0;
+		in.size = 0;
+		in.lines = 1;
 
-		file.open(infile);
+		std::ifstream file(infile);
 		if (!file.is_open())
 		{
 			throw ERROR_THROW(110);
 		}
-		in_result.text = new unsigned char[IN_MAX_LEN_TEXT];
+
+		in.text = new unsigned char[IN_MAX_LEN_TEXT];
 
 		std::string tmp;
+		int tmpLength = 0;
 
 		while (std::getline(file, tmp))
 		{
@@ -34,25 +32,25 @@ namespace In
 			for (int position = 0; position < tmpLength; position++)
 			{
 				auto ch = static_cast<unsigned char>(tmp[position]);
-				switch (in_result.code[ch])
+				switch (in.code[ch])
 				{
 				case IN::T:
-					in_result.text[in_result.size++] = ch;
+					in.text[in.size++] = ch;
 					break;
 				case IN::F:
-					in_result.text[in_result.size] = '\0';
-					throw ERROR_THROW_IN(111, in_result.lines, position + 1, in_result.text);
+					in.text[in.size] = '\0';
+					throw ERROR_THROW_IN(111, in.lines, position + 1, in.text);
 					break;
 				case IN::I:
-					in_result.ignore++;
+					in.ignore++;
 					break;
 				case IN::Space:
-					if (in_result.size > 0 && in_result.text[in_result.size - 1] == SPACE)
+					if (in.size > 0 && in.text[in.size - 1] == SPACE)
 					{
-						in_result.ignore++;
+						in.ignore++;
 						break;
 					}
-					in_result.text[in_result.size++] = ch;
+					in.text[in.size++] = ch;
 					break;
 
 				case IN::Asterisk:
@@ -65,29 +63,38 @@ namespace In
 				case IN::RightParen:
 				case IN::Semicolon:
 				case IN::Slash:
-					if (in_result.size > 0 && in_result.text[in_result.size - 1] == SPACE)
-					{
-						in_result.ignore++;
-						break;
-					}
+				case IN::Comma:
+				{
 					if (position + 1 < tmpLength && tmp[position + 1] == SPACE)
 					{
-						position++;
+						while (position + 1 < tmpLength && tmp[position + 1] == SPACE) {
+							position++;
+						}
 					}
-					in_result.text[in_result.size++] = ch;
-					break;
+					if (in.size > 0 && in.text[in.size - 1] == SPACE)
+					{
+						in.text[in.size - 1] = ch;
+					}
+					else
+					{
+						in.text[in.size++] = ch;
+					}
 
+					break;
+				}
 				default:
-					in_result.text[in_result.size] = in_result.code[tmp[position]];
-					in_result.size++;
+					in.text[in.size] = in.code[tmp[position]];
+					in.size++;
 				}
 			}
-			in_result.lines++;
-			in_result.text[in_result.size] = '|';
-			in_result.size++;
+			if (in.text[in.size - 1] != ',')
+			{
+				in.lines++;
+				in.text[in.size++] = '|';
+			}
 		}
 
-		in_result.text[in_result.size] = '\0';
-		return in_result;
+		in.text[in.size--] = '\0';
+		return in;
 	}
 }

@@ -1,0 +1,1 @@
+declare integer z;|string function fs(string a,string b)|{|declare string ñ;|declare string function substr(string a,integer p,|integer n);|c=substr(a,1,3)+ b;|return c;|}|
