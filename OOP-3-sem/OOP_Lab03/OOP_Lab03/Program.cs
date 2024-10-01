@@ -50,9 +50,10 @@ namespace OOP_Lab03
             Console.WriteLine($"\nИсходная строка: {testString}");
             Console.WriteLine($"Результат: {result}");
 
-            result = testString.Delete5First();
-            Console.WriteLine($"\nИсходная строка: {testString}");
-            Console.WriteLine($"Результат: {result}");
+            testArray = new Array([1, 2, 3, 4, 5, 6, 7, 8]);
+
+            Console.WriteLine($"\nИсходный массив: {testArray}");
+            Console.WriteLine($"Результат: {testArray.Delete5First()}");
 
             var p = new Array.Production(12, "Валера");
 

@@ -53,7 +53,8 @@ function groupStudents(students) {
 let students = [
     { name: 'Валерий', age: 18, groupId: 1 },
     { name: 'Акакий', age: 16, groupId: 2 },
-    { name: 'Владимир', age: 19, groupId: 1 }]
+    { name: 'Сергей', age: 19, groupId: 1 }
+]
 
 console.log(groupStudents(students));
 
@@ -75,13 +76,7 @@ console.log(result2);
 // Задание 5
 
 function extend(params) {
-    let result = {};
-    for (let i = 0; i < params.length; i++) {
-        for (const key of Object.keys(params[i])) {
-            result[key] = params[i][key];
-        }
-    }
-    return result;
+    return Object.assign({}, ...params);
 }
 
 const result11 = extend([{ a: 1, b: 2 }, { c: 3 }]);

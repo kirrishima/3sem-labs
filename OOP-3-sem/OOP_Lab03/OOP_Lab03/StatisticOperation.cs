@@ -26,14 +26,17 @@ namespace OOP_Lab03
             return new string(str.Where(c => !vowels.Contains(char.ToLower(c))).ToArray());
         }
 
-        public static string Delete5First(this string str)
+        public static Array Delete5First(this Array arr)
         {
-            if (str.Length <= 5)
+            if (arr.Length <= 5)
             {
-                return string.Empty;
+                return new Array(0);
             }
 
-            return str.Substring(5);
+            int[] tmp = new int[arr.Length - 5];
+            System.Array.Copy(arr.Data, arr.Length - 5, tmp, 0, arr.Length - 5);
+
+            return new Array(tmp);
         }
     }
 }
