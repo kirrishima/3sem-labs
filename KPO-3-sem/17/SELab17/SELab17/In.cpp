@@ -1,11 +1,8 @@
 #include"stdafx.h"
-#include"In.h"
 #include"Error.h"
-#include"Out.h"
-#include"Parm.h"
-#include"Log.h"
+#include"In.h"
 #include <cstring>
-#include <cstdlib>
+#include "Utils.h"
 
 namespace In
 {
@@ -18,65 +15,68 @@ namespace In
 		bool failSpace = true;
 		std::ifstream file;
 
+		int tmpLength = 0;
+
 		file.open(infile);
 		if (!file.is_open())
 		{
 			throw ERROR_THROW(110);
 		}
 		in_result.text = new unsigned char[IN_MAX_LEN_TEXT];
-		char* tmp = new char[IN_MAX_LEN_TEXT];
 
-		while (file.getline(tmp, 1000))
+		std::string tmp;
+
+		while (std::getline(file, tmp))
 		{
-			for (int position = 0; position < strlen(tmp); position++)
+			tmp = utils::trim(tmp);
+			tmpLength = tmp.length();
+
+			for (int position = 0; position < tmpLength; position++)
 			{
-				switch (in_result.code[int((unsigned char)tmp[position])])
+				auto ch = static_cast<unsigned char>(tmp[position]);
+				switch (in_result.code[ch])
 				{
 				case IN::T:
-					if (tmp[position] == 32 && position == 0)
-					{
-						while (tmp[position] == ' ')
-						{
-							position++;
-						}
-					}
-					if (tmp[position] == 32 && tmp[position + 1] == 32)
-					{
-						in_result.ignore++;
-						break;
-					}
-					if (tmp[position] == 32 && (tmp[position + 1] == '{' || tmp[position + 1] == '}' || tmp[position + 1] == '(' || tmp[position + 1] == ')' || tmp[position + 1] == ';' ||
-						tmp[position + 1] == '+' || tmp[position + 1] == '-' || tmp[position + 1] == '*' || tmp[position + 1] == '/' || tmp[position + 1] == '='))
-					{
-						in_result.ignore++;
-						break;
-					}
-					if (tmp[position] == 32 && (tmp[position - 1] == '{' || tmp[position - 1] == '}' || tmp[position - 1] == '(' || tmp[position - 1] == ')' || tmp[position - 1] == ';' ||
-						tmp[position - 1] == '+' || tmp[position - 1] == '-' || tmp[position - 1] == '*' || tmp[position - 1] == '/' || tmp[position - 1] == '=' || tmp[position - 1] == ','))
-					{
-						in_result.ignore++;
-						break;
-					}
-					if (position == strlen(tmp) - 1 && tmp[strlen(tmp) - 1] == 32)
-					{
-						in_result.ignore++;
-						break;
-					}
-					in_result.text[in_result.size] = (unsigned)tmp[position];
-					in_result.size++;
+					in_result.text[in_result.size++] = ch;
 					break;
 				case IN::F:
 					in_result.text[in_result.size] = '\0';
-					/*Out::WriteText(out, in_result);
-					Out::WriteError(out, ERROR_THROW_IN(111, in_result.lines, position+1));
-					Log::WriteError(log, ERROR_THROW_IN(111, in_result.lines, position+1));
-					Log::Close(log);
-					Out::Close(out);*/
 					throw ERROR_THROW_IN(111, in_result.lines, position + 1, in_result.text);
 					break;
 				case IN::I:
 					in_result.ignore++;
 					break;
+				case IN::Space:
+					if (in_result.size > 0 && in_result.text[in_result.size - 1] == SPACE)
+					{
+						in_result.ignore++;
+						break;
+					}
+					in_result.text[in_result.size++] = ch;
+					break;
+
+				case IN::Asterisk:
+				case IN::Equal:
+				case IN::LeftBrace:
+				case IN::LeftParen:
+				case IN::Minus:
+				case IN::Plus:
+				case IN::RightBrace:
+				case IN::RightParen:
+				case IN::Semicolon:
+				case IN::Slash:
+					if (in_result.size > 0 && in_result.text[in_result.size - 1] == SPACE)
+					{
+						in_result.ignore++;
+						break;
+					}
+					if (position + 1 < tmpLength && tmp[position + 1] == SPACE)
+					{
+						position++;
+					}
+					in_result.text[in_result.size++] = ch;
+					break;
+
 				default:
 					in_result.text[in_result.size] = in_result.code[tmp[position]];
 					in_result.size++;
@@ -86,6 +86,7 @@ namespace In
 			in_result.text[in_result.size] = '|';
 			in_result.size++;
 		}
+
 		in_result.text[in_result.size] = '\0';
 		return in_result;
 	}
