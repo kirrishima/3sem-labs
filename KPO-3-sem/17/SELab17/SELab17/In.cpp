@@ -1,102 +1,92 @@
-#include "stdafx.h"
-#include "In.h"
-#include "Error.h"
-#include <vector>  
-#include <fstream>
-
-using namespace std;
-
-typedef unsigned char uchar;
+#include"stdafx.h"
+#include"In.h"
+#include"Error.h"
+#include"Out.h"
+#include"Parm.h"
+#include"Log.h"
+#include <cstring>
+#include <cstdlib>
 
 namespace In
 {
 	IN getin(std::wstring infile)
 	{
-		IN in;
-		in.size = 0;
-		in.lines = 0;
-		in.ignore = 0;
-		int col = 0;
-		bool last_was_space = false;
-		bool last_was_quote = false;
+		IN in_result;
+		unsigned char symbol;
+		in_result.size = 0;
+		in_result.lines = 0;
+		bool failSpace = true;
+		std::ifstream file;
 
-		ifstream file(infile);
+		file.open(infile);
 		if (!file.is_open())
-			throw Error::geterror(110);
-
-		uchar* text = new uchar[IN_MAX_LEN_TEXT];
-		size_t textLen = 0;
-
-		auto func = [&]() {
-			in.lines++;
-			col = 0;
-			last_was_space = false;
-
-			bool semicolon = false;
-
-			if (text[in.size - 1] == (uchar)';')
-				semicolon = true;
-
-			while (text[in.size - 1] == (uchar)' ' || text[in.size - 1] == (uchar)';')
-				text[in.size--] = '\0';
-
-			if (semicolon)
-				text[in.size++] = ';';
-			};
-
-		while (in.size < IN_MAX_LEN_TEXT)
 		{
-			uchar ch = static_cast<uchar>(file.get());
+			throw ERROR_THROW(110);
+		}
+		in_result.text = new unsigned char[IN_MAX_LEN_TEXT];
+		char* tmp = new char[IN_MAX_LEN_TEXT];
 
-			if (file.eof())
+		while (file.getline(tmp, 1000))
+		{
+			for (int position = 0; position < strlen(tmp); position++)
 			{
-				func();
-				break;
-			}
-
-			if (ch == IN_CODE_ENDL)
-			{
-				func();
-				text[in.size++] = ch;
-			}
-			else
-			{
-				switch (in.code[ch])
+				switch (in_result.code[int((unsigned char)tmp[position])])
 				{
-				case in.T:
-					if (!(last_was_space && ch == ' '))
+				case IN::T:
+					if (tmp[position] == 32 && position == 0)
 					{
-						text[in.size++] = ch;
-						col++;
+						while (tmp[position] == ' ')
+						{
+							position++;
+						}
 					}
-					last_was_space = (ch == ' ') && !last_was_quote;
-
-					if (ch == '\'')
+					if (tmp[position] == 32 && tmp[position + 1] == 32)
 					{
-						last_was_quote = ~last_was_quote;
+						in_result.ignore++;
+						break;
 					}
+					if (tmp[position] == 32 && (tmp[position + 1] == '{' || tmp[position + 1] == '}' || tmp[position + 1] == '(' || tmp[position + 1] == ')' || tmp[position + 1] == ';' ||
+						tmp[position + 1] == '+' || tmp[position + 1] == '-' || tmp[position + 1] == '*' || tmp[position + 1] == '/' || tmp[position + 1] == '='))
+					{
+						in_result.ignore++;
+						break;
+					}
+					if (tmp[position] == 32 && (tmp[position - 1] == '{' || tmp[position - 1] == '}' || tmp[position - 1] == '(' || tmp[position - 1] == ')' || tmp[position - 1] == ';' ||
+						tmp[position - 1] == '+' || tmp[position - 1] == '-' || tmp[position - 1] == '*' || tmp[position - 1] == '/' || tmp[position - 1] == '=' || tmp[position - 1] == ','))
+					{
+						in_result.ignore++;
+						break;
+					}
+					if (position == strlen(tmp) - 1 && tmp[strlen(tmp) - 1] == 32)
+					{
+						in_result.ignore++;
+						break;
+					}
+					in_result.text[in_result.size] = (unsigned)tmp[position];
+					in_result.size++;
 					break;
-
-				case in.I:
-					in.ignore++;
-					col++;
+				case IN::F:
+					in_result.text[in_result.size] = '\0';
+					/*Out::WriteText(out, in_result);
+					Out::WriteError(out, ERROR_THROW_IN(111, in_result.lines, position+1));
+					Log::WriteError(log, ERROR_THROW_IN(111, in_result.lines, position+1));
+					Log::Close(log);
+					Out::Close(out);*/
+					throw ERROR_THROW_IN(111, in_result.lines, position + 1, in_result.text);
 					break;
-
-				case in.F:
-					throw ERROR_THROW_IN(111, in.lines, col);
-
+				case IN::I:
+					in_result.ignore++;
+					break;
 				default:
-					throw ERROR_THROW_IN(111, in.lines, col);
-					break;
+					in_result.text[in_result.size] = in_result.code[tmp[position]];
+					in_result.size++;
 				}
 			}
+			in_result.lines++;
+			in_result.text[in_result.size] = '|';
+			in_result.size++;
 		}
-
-		text[in.size++] = '\0';
-
-		size_t finalLen = strlen(reinterpret_cast<char*>(text)) + 1;
-		in.text = new uchar[finalLen];
-		memcpy(in.text, text, finalLen);
-		return in;
+		in_result.text[in_result.size] = '\0';
+		return in_result;
 	}
 }

@@ -1,27 +1,44 @@
 #include "stdafx.h"
-#include "LexerAutomata.h"
 #include "FST.h"
+#include "LexerAutomata.h"
 #include <memory>
 #include <stack>
 #include <iomanip>
+#include <unordered_map>
 
+bool stringFlag = false; // stringFlag
+bool _isDeclare = false; // _isDeclare
+
+LT::LexTable __LexTable = LT::Create(LT_MAXSIZE - 1);
+IT::IdTable __IdTable = IT::Create(TI_MAXSIZE - 1);
+
+char* str = new char[MAX_LEX_SIZE];
 using FST::execute;
 
-namespace
-{
-	FST::FST* CreateIntegerFST(const char* str);
-	FST::FST* CreateStringFST(const char* str);
-	FST::FST* CreateFunctionFST(const char* str);
-	FST::FST* CreateDeclareFST(const char* str);
-	FST::FST* CreateReturnFST(const char* str);
-	FST::FST* CreateMainFST(const char* str);
-	FST::FST* CreatePrintFST(const char* str);
-	FST::FST* CreateINTLiteralFST(const char* str);
-	FST::FST* CreateIdentifierFST(const char* str);
-}
+FST::FST* CreateIntegerFST(const char* str);
+FST::FST* CreateStringFST(const char* str);
+FST::FST* CreateFunctionFST(const char* str);
+FST::FST* CreateDeclareFST(const char* str);
+FST::FST* CreateReturnFST(const char* str);
+FST::FST* CreateMainFST(const char* str);
+FST::FST* CreatePrintFST(const char* str);
+FST::FST* CreateINTLiteralFST(const char* str);
+FST::FST* CreateIdentifierFST(const char* str);
+
+const std::unordered_map<unsigned char, unsigned char> lexems = {
+   {NEW_LINE, '\n'},
+   {SEMICOLON, LEX_SEMICOLON},
+   {COMMA, LEX_COMMA},
+   {LEFT_BRACE, LEX_LEFTBRACE},
+   {PLUS, LEX_PLUS},
+   {MINUS, LEX_MINUS},
+   {STAR, LEX_STAR},
+   {DIRSLASH, LEX_DIRSLASH},
+   {EQUAL, LEX_EQUAL}
+};
 
 // \0 in case of missmatch of everything
-char LexAn::LexicalAnalyzer::_determineLexeme()
+char LexAn::_determineLexeme()
 {
 	if (execute(*std::unique_ptr<FST::FST>(CreateIntegerFST(str))))
 	{
@@ -72,10 +89,10 @@ char LexAn::LexicalAnalyzer::_determineLexeme()
 	return '\0';
 }
 
-void LexAn::LexicalAnalyzer::_lexAnalize(Parm::PARM  param, In::IN in)
+void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 {
+
 	int indexIT; // Индекс для таблицы идентификаторов
-	setlocale(LC_ALL, "rus"); // Установка локали для русскоязычных символов
 
 	int bufferIndex = 0; // Индекс для буфера лексем'
 
@@ -277,8 +294,8 @@ void LexAn::LexicalAnalyzer::_lexAnalize(Parm::PARM  param, In::IN in)
 				break;
 			}
 
+			std::memset(str, NULL, bufferIndex);
 			bufferIndex = 0;
-			std::memset(str, NULL, bufferIndex + 1);
 		}
 
 		if (current_entry_LT.lexema[0] != NULL)
@@ -288,81 +305,49 @@ void LexAn::LexicalAnalyzer::_lexAnalize(Parm::PARM  param, In::IN in)
 			current_entry_LT.lexema[0] = NULL;
 		}
 
-		switch (in.text[i])
+		if (lexems.find(in.text[i]) != lexems.end())
 		{
-		case MARK:
-			if (str[0] == '\'' && bufferIndex != 1)
+			current_entry_LT.lexema[0] = lexems.at(in.text[i]);
+			current_entry_LT.sn = currentLine++;
+			LT::Add(__LexTable, current_entry_LT);
+			current_entry_LT.lexema[0] = NULL;
+			break;
+		}
+
+		else
+		{
+			switch (in.text[i])
 			{
-				current_entry_LT.idxTI = __IdTable.size;
-				str[bufferIndex] = '\0';
-				current_entry_LT.lexema[0] = LEX_LITERAL;
-				number_literal++;
-				sprintf_s(current_entry_IT.id, "L%d", number_literal);
-				current_entry_IT.iddatatype = IT::STR;
-				current_entry_IT.idtype = IT::L;
-				current_entry_IT.idxfirstLE = currentLine;
-				for (int i = 0; i < strlen(str); i++)
+			case MARK:
+				if (str[0] == '\'' && bufferIndex != 1)
 				{
-					current_entry_IT.value.vstr->str[i] = str[i];
-				}
-				current_entry_IT.value.vstr->str[strlen(str)] = '\0';
-				current_entry_IT.value.vstr->len = strlen(current_entry_IT.value.vstr->str);
-				current_entry_LT.sn = currentLine;
-				current_entry_IT.scope = scope.top();
-				LT::Add(__LexTable, current_entry_LT);
-				IT::Add(__IdTable, current_entry_IT);
-				current_entry_LT.lexema[0] = NULL;
-				break;
-			}
-			break;
-		case NEW_LINE:
-			current_entry_LT.lexema[0] = '\n';
-			current_entry_LT.sn = currentLine;
-			currentLine++;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
-		case SEMICOLON:
-			current_entry_LT.lexema[0] = LEX_SEMICOLON;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
-		case COMMA:
-			current_entry_LT.lexema[0] = LEX_COMMA;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
-		case LEFT_BRACE:
-			current_entry_LT.lexema[0] = LEX_LEFTBRACE;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			for (int j = __IdTable.size - 1; j >= 0; j--)
-			{
-				if (__IdTable.table[j].idtype == IT::F)
-				{
-					scope.push(&__IdTable.table[j]);
+					current_entry_LT.idxTI = __IdTable.size;
+					str[bufferIndex] = '\0';
+					current_entry_LT.lexema[0] = LEX_LITERAL;
+					number_literal++;
+					sprintf_s(current_entry_IT.id, "L%d", number_literal);
+					current_entry_IT.iddatatype = IT::STR;
+					current_entry_IT.idtype = IT::L;
+					current_entry_IT.idxfirstLE = currentLine;
+					for (int i = 0; i < strlen(str); i++)
+					{
+						current_entry_IT.value.vstr->str[i] = str[i];
+					}
+					current_entry_IT.value.vstr->str[strlen(str)] = '\0';
+					current_entry_IT.value.vstr->len = strlen(current_entry_IT.value.vstr->str);
+					current_entry_LT.sn = currentLine;
+					current_entry_IT.scope = scope.top();
+					LT::Add(__LexTable, current_entry_LT);
+					IT::Add(__IdTable, current_entry_IT);
+					current_entry_LT.lexema[0] = NULL;
 					break;
 				}
-			}
-			break;
-		case RIGHT_BRACE:
-			current_entry_LT.lexema[0] = LEX_BRACELET;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			if (!scope.empty())
-				scope.pop();
-			break;
-		case LEFTTHESIS:
-			current_entry_LT.lexema[0] = LEX_LEFTTHESIS;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			if (declareFunctionflag)
-			{
+				break;
+			case LEFT_BRACE:
+				current_entry_LT.lexema[0] = LEX_LEFTBRACE;
+				current_entry_LT.sn = currentLine;
+				LT::Add(__LexTable, current_entry_LT);
+				current_entry_LT.lexema[0] = NULL;
 				for (int j = __IdTable.size - 1; j >= 0; j--)
 				{
 					if (__IdTable.table[j].idtype == IT::F)
@@ -371,48 +356,45 @@ void LexAn::LexicalAnalyzer::_lexAnalize(Parm::PARM  param, In::IN in)
 						break;
 					}
 				}
+				break;
+			case RIGHT_BRACE:
+				current_entry_LT.lexema[0] = LEX_RIGHTBRACE;
+				current_entry_LT.sn = currentLine;
+				LT::Add(__LexTable, current_entry_LT);
+				current_entry_LT.lexema[0] = NULL;
+				if (!scope.empty())
+					scope.pop();
+				break;
+
+			case LEFTTHESIS:
+				current_entry_LT.lexema[0] = LEX_LEFTTHESIS;
+				current_entry_LT.sn = currentLine;
+				LT::Add(__LexTable, current_entry_LT);
+				current_entry_LT.lexema[0] = NULL;
+				if (declareFunctionflag)
+				{
+					for (int j = __IdTable.size - 1; j >= 0; j--)
+					{
+						if (__IdTable.table[j].idtype == IT::F)
+						{
+							scope.push(&__IdTable.table[j]);
+							break;
+						}
+					}
+				}
+				break;
+			case RIGHTTHESIS:
+				current_entry_LT.lexema[0] = LEX_RIGHTTHESIS;
+				current_entry_LT.sn = currentLine;
+				LT::Add(__LexTable, current_entry_LT);
+				current_entry_LT.lexema[0] = NULL;
+				if (!scope.empty() && declareFunctionflag)
+				{
+					scope.pop();
+					declareFunctionflag = false;
+				}
+				break;
 			}
-			break;
-		case RIGHTTHESIS:
-			current_entry_LT.lexema[0] = LEX_RIGHTTHESIS;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			if (!scope.empty() && declareFunctionflag)
-			{
-				scope.pop();
-				declareFunctionflag = false;
-			}
-			break;
-		case PLUS:
-			current_entry_LT.lexema[0] = LEX_PLUS;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
-		case MINUS:
-			current_entry_LT.lexema[0] = LEX_MINUS;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
-		case STAR:
-			current_entry_LT.lexema[0] = LEX_STAR;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
-		case DIRSLASH:
-			current_entry_LT.lexema[0] = LEX_DIRSLASH;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
-		case EQUAL:
-			current_entry_LT.lexema[0] = LEX_EQUAL;
-			current_entry_LT.sn = currentLine;
-			LT::Add(__LexTable, current_entry_LT);
-			current_entry_LT.lexema[0] = NULL;
-			break;
 		}
 	}
 	currentLine = 1;
@@ -481,128 +463,122 @@ void LexAn::LexicalAnalyzer::_lexAnalize(Parm::PARM  param, In::IN in)
 	IT_file.close();
 }
 
-
-
-
-
-namespace
+FST::FST* CreateIntegerFST(const char* str)
 {
-	FST::FST* CreateIntegerFST(const char* str)
-	{
-		return new FST::FST(str,
-			8,
-			FST::NODE(1, FST::RELATION('i', 1)),
-			FST::NODE(1, FST::RELATION('n', 2)),
-			FST::NODE(1, FST::RELATION('t', 3)),
-			FST::NODE(1, FST::RELATION('e', 4)),
-			FST::NODE(1, FST::RELATION('g', 5)),
-			FST::NODE(1, FST::RELATION('e', 6)),
-			FST::NODE(1, FST::RELATION('r', 7)),
-			FST::NODE()
-		);
-	}
+	return new FST::FST(str,
+		8,
+		FST::NODE(1, FST::RELATION('i', 1)),
+		FST::NODE(1, FST::RELATION('n', 2)),
+		FST::NODE(1, FST::RELATION('t', 3)),
+		FST::NODE(1, FST::RELATION('e', 4)),
+		FST::NODE(1, FST::RELATION('g', 5)),
+		FST::NODE(1, FST::RELATION('e', 6)),
+		FST::NODE(1, FST::RELATION('r', 7)),
+		FST::NODE()
+	);
+}
 
-	FST::FST* CreateStringFST(const char* str)
-	{
-		return new FST::FST(str,
-			7,
-			FST::NODE(1, FST::RELATION('s', 1)),
-			FST::NODE(1, FST::RELATION('t', 2)),
-			FST::NODE(1, FST::RELATION('r', 3)),
-			FST::NODE(1, FST::RELATION('i', 4)),
-			FST::NODE(1, FST::RELATION('n', 5)),
-			FST::NODE(1, FST::RELATION('g', 6)),
-			FST::NODE()
-		);
-	}
+FST::FST* CreateStringFST(const char* str)
+{
+	return new FST::FST(str,
+		7,
+		FST::NODE(1, FST::RELATION('s', 1)),
+		FST::NODE(1, FST::RELATION('t', 2)),
+		FST::NODE(1, FST::RELATION('r', 3)),
+		FST::NODE(1, FST::RELATION('i', 4)),
+		FST::NODE(1, FST::RELATION('n', 5)),
+		FST::NODE(1, FST::RELATION('g', 6)),
+		FST::NODE()
+	);
+}
 
-	FST::FST* CreateFunctionFST(const char* str)
-	{
-		return new FST::FST(str,
-			9,
-			FST::NODE(1, FST::RELATION('f', 1)),
-			FST::NODE(1, FST::RELATION('u', 2)),
-			FST::NODE(1, FST::RELATION('n', 3)),
-			FST::NODE(1, FST::RELATION('c', 4)),
-			FST::NODE(1, FST::RELATION('t', 5)),
-			FST::NODE(1, FST::RELATION('i', 6)),
-			FST::NODE(1, FST::RELATION('o', 7)),
-			FST::NODE(1, FST::RELATION('n', 8)),
-			FST::NODE()
-		);
-	}
+FST::FST* CreateFunctionFST(const char* str)
+{
+	return new FST::FST(str,
+		9,
+		FST::NODE(1, FST::RELATION('f', 1)),
+		FST::NODE(1, FST::RELATION('u', 2)),
+		FST::NODE(1, FST::RELATION('n', 3)),
+		FST::NODE(1, FST::RELATION('c', 4)),
+		FST::NODE(1, FST::RELATION('t', 5)),
+		FST::NODE(1, FST::RELATION('i', 6)),
+		FST::NODE(1, FST::RELATION('o', 7)),
+		FST::NODE(1, FST::RELATION('n', 8)),
+		FST::NODE()
+	);
+}
 
-	FST::FST* CreateDeclareFST(const char* str)
-	{
-		return new FST::FST(str,
-			8,
-			FST::NODE(1, FST::RELATION('d', 1)),
-			FST::NODE(1, FST::RELATION('e', 2)),
-			FST::NODE(1, FST::RELATION('c', 3)),
-			FST::NODE(1, FST::RELATION('l', 4)),
-			FST::NODE(1, FST::RELATION('a', 5)),
-			FST::NODE(1, FST::RELATION('r', 6)),
-			FST::NODE(1, FST::RELATION('e', 7)),
-			FST::NODE()
-		);
-	}
+FST::FST* CreateDeclareFST(const char* str)
+{
+	return new FST::FST(str,
+		8,
+		FST::NODE(1, FST::RELATION('d', 1)),
+		FST::NODE(1, FST::RELATION('e', 2)),
+		FST::NODE(1, FST::RELATION('c', 3)),
+		FST::NODE(1, FST::RELATION('l', 4)),
+		FST::NODE(1, FST::RELATION('a', 5)),
+		FST::NODE(1, FST::RELATION('r', 6)),
+		FST::NODE(1, FST::RELATION('e', 7)),
+		FST::NODE()
+	);
+}
 
-	FST::FST* CreateReturnFST(const char* str)
-	{
-		return new FST::FST(str,
-			7,
-			FST::NODE(1, FST::RELATION('r', 1)),
-			FST::NODE(1, FST::RELATION('e', 2)),
-			FST::NODE(1, FST::RELATION('t', 3)),
-			FST::NODE(1, FST::RELATION('u', 4)),
-			FST::NODE(1, FST::RELATION('r', 5)),
-			FST::NODE(1, FST::RELATION('n', 6)),
-			FST::NODE()
-		);
-	}
+FST::FST* CreateReturnFST(const char* str)
+{
+	return new FST::FST(str,
+		7,
+		FST::NODE(1, FST::RELATION('r', 1)),
+		FST::NODE(1, FST::RELATION('e', 2)),
+		FST::NODE(1, FST::RELATION('t', 3)),
+		FST::NODE(1, FST::RELATION('u', 4)),
+		FST::NODE(1, FST::RELATION('r', 5)),
+		FST::NODE(1, FST::RELATION('n', 6)),
+		FST::NODE()
+	);
+}
 
-	FST::FST* CreateMainFST(const char* str)
-	{
-		return new FST::FST(str,
-			5,
-			FST::NODE(1, FST::RELATION('m', 1)),
-			FST::NODE(1, FST::RELATION('a', 2)),
-			FST::NODE(1, FST::RELATION('i', 3)),
-			FST::NODE(1, FST::RELATION('n', 4)),
-			FST::NODE()
-		);
-	}
+FST::FST* CreateMainFST(const char* str)
+{
+	return new FST::FST(str,
+		5,
+		FST::NODE(1, FST::RELATION('m', 1)),
+		FST::NODE(1, FST::RELATION('a', 2)),
+		FST::NODE(1, FST::RELATION('i', 3)),
+		FST::NODE(1, FST::RELATION('n', 4)),
+		FST::NODE()
+	);
+}
 
-	FST::FST* CreatePrintFST(const char* str)
-	{
-		return new FST::FST(str,
-			6,
-			FST::NODE(1, FST::RELATION('p', 1)),
-			FST::NODE(1, FST::RELATION('r', 2)),
-			FST::NODE(1, FST::RELATION('i', 3)),
-			FST::NODE(1, FST::RELATION('n', 4)),
-			FST::NODE(1, FST::RELATION('t', 5)),
-			FST::NODE()
-		);
-	}
+FST::FST* CreatePrintFST(const char* str)
+{
+	return new FST::FST(str,
+		6,
+		FST::NODE(1, FST::RELATION('p', 1)),
+		FST::NODE(1, FST::RELATION('r', 2)),
+		FST::NODE(1, FST::RELATION('i', 3)),
+		FST::NODE(1, FST::RELATION('n', 4)),
+		FST::NODE(1, FST::RELATION('t', 5)),
+		FST::NODE()
+	);
+}
 
-	FST::FST* CreateINTLiteralFST(const char* str)
-	{
-		return new FST::FST(str,
-			2,
-			FST::NODE(20,
-				FST::RELATION('0', 0), FST::RELATION('1', 0), FST::RELATION('2', 0),
-				FST::RELATION('3', 0), FST::RELATION('4', 0), FST::RELATION('5', 0),
-				FST::RELATION('6', 0), FST::RELATION('7', 0), FST::RELATION('8', 0),
-				FST::RELATION('9', 0), FST::RELATION('0', 1), FST::RELATION('1', 1),
-				FST::RELATION('2', 1), FST::RELATION('3', 1), FST::RELATION('4', 1),
-				FST::RELATION('5', 1), FST::RELATION('6', 1), FST::RELATION('7', 1),
-				FST::RELATION('8', 1), FST::RELATION('9', 1)),
-			FST::NODE()
-		);
-	}
+FST::FST* CreateINTLiteralFST(const char* str)
+{
+	return new FST::FST(str,
+		2,
+		FST::NODE(20,
+			FST::RELATION('0', 0), FST::RELATION('1', 0), FST::RELATION('2', 0),
+			FST::RELATION('3', 0), FST::RELATION('4', 0), FST::RELATION('5', 0),
+			FST::RELATION('6', 0), FST::RELATION('7', 0), FST::RELATION('8', 0),
+			FST::RELATION('9', 0), FST::RELATION('0', 1), FST::RELATION('1', 1),
+			FST::RELATION('2', 1), FST::RELATION('3', 1), FST::RELATION('4', 1),
+			FST::RELATION('5', 1), FST::RELATION('6', 1), FST::RELATION('7', 1),
+			FST::RELATION('8', 1), FST::RELATION('9', 1)),
+		FST::NODE()
+	);
+}
 
-	constexpr int NUM_LETTERS = 26;
+constexpr int NUM_LETTERS = 26;
 
 #define relationsForState(state) FST::RELATION('a', state), FST::RELATION('b', state), FST::RELATION('c', state),\
 	FST::RELATION('d', state), FST::RELATION('e', state), FST::RELATION('f', state),\
@@ -614,18 +590,16 @@ namespace
 	FST::RELATION('v', state), FST::RELATION('w', state), FST::RELATION('x', state),\
 	FST::RELATION('y', state), FST::RELATION('z', state)
 
-	FST::FST* CreateIdentifierFST(const char* str)
-	{
-		return new FST::FST(str,
-			6,
-			FST::NODE(NUM_LETTERS, relationsForState(1)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(2), FST::RELATION('\0', 2)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(3), FST::RELATION('\0', 3)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(4), FST::RELATION('\0', 4)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(5), FST::RELATION('\0', 5)),
-			FST::NODE()
-		);
-	}
-#undef relationsForState
-
+FST::FST* CreateIdentifierFST(const char* str)
+{
+	return new FST::FST(str,
+		6,
+		FST::NODE(NUM_LETTERS, relationsForState(1)),
+		FST::NODE(NUM_LETTERS + 1, relationsForState(2), FST::RELATION('\0', 2)),
+		FST::NODE(NUM_LETTERS + 1, relationsForState(3), FST::RELATION('\0', 3)),
+		FST::NODE(NUM_LETTERS + 1, relationsForState(4), FST::RELATION('\0', 4)),
+		FST::NODE(NUM_LETTERS + 1, relationsForState(5), FST::RELATION('\0', 5)),
+		FST::NODE()
+	);
 }
+#undef relationsForState

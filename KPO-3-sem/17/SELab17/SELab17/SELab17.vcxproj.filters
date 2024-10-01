@@ -80,8 +80,11 @@
     <ClInclude Include="LexerAutomata.h">
       <Filter>Source Files</Filter>
     </ClInclude>
-    <ClInclude Include="SVV_FST.cpp">
+    <ClInclude Include="SVV.cpp">
       <Filter>Resource Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SVV.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>

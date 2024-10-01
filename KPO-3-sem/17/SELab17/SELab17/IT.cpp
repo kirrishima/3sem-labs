@@ -33,7 +33,7 @@ namespace IT
 		return idtable.table[n];
 	}
 
-	int search(IdTable& idtable, IT::Entry entry)
+	int search(IdTable& idtable, IT::Entry& entry)
 	{
 		for (int i = 0; i <= idtable.size; i++)
 		{

@@ -56,7 +56,7 @@ namespace IT
 		char id[ID_MAXSIZE]     // идентификатор
 	);
 
-	int search(IdTable& idtable, Entry entry); // ¬озвращает индекс entry в idtable, или -1 если не найдено
+	int search(IdTable& idtable, Entry& entry); // ¬озвращает индекс entry в idtable, или -1 если не найдено
 
 	void Delete(IdTable& idtable);  // удалить таблицу лексем (освободить пам€ть)
 }
