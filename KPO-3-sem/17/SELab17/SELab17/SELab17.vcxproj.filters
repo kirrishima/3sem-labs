@@ -36,6 +36,18 @@
     <ClCompile Include="stdafx.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
+    <ClCompile Include="FST.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LT.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="IT.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
+    <ClCompile Include="LexerAutomata.cpp">
+      <Filter>Resource Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Error.h">
@@ -55,6 +67,21 @@
     </ClInclude>
     <ClInclude Include="stdafx.h">
       <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="FST.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LT.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="IT.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="LexerAutomata.h">
+      <Filter>Source Files</Filter>
+    </ClInclude>
+    <ClInclude Include="SVV_FST.cpp">
+      <Filter>Resource Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
