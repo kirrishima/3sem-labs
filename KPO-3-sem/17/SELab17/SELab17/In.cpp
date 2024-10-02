@@ -1,6 +1,6 @@
-#include"stdafx.h"
-#include"Error.h"
-#include"In.h"
+#include "stdafx.h"
+#include "Error.h"
+#include "In.h"
 #include <cstring>
 #include "Utils.h"
 
@@ -12,6 +12,7 @@ namespace In
 
 		in.size = 0;
 		in.lines = 1;
+		in.ignore = 0;
 
 		std::ifstream file(infile);
 		if (!file.is_open())
@@ -22,16 +23,19 @@ namespace In
 		in.text = new unsigned char[IN_MAX_LEN_TEXT];
 
 		std::string tmp;
-		int tmpLength = 0;
+		int trimmedLength = 0;
 
 		while (std::getline(file, tmp))
 		{
-			tmp = utils::trim(tmp);
-			tmpLength = tmp.length();
+			auto trimmedString = utils::trim(tmp);
 
-			for (int position = 0; position < tmpLength; position++)
+			trimmedLength = trimmedString.length();
+
+			in.ignore += tmp.length() - trimmedString.length();
+
+			for (int position = 0; position < trimmedLength; position++)
 			{
-				auto ch = static_cast<unsigned char>(tmp[position]);
+				auto ch = static_cast<unsigned char>(trimmedString[position]);
 				switch (in.code[ch])
 				{
 				case IN::T:
@@ -65,15 +69,17 @@ namespace In
 				case IN::Slash:
 				case IN::Comma:
 				{
-					if (position + 1 < tmpLength && tmp[position + 1] == SPACE)
+					if (position + 1 < trimmedLength && trimmedString[position + 1] == SPACE)
 					{
-						while (position + 1 < tmpLength && tmp[position + 1] == SPACE) {
+						while (position + 1 < trimmedLength && trimmedString[position + 1] == SPACE) {
 							position++;
+							in.ignore++;
 						}
 					}
 					if (in.size > 0 && in.text[in.size - 1] == SPACE)
 					{
 						in.text[in.size - 1] = ch;
+						in.ignore++;
 					}
 					else
 					{
@@ -83,7 +89,7 @@ namespace In
 					break;
 				}
 				default:
-					in.text[in.size] = in.code[tmp[position]];
+					in.text[in.size] = in.code[trimmedString[position]];
 					in.size++;
 				}
 			}
@@ -94,7 +100,7 @@ namespace In
 			}
 		}
 
-		in.text[in.size--] = '\0';
+		in.text[--in.size] = '\0';
 		return in;
 	}
 }

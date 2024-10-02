@@ -11,7 +11,7 @@ namespace Out
 		if (a.stream->fail()) {
 			throw ERROR_THROW(113);
 		}
-		a.outfile = outfile; // сохраняем имя файла в динамическую строку
+		a.outfile = outfile;
 		return a;
 	}
 

@@ -56,41 +56,41 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="Error.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\Error.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="In.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\FST.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Log.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\In.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Out.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\IT.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Parm.h">
-      <Filter>Source Files</Filter>
+    <ClInclude Include="include\LexerAutomata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Log.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Out.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Parm.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SVV.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\Utils.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="FST.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LT.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IT.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="LexerAutomata.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="SVV.h">
-      <Filter>Source Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Utils.h">
-      <Filter>Source Files</Filter>
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
 </Project>
