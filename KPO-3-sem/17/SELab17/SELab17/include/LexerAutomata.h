@@ -1,12 +1,8 @@
 #pragma once
 
-#include "SVV.h"
-#include "LT.h"
-#include "IT.h"
-#include "FST.h"
-#include "Parm.h"
 #include "In.h"
-#include <unordered_map>
+#include "IT.h"
+#include "Parm.h"
 
 constexpr int MAX_LEX_SIZE = 4096;
 constexpr char MARK = '\'';
