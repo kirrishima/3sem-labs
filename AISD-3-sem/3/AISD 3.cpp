@@ -87,7 +87,7 @@ int main() {
 	char node;
 	int startVertex;
 
-	cout << "Введите символ вершины (A-I): ";
+	cout << "Введите вершину A-I): ";
 	cin >> node;
 	startVertex = charToIndex(node);
 	if (startVertex == -1)
