@@ -16,7 +16,7 @@ int graph[SIZE][SIZE] = {
 	/*I*/{0,  0,  0,  21, 0,  0,  15, 15,  0},
 };
 
-int minDistance(const int* dist, const bool* visited)
+int FindMinDistIndex(const int* dist, const bool* visited)
 {
 	int minDist = INT32_MAX;
 	int minIndex = -1;
@@ -34,20 +34,20 @@ int minDistance(const int* dist, const bool* visited)
 
 void DijkstraAlgorithm(int startNode)
 {
-	int distance[SIZE];
+	int distances[SIZE];
 	bool visited[SIZE];
 
 	for (int i = 0; i < SIZE; ++i)
 	{
-		distance[i] = INT32_MAX;
+		distances[i] = INT32_MAX;
 		visited[i] = false;
 	}
 
-	distance[startNode] = 0;
+	distances[startNode] = 0;
 
-	for (int count = 0; count < SIZE - 1; count++)
+	for (int count = 0; count < SIZE; count++)
 	{
-		int minIndex = minDistance(distance, visited);
+		int minIndex = FindMinDistIndex(distances, visited);
 		visited[minIndex] = true;
 
 		if (minIndex == -1)
@@ -57,9 +57,9 @@ void DijkstraAlgorithm(int startNode)
 
 		for (int node = 0; node < SIZE; node++)
 		{
-			if (!visited[node] && graph[node][minIndex] && distance[minIndex] + graph[node][minIndex] < distance[node])
+			if (!visited[node] && graph[node][minIndex] && distances[minIndex] + graph[node][minIndex] < distances[node])
 			{
-				distance[node] = distance[minIndex] + graph[minIndex][node];
+				distances[node] = distances[minIndex] + graph[minIndex][node];
 			}
 		}
 	}
@@ -67,7 +67,7 @@ void DijkstraAlgorithm(int startNode)
 	cout << "\nМинимальные расстояния:\n";
 	for (int i = 0; i < SIZE; i++)
 	{
-		cout << (char)(startNode + 'A') << " -> " << (char)(i + 'A') << " = " << distance[i] << endl;
+		cout << (char)(startNode + 'A') << " -> " << (char)(i + 'A') << " = " << distances[i] << endl;
 	}
 }
 
