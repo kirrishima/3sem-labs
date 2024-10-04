@@ -11,7 +11,7 @@
             else if (obj as ElemOfManage is not null)
             {
                 var tmp = obj as ElemOfManage;
-                Console.WriteLine($"Type object({tmp.GetType()}): " + tmp);
+                Console.WriteLine($"Type object({tmp?.GetType()}): " + tmp);
             }
         }
     }

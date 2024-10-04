@@ -43,11 +43,8 @@
 
         void IManagement.Show()
         {
-
             Console.WriteLine("Координаты Rectangle: {0}, {1}", pointX, pointY);
-
             Console.WriteLine("Ширина и высота Rectangle: {0}, {1}", width, height);
-
         }
 
         public override void Show()
@@ -59,12 +56,14 @@
                 Console.WriteLine("Ширина кнопки: {0}", width);
                 Console.WriteLine("Высота кнопки: {0}", height);
             }
+
             if (checktbox != null)
             {
                 checktbox.Show();
                 Console.WriteLine("Ширина кнопки: {0}", width);
                 Console.WriteLine("Высота кнопки: {0}", height);
             }
+
             if (button == null && checktbox == null)
             {
                 Console.WriteLine("\nНе является прямоугольной кнопкой ");
@@ -76,7 +75,7 @@
 
         public void Input()
         {
-            Console.WriteLine("\n\nЭто класс прямоугольник");
+            Console.WriteLine("Это класс прямоугольник");
         }
 
         public void Resize(double x, double y)

@@ -7,6 +7,7 @@ namespace OOP_Lab04
         public bool Tap { get; set; }
 
         public double PointX { get; set; } = 0;
+
         public double PointY { get; set; } = 0;
 
         public abstract void Resize(double x, double y);

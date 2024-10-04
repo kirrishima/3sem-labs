@@ -6,6 +6,7 @@
         {
             Console.WriteLine("Это Radiobutton");
         }
+
         public void Input()
         {
             if (Tap)
@@ -16,7 +17,6 @@
             {
                 Console.WriteLine("Radiobutton не отмечен ");
             }
-
         }
 
         public override void Resize(double x, double y)

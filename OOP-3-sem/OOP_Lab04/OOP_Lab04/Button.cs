@@ -17,7 +17,6 @@
             {
                 Console.WriteLine("кнопка не нажата");
             }
-
         }
 
         public override void Resize(double x, double y)

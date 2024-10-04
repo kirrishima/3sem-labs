@@ -4,11 +4,9 @@
     {
         public static void Main()
         {
-
             Button NiceButton = new Button();
 
             Checktbox NiceChecBox = new Checktbox();
-
             Radiobutton NiceRadioButton = new Radiobutton();
 
             Circle circleButtton = new Circle(4, 5, 4.4, NiceButton);
@@ -18,29 +16,39 @@
             circleButtton.Input();
             circleButtton.Show();
 
+            Console.WriteLine();
+
             circleCheckBox.checktbox.Tap = true;
             circleCheckBox.checktbox.Input();
             circleCheckBox.Show();
+
+            Console.WriteLine();
 
             ((Figure)circleRadioButton).Show();
             circleRadioButton.radiobutton.Input();
             circleRadioButton.radiobutton.Tap = true;
             circleRadioButton.radiobutton.Input();
 
-            Console.WriteLine("Метод из интерфейса: ");
+            Console.WriteLine("\nМетод из интерфейса: ");
             ((IManagement)circleRadioButton).Show();
-            IManagement psdf = circleButtton;
 
+            Console.WriteLine("\nРабота с прямоугольником");
+            Console.WriteLine();
 
-
-            Console.WriteLine("\n\nРабота с прямоугольником");
             Rectangle rectangle1 = new Rectangle(4.1, 4.1, 2, 7, NiceButton);
             Rectangle rectangle2 = new Rectangle(4.2, 4.2, 3, 8, NiceChecBox);
             Rectangle rectangle3 = new Rectangle(4.3, 4.3, 4, 9, NiceRadioButton);
 
+            Console.WriteLine();
             rectangle2.Input();
+
+            Console.WriteLine();
             rectangle1.Show();
+
+            Console.WriteLine();
             rectangle2.Show();
+
+            Console.WriteLine();
             rectangle3.Show();
 
             Console.WriteLine();
