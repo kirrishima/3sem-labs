@@ -1,4 +1,6 @@
-﻿namespace OOP_Lab04
+﻿using System.Drawing;
+
+namespace OOP_Lab04
 {
     public class Circle : Figure, IManagement
     {
@@ -87,6 +89,10 @@
             Console.WriteLine("Это класс круг\n");
         }
 
-
+        public void Resize(double x, double y)
+        {
+            pointX = x;
+            pointY = y;
+        }
     }
 }
