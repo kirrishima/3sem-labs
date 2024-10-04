@@ -121,29 +121,29 @@ namespace SVV
 
 	constexpr int NUM_LETTERS = 26;
 
-	//#define relationsForState(state) FST::RELATION('a', state), FST::RELATION('b', state), FST::RELATION('c', state),\
-	//	FST::RELATION('d', state), FST::RELATION('e', state), FST::RELATION('f', state),\
-	//	FST::RELATION('g', state), FST::RELATION('h', state), FST::RELATION('i', state),\
-	//	FST::RELATION('j', state), FST::RELATION('k', state), FST::RELATION('l', state),\
-	//	FST::RELATION('m', state), FST::RELATION('n', state), FST::RELATION('o', state),\
-	//	FST::RELATION('p', state), FST::RELATION('q', state), FST::RELATION('r', state),\
-	//	FST::RELATION('s', state), FST::RELATION('t', state), FST::RELATION('u', state),\
-	//	FST::RELATION('v', state), FST::RELATION('w', state), FST::RELATION('x', state),\
-	//	FST::RELATION('y', state), FST::RELATION('z', state)
-	//
-	//	FST::FST* CreateIdentifierFST(const char* str)
-	//	{
-	//		return new FST::FST(str,
-	//			6,
-	//			FST::NODE(NUM_LETTERS, relationsForState(1)),
-	//			FST::NODE(NUM_LETTERS + 1, relationsForState(2), FST::RELATION('\0', 2)),
-	//			FST::NODE(NUM_LETTERS + 1, relationsForState(3), FST::RELATION('\0', 3)),
-	//			FST::NODE(NUM_LETTERS + 1, relationsForState(4), FST::RELATION('\0', 4)),
-	//			FST::NODE(NUM_LETTERS + 1, relationsForState(5), FST::RELATION('\0', 5)),
-	//			FST::NODE()
-	//		);
-	//	}
-	//#undef relationsForState
+#define relationsForState(state) FST::RELATION('a', state), FST::RELATION('b', state), FST::RELATION('c', state),\
+		FST::RELATION('d', state), FST::RELATION('e', state), FST::RELATION('f', state),\
+		FST::RELATION('g', state), FST::RELATION('h', state), FST::RELATION('i', state),\
+		FST::RELATION('j', state), FST::RELATION('k', state), FST::RELATION('l', state),\
+		FST::RELATION('m', state), FST::RELATION('n', state), FST::RELATION('o', state),\
+		FST::RELATION('p', state), FST::RELATION('q', state), FST::RELATION('r', state),\
+		FST::RELATION('s', state), FST::RELATION('t', state), FST::RELATION('u', state),\
+		FST::RELATION('v', state), FST::RELATION('w', state), FST::RELATION('x', state),\
+		FST::RELATION('y', state), FST::RELATION('z', state)
+
+	FST::FST* CreateIdentifierFST(const char* str)
+	{
+		return new FST::FST(str,
+			6,
+			FST::NODE(NUM_LETTERS, relationsForState(1)),
+			FST::NODE(NUM_LETTERS + 1, relationsForState(2), FST::RELATION('\0', 2)),
+			FST::NODE(NUM_LETTERS + 1, relationsForState(3), FST::RELATION('\0', 3)),
+			FST::NODE(NUM_LETTERS + 1, relationsForState(4), FST::RELATION('\0', 4)),
+			FST::NODE(NUM_LETTERS + 1, relationsForState(5), FST::RELATION('\0', 5)),
+			FST::NODE()
+		);
+	}
+#undef relationsForState
 
 	const char* CreateIdentifierFST()
 	{

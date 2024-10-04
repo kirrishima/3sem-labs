@@ -19,7 +19,7 @@
 
         }
 
-        public void Resize(double x, double y)
+        public override void Resize(double x, double y)
         {
             PointX = x;
             PointY = y;

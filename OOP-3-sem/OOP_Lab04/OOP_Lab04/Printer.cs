@@ -2,16 +2,16 @@
 {
     public sealed class Printer
     {
-        public static void IAmPrinting(IManagement element)
+        public static void IAmPrinting(IManagement obj)
         {
-            if (element is Figure)
+            if (obj is Figure)
             {
-                Console.WriteLine($"Type object({typeof(Figure)}): " + element);
+                Console.WriteLine($"Type object({typeof(Figure)}): " + obj);
             }
-            else if (element as ElemOfManage is not null)
+            else if (obj as ElemOfManage is not null)
             {
-                var temp = element as ElemOfManage;
-                Console.WriteLine($"Type object({temp.GetType()}): " + temp);
+                var tmp = obj as ElemOfManage;
+                Console.WriteLine($"Type object({tmp.GetType()}): " + tmp);
             }
         }
     }

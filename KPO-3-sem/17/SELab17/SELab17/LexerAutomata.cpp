@@ -17,6 +17,9 @@ char* str = new char[MAX_LEX_SIZE];
 using FST::execute;
 using namespace SVV;
 
+void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry& LT_entry, const std::wstring LT_filename);
+
+
 const std::unordered_map<unsigned char, unsigned char> lexems = {
    {SEMICOLON, LEX_SEMICOLON},
    {COMMA, LEX_COMMA},
@@ -100,9 +103,6 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 	IT::Entry IT_entry; // Текущий элемент таблицы идентификаторов
 	LexTable.size = 0; // Обнуление размера таблицы лексем
 	int currentLine = 1; // Текущая строка
-
-	std::ofstream LT_file(param.lt); // Файл для записи таблицы лексем
-	std::ofstream IT_file(param.it); // Файл для записи таблицы идентификаторов
 
 	for (int i = 0; i < in.size; i++)
 	{
@@ -399,63 +399,111 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 			}
 		}
 	}
-	currentLine = 1;
-	LT_file << currentLine;
-	LT_file << '\t';
+
+	printToFile(IT_entry, param.it, LT_entry, param.lt);
+
+}
+
+void printLine(std::ofstream& file) {
+	file << "+-----+----------+----------+----------+----------+----------+" << std::endl;
+}
+
+void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry& LT_entry, const std::wstring LT_filename)
+{
+	int SETW_VALUE = 8;
+
+	std::ofstream LT_file(LT_filename); // Файл для записи таблицы лексем
+	std::ofstream IT_file(IT_filename); // Файл для записи таблицы идентификаторов
+
+	if (!LT_file.is_open())
+	{
+		std::wcout << L"Не удалось открыть файл " << LT_filename << L"\n";
+		return;
+	}
+
+	if (!IT_file.is_open())
+	{
+		std::wcout << L"Не удалось открыть файл " << IT_filename << L"\n";
+		return;
+	}
+
+	int currentLine = 1;
+	LT_file << "01" << std::setw(8);
 	for (int i = 0; i < LexTable.size; i++)
 	{
 		LT_entry = LT::GetEntry(LexTable, i);
 		if (currentLine != LT_entry.sn)
 		{
 			currentLine = LT_entry.sn;
-			LT_file << currentLine;
-			LT_file << '\t';
+			LT_file << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << std::setw(8);
 		}
 		LT_file << LT_entry.lexema[0];
 	}
 	LT_file.close();
-	IT_file << std::setw(5) << "id"
-		<< std::setw(10) << "datatype"
-		<< std::setw(10) << "idtype"
-		<< std::setw(10) << "Line"
-		<< std::setw(10) << "value"
-		<< std::setw(10) << "Scope" << std::endl;
+
+	IT_file << std::left;
+	printLine(IT_file);
+	IT_file << "| " << std::setw(3) << "id"
+		<< " | " << std::setw(SETW_VALUE) << "datatype"
+		<< " | " << std::setw(SETW_VALUE) << "idtype"
+		<< " | " << std::setw(SETW_VALUE) << "Line"
+		<< " | " << std::setw(SETW_VALUE) << "value"
+		<< " | " << std::setw(SETW_VALUE) << "Scope" << " |" << std::endl;
+	printLine(IT_file);
 
 	for (int i = 0; i < ID_Table.size; i++) {
 		IT_entry = IT::GetEntry(ID_Table, i);
-		IT_file << std::setw(5) << IT_entry.id;
+
+		IT_file << "| " << std::setw(3) << IT_entry.id << " | ";
+
 		if (IT_entry.iddatatype == 1)
-			IT_file << std::setw(10) << "INT";
-		if (IT_entry.iddatatype == 2)
-			IT_file << std::setw(10) << "STR";
+			IT_file << std::setw(SETW_VALUE) << "INT";
+		else if (IT_entry.iddatatype == 2)
+			IT_file << std::setw(SETW_VALUE) << "STR";
+		else
+			IT_file << std::setw(SETW_VALUE) << "-";
+
+		IT_file << " | ";
+
 		if (IT_entry.idtype == IT::V)
-			IT_file << std::setw(10) << "V";
-		if (IT_entry.idtype == IT::L)
-			IT_file << std::setw(10) << "L";
-		if (IT_entry.idtype == IT::F)
-			IT_file << std::setw(10) << "F";
-		if (IT_entry.idtype == IT::P)
-			IT_file << std::setw(10) << "P";
-		IT_file << std::setw(10) << IT_entry.idxfirstLE;
+			IT_file << std::setw(SETW_VALUE) << "V";
+		else if (IT_entry.idtype == IT::L)
+			IT_file << std::setw(SETW_VALUE) << "L";
+		else if (IT_entry.idtype == IT::F)
+			IT_file << std::setw(SETW_VALUE) << "F";
+		else if (IT_entry.idtype == IT::P)
+			IT_file << std::setw(SETW_VALUE) << "P";
+		else
+			IT_file << std::setw(SETW_VALUE) << "-";
+
+		IT_file << " | ";
+
+		IT_file << std::setw(SETW_VALUE) << IT_entry.idxfirstLE << " | ";
 
 		if (IT_entry.iddatatype == IT::INT) {
-			IT_file << std::setw(10) << IT_entry.value.vint;
+			IT_file << std::setw(SETW_VALUE) << IT_entry.value.vint;
 		}
-		if (IT_entry.iddatatype == IT::STR) {
-			IT_file << std::setw(7);
-			for (int j = 0; j < strlen(IT_entry.value.vstr->str); j++) {
-				IT_file << IT_entry.value.vstr->str[j];
-			}
-			IT_file << std::setw(10);
+		else if (IT_entry.iddatatype == IT::STR) {
+			std::string strValue(IT_entry.value.vstr->str);
+			IT_file << std::setw(SETW_VALUE) << strValue.substr(0, SETW_VALUE);
 		}
-		IT_file << std::setw(10);
+		else {
+			IT_file << std::setw(SETW_VALUE) << "-";
+		}
+
+		IT_file << " | ";
+
 		if (IT_entry.scope != NULL) {
-			for (int j = 0; j < strlen(IT_entry.scope->id); j++)
-			{
-				IT_file << IT_entry.scope->id[j];
-			}
+			std::string scopeValue(IT_entry.scope->id);
+			IT_file << std::setw(SETW_VALUE) << scopeValue.substr(0, SETW_VALUE);
 		}
-		IT_file << std::endl;
+		else {
+			IT_file << std::setw(SETW_VALUE) << "-";
+		}
+
+		IT_file << " |" << std::endl;
+		printLine(IT_file);
 	}
+
 	IT_file.close();
 }

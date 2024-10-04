@@ -1,7 +1,6 @@
 #include "stdafx.h"
 #include "Error.h"
 #include "In.h"
-#include <cstring>
 #include "Utils.h"
 
 namespace In

@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-namespace OOP_Lab04
+﻿namespace OOP_Lab04
 {
     public class Circle : Figure, IManagement
     {
@@ -45,10 +43,12 @@ namespace OOP_Lab04
             Circle temp = (Circle)s;
             return temp.radius == radius;
         }
+
         public override int GetHashCode()
         {
             return 123 * (int)radius;
         }
+
         void IManagement.Show()
         {
 
