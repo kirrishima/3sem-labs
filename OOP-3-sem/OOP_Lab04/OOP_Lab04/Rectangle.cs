@@ -16,21 +16,24 @@
             this.width = width;
             this.height = height;
 
-            Button newbutton1 = button as Button;
-            this.button = newbutton1;
+
+            this.button = button as Button;
+            checktbox = button as Checktbox;
+
             if (this.button == null)
             {
-                Checktbox newbutton2 = button as Checktbox;
-                checktbox = newbutton2;
-                if (this.button == null)
+                if (button as Radiobutton is not null)
                 {
-                    Radiobutton radioButton = button as Radiobutton;
-                    if (radioButton != null)
-                    {
-                        Console.WriteLine("Rectangle не может быть RadioButton");
-                    }
+                    Console.WriteLine("Rectangle не может быть RadioButton");
                 }
+
             }
+            else
+            {
+                this.button.PointX = pointX;
+                this.button.PointY = pointY;
+            }
+
         }
 
         public override string ToString()
@@ -41,9 +44,9 @@
         void IManagement.Show()
         {
 
-            Console.WriteLine("Координаты кнопки: {0}, {1}", pointX, pointY);
+            Console.WriteLine("Координаты Rectangle: {0}, {1}", pointX, pointY);
 
-            Console.WriteLine("Ширина и высота кнопки: {0}, {1}", width, height);
+            Console.WriteLine("Ширина и высота Rectangle: {0}, {1}", width, height);
 
         }
 
@@ -74,6 +77,12 @@
         public void Input()
         {
             Console.WriteLine("\n\nЭто класс прямоугольник");
+        }
+
+        public void Resize(double x, double y)
+        {
+            pointX = x;
+            pointY = y;
         }
     }
 }

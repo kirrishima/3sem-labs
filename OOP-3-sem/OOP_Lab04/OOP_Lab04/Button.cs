@@ -4,20 +4,27 @@
     {
         public void Show()
         {
-            Console.WriteLine("Это кнопка");
+            Console.WriteLine($"Button [{PointX}, {PointY}]");
         }
 
         public void Input()
         {
             if (Tap)
             {
-                Console.WriteLine("Кнопка зажата");
+                Console.WriteLine("кнопка нажата");
             }
             else
             {
-                Console.WriteLine("Кнопка не нажата");
+                Console.WriteLine("кнопка не нажата");
             }
 
         }
+
+        public void Resize(double x, double y)
+        {
+            PointX = x;
+            PointY = y;
+        }
     }
 }
+

@@ -6,13 +6,12 @@
         {
             if (element is Figure)
             {
-                Console.WriteLine($"Type object({element.GetType()}): " + element);
+                Console.WriteLine($"Type object({typeof(Figure)}): " + element);
             }
-            else
+            else if (element as ElemOfManage is not null)
             {
                 var temp = element as ElemOfManage;
-                if (temp != null)
-                    Console.WriteLine($"Type object({temp.GetType()}): " + temp);
+                Console.WriteLine($"Type object({temp.GetType()}): " + temp);
             }
         }
     }
