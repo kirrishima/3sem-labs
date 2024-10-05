@@ -2,10 +2,10 @@
 {
     public interface IManagement
     {
-        public void Show();
+        void Show();
 
-        public void Input();
+        void Input();
 
-        public void Resize(double x, double y);
+        void Resize(double x, double y);
     }
 }

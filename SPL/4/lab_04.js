@@ -90,3 +90,60 @@ console.log(...findAll(1));
 
 // Задание 3
 
+let cart = new Map();
+
+function addItem(id, item) {
+    cart.set(id, item);
+}
+
+function removeItem(id) {
+    cart.delete(id);
+}
+
+function removeItemByName(name) {
+    for (const key of cart.keys()) {
+        if (cart.get(key).name === name) {
+            cart.delete(key);
+        }
+    }
+}
+
+function changeQuantity(id, quantity) {
+    cart.get(id).quantity = quantity;
+}
+
+function changePrice(id, price) {
+    cart.get(id).price = price;
+}
+
+function printMap(map) {
+    map.forEach((key, val) => console.log(key, val))
+}
+
+console.log("Корзина до добавления товаров:", cart);
+
+// Добавление товаров
+addItem(1, { name: 'яблоко', price: 1.5, quantity: 3 });
+addItem(2, { name: 'банан', price: 0.8, quantity: 5 });
+console.log("Корзина после добавления товаров:");
+printMap(cart);
+
+// Изменение количества
+changeQuantity(1, 10);
+console.log("Корзина после изменения количества яблок:");
+printMap(cart);
+
+// Изменение цены
+changePrice(2, 20);
+console.log("Корзина после изменения цены на бананы:");
+printMap(cart);
+
+// Удаление товара по ID
+removeItem(1);
+console.log("Корзина после удаления яблок:");
+printMap(cart);
+
+// Удаление товара по имени
+removeItemByName('банан');
+console.log("Корзина после удаления бананов:");
+printMap(cart);
