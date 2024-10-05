@@ -2,7 +2,7 @@
 
 using namespace std;
 
-#define INF INT_MAX
+constexpr int INF = INT_MAX;
 
 void ComputeShortestPaths();
 void DisplayMatricesAsTables();
@@ -47,7 +47,7 @@ void ComputeShortestPaths()
 		{
 			for (int j = 0; j < 6; j++)
 			{
-				if (D[m][i] != INF && D[m][j] != INF && D[i][m] + D[m][j] < D[i][j])
+				if (D[i][m] != INF && D[m][j] != INF && D[i][m] + D[m][j] < D[i][j])
 				{
 					D[i][j] = D[i][m] + D[m][j];
 					S[i][j] = S[i][m];
