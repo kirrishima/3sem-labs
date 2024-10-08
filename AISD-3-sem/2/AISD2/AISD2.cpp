@@ -54,10 +54,9 @@ void breadthFirstSearch(int startNode)
 
 	queue<int> nodeQueue;
 	bool visited[NODE_COUNT] = { false };
-	bool inQueue[NODE_COUNT] = { false };
 
 	nodeQueue.push(startNode);
-	visited[startNode] = inQueue[startNode] = true;
+	visited[startNode] = true;
 
 	while (!nodeQueue.empty())
 	{
@@ -68,10 +67,10 @@ void breadthFirstSearch(int startNode)
 
 		for (int neighbor = 0; neighbor < NODE_COUNT; neighbor++)
 		{
-			if (!inQueue[neighbor] && adjacencyMatrix[currentNode][neighbor])
+			if (!visited[neighbor] && adjacencyMatrix[currentNode][neighbor])
 			{
 				nodeQueue.push(neighbor);
-				inQueue[neighbor] = true;
+				visited[neighbor] = true;
 			}
 		}
 	}

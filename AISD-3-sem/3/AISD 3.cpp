@@ -47,13 +47,24 @@ void DijkstraAlgorithm(int startNode)
 
 	for (int count = 0; count < SIZE; count++)
 	{
+		int minDist = INT32_MAX;
 		int minIndex = FindMinDistIndex(distances, visited);
-		visited[minIndex] = true;
+
+		for (int node = 0; node < SIZE; node++)
+		{
+			if (!visited[node] && distances[node] < minDist)
+			{
+				minDist = distances[node];
+				minIndex = node;
+			}
+		}
 
 		if (minIndex == -1)
 		{
 			break;
 		}
+
+		visited[minIndex] = true;
 
 		for (int node = 0; node < SIZE; node++)
 		{

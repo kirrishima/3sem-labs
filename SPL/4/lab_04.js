@@ -147,3 +147,21 @@ printMap(cart);
 removeItemByName('банан');
 console.log("Корзина после удаления бананов:");
 printMap(cart);
+
+// Задание 4
+
+let cache = new WeakMap();
+
+function calculateSum(obj) {
+    if (cache.has(obj)) {
+        console.log(`значение для ${obj} было взято из кеша`);
+        return cache.get(obj);
+    } else {
+        cache.set(obj, obj.reduce((sum, current) => sum += current));
+        return cache.get(obj);
+    }
+}
+
+let obj = [1, 2, 3, 4, 5] ;
+console.log(calculateSum(obj));
+console.log(calculateSum(obj));
