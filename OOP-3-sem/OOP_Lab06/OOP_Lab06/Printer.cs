@@ -1,6 +1,7 @@
 ﻿using OOP_Lab05.Controllers;
 using OOP_Lab05.Controllers.Interfaces;
 using OOP_Lab05.Shapes;
+using OOP_Lab06.Exceptions;
 
 namespace OOP_Lab04
 {
@@ -8,6 +9,8 @@ namespace OOP_Lab04
     {
         public static void IAmPrinting(IManagement obj)
         {
+            OOP6Exception.ThrowIfNull(obj, $"{typeof(IManagement)} obj");
+
             if (obj is Figure)
             {
                 Console.WriteLine($"Type object({typeof(Figure)}): " + obj);
