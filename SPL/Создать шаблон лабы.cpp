@@ -38,11 +38,11 @@ int main()
 		std::string folderNameInFiles = x < 10 ? std::format("0{0}", x) : std::to_string(x);
 
 		std::string directory = std::to_string(x);
-		std::string htmlFile = std::format("lab_{0}.html", folderNameInFiles);
-		std::string jsFile = std::format("lab_{0}.js", folderNameInFiles);
+		std::string htmlFilename = std::format("lab_{0}.html", folderNameInFiles);
+		std::string jsFilename = std::format("lab_{0}.js", folderNameInFiles);
 
-		auto htmlFilePath = std::filesystem::path(directory) / htmlFile;
-		auto jsFilePath = std::filesystem::path(directory) / jsFile;
+		auto htmlFilePath = std::filesystem::path(directory) / htmlFilename;
+		auto jsFilePath = std::filesystem::path(directory) / jsFilename;
 
 		if (!std::filesystem::exists(directory))
 		{
@@ -69,30 +69,37 @@ int main()
 			std::filesystem::create_directory(directory);
 		}
 
-		std::ofstream file1(htmlFilePath, std::ios::out | std::ios::binary);
+		std::ofstream htmlFile(htmlFilePath, std::ios::out | std::ios::binary);
 
-		if (!file1.is_open() || file1.fail() || file1.bad())
+		if (!htmlFile.is_open() || htmlFile.fail() || htmlFile.bad())
 		{
 			std::cout << "Couldn't create file " << htmlFilePath << std::endl;
 		}
 		else
 		{
-			std::u8string content = u8"<!DOCTYPE html>\n" + std::u8string(u8"<html lang=\"ru\">\n") + std::u8string(u8"\t<head>\n") + std::u8string(u8"\t\t<meta charset=\"UTF-8\"/>\n") + std::u8string(u8"\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n") + std::u8string(u8"\t\t<script src=\"") + std::u8string(jsFile.begin(), jsFile.end()) + std::u8string(u8"\"></script>\n") + std::u8string(u8"\t\t<title>Скриптовые языки разметки ") + std::u8string(folderNameInFiles.begin(), folderNameInFiles.end()) + std::u8string(u8"</title>\n") + std::u8string(u8"\t</head>\n") + std::u8string(u8"\t<body></body>\n") + std::u8string(u8"</html>");
+			std::u8string content = u8"<!DOCTYPE html>\n" + std::u8string(u8"<html lang=\"ru\">\n") + std::u8string(u8"\t<head>\n") + std::u8string(u8"\t\t<meta charset=\"UTF-8\"/>\n") + std::u8string(u8"\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n") + std::u8string(u8"\t\t<script src=\"") + std::u8string(jsFilename.begin(), jsFilename.end()) + std::u8string(u8"\"></script>\n") + std::u8string(u8"\t\t<title>Скриптовые языки разметки ") + std::u8string(folderNameInFiles.begin(), folderNameInFiles.end()) + std::u8string(u8"</title>\n") + std::u8string(u8"\t</head>\n") + std::u8string(u8"\t<body></body>\n") + std::u8string(u8"</html>");
 
-			file1.write(reinterpret_cast<const char *>(content.c_str()), content.size());
+			htmlFile.write(reinterpret_cast<const char *>(content.c_str()), content.size());
 
 			std::cout << "Created directory " << htmlFilePath << "\n";
 		}
 
-		std::ofstream file2(jsFilePath);
+		std::ofstream jsFile(jsFilePath);
 
-		if (!file2.is_open() || file2.fail() || file2.bad())
+		if (!jsFile.is_open() || jsFile.fail() || jsFile.bad())
 		{
 			std::cout << "Couldn't create file " << jsFilePath << std::endl;
 		}
 		else
 		{
 			std::cout << "Created directory " << jsFilePath << "\n";
+
+			std::u8string content = u8"// /////////////// Задание 1 ///////////////\nconsole.log('\\nЗадание 1\\n')" 
+			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 2 ///////////////\nconsole.log('\\nЗадание 2\\n')") 
+			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 3 ///////////////\nconsole.log('\\nЗадание 3\\n')") 
+			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 4 ///////////////\nconsole.log('\\nЗадание 4\\n')");
+			
+			jsFile.write(reinterpret_cast<const char *>(content.c_str()), content.size());
 		}
 	}
 	catch (const std::exception &ex)
