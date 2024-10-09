@@ -2,11 +2,27 @@
 using OOP_Lab05.Controllers.Interfaces;
 using OOP_Lab05.Controllers.UI;
 using OOP_Lab05.Shapes;
+using System.Collections;
 
 namespace OOP_Lab04
 {
     class Program
     {
+        static void DangerFunction()
+        {
+            try
+            {
+                dynamic d = new Button();
+                List<int> list = new List<int>();
+                list.Add(d);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.StackTrace} \n {ex.Message}\n");
+                throw;
+            }
+        }
+
         public static void Main()
         {
             /*            UIController uI = new();
@@ -32,7 +48,9 @@ namespace OOP_Lab04
             {
                 Console.WriteLine($"{ex.GetType()}: {ex.Message}");
             }
+
             Console.WriteLine();
+
             try
             {
                 int x = 10;
@@ -43,18 +61,38 @@ namespace OOP_Lab04
             {
                 Console.WriteLine($"{ex.GetType()}: {ex.Message}");
             }
+            catch
+            {
+                Console.WriteLine("Undefined exception");
+            }
 
             Console.WriteLine();
+
             try
             {
-                dynamic d = new Button();
-                List<int> list = new List<int>();
-                list.Add(d);
+                DangerFunction();
             }
             catch (Exception ex)
             {
-                Console.WriteLine($"{ex.GetType()}: {ex.Message}");
+                Console.WriteLine($"{ex.Message}\n");
+                Console.WriteLine($"{ex.TargetSite}\n");
+                Console.WriteLine($"{ex.StackTrace}");
+                Console.WriteLine($"{ex.HelpLink}");
+
+                if (ex.Data != null && ex.Data.Count > 0)
+                {
+                    Console.WriteLine("Data: ");
+                    foreach (DictionaryEntry item in ex.Data)
+                    {
+                        Console.WriteLine($"\t{item.Key} {item.Value}");
+                    }
+                }
             }
+            finally
+            {
+                Console.WriteLine("Наконец-то");
+            }
+
             Console.WriteLine();
             /*            Button NiceButton = new Button();
 
