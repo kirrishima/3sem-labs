@@ -134,12 +134,9 @@ namespace SVV
 	FST::FST* CreateIdentifierFST(const char* str)
 	{
 		return new FST::FST(str,
-			6,
-			FST::NODE(NUM_LETTERS, relationsForState(1)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(2), FST::RELATION('\0', 2)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(3), FST::RELATION('\0', 3)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(4), FST::RELATION('\0', 4)),
-			FST::NODE(NUM_LETTERS + 1, relationsForState(5), FST::RELATION('\0', 5)),
+			2,
+			FST::NODE(52, relationsForState(0),
+				relationsForState(1)),
 			FST::NODE()
 		);
 	}

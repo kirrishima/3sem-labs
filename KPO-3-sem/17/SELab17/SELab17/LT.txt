@@ -1,8 +1,1 @@
-1	dt;
-2	tfi(ti,ti)
-3	{
-4	dt;
-5	dtf(ti,ti,ti);
-6	i=(i,l,l)vi;
-7	ri;
-8	}
+01       dti=;

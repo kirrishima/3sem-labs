@@ -74,7 +74,7 @@ char LexAn::_determineLexeme()
 		return LEX_LITERAL;
 	}
 
-	if (execute(CreateIdentifierFST(), str))
+	if (execute(*std::unique_ptr<FST::FST>(CreateIdentifierFST(str))))
 	{
 		return LEX_ID;
 	}
@@ -309,33 +309,21 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 			switch (in.text[i])
 			{
 			case MARK:
-				if (str[0] == '\'' && bufferIndex != 1)
+				if (str[0] == '\'' && ID_Table.table[ID_Table.size - 1].idtype == IT::V && ID_Table.table[ID_Table.size - 1].iddatatype == IT::STR)
 				{
-					LT_entry.idxTI = ID_Table.size;
+					int index = i + 1;
 
-					str[bufferIndex] = '\0';
-					LT_entry.lexema[0] = LEX_LITERAL;
+					while (index < MAX_LEX_SIZE - 1 && in.text[index++] != MARK);
 
-					sprintf_s(IT_entry.id, "L%d", ++literalsCount);
-
-					IT_entry.iddatatype = IT::STR;
-					IT_entry.idtype = IT::L;
-					IT_entry.idxfirstLE = currentLine;
-
-					for (int i = 0; i < strlen(str); i++)
+					if (in.text[index - 1] == MARK)
 					{
-						IT_entry.value.vstr->str[i] = str[i];
+						strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i);
+						ID_Table.table[ID_Table.size - 1].value.vstr->str[index - i] = '\0';
+						ID_Table.table[ID_Table.size - 1].value.vstr->len = index - i;
+
+						i = index;
 					}
 
-					IT_entry.value.vstr->str[strlen(str)] = '\0';
-					IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
-					LT_entry.sn = currentLine;
-					IT_entry.scope = scope.top();
-
-					LT::Add(LexTable, LT_entry);
-					IT::Add(ID_Table, IT_entry);
-
-					LT_entry.lexema[0] = NULL;
 					break;
 				}
 				break;
@@ -405,7 +393,7 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 }
 
 void printLine(std::ofstream& file) {
-	file << "+-----+----------+----------+----------+----------+----------+" << std::endl;
+	// В HTML можно опустить линии, поэтому этот метод больше не нужен
 }
 
 void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry& LT_entry, const std::wstring LT_filename)
@@ -427,83 +415,119 @@ void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry&
 		return;
 	}
 
+	// Начало HTML-документа
+	IT_file << "<!DOCTYPE html><html><head><title>Identifier Table</title></head><body>" << std::endl;
+	IT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
+
+	// Заголовок таблицы
+	IT_file << "<tr>"
+		<< "<th>ID</th>"
+		<< "<th>Datatype</th>"
+		<< "<th>ID Type</th>"
+		<< "<th>Line</th>"
+		<< "<th>Value</th>"
+		<< "<th>Scope</th>"
+		<< "</tr>" << std::endl;
+
+	// Заполнение таблицы данными
+	for (int i = 0; i < ID_Table.size; i++) {
+		IT_entry = IT::GetEntry(ID_Table, i);
+
+		IT_file << "<tr>";
+
+		// ID
+		IT_file << "<td>" << IT_entry.id << "</td>";
+
+		// Datatype
+		if (IT_entry.iddatatype == 1)
+			IT_file << "<td>INT</td>";
+		else if (IT_entry.iddatatype == 2)
+			IT_file << "<td>STR</td>";
+		else
+			IT_file << "<td>-</td>";
+
+		// ID Type
+		IT_file << "<td>";
+		if (IT_entry.idtype == IT::V)
+			IT_file << "V";
+		else if (IT_entry.idtype == IT::L)
+			IT_file << "L";
+		else if (IT_entry.idtype == IT::F)
+			IT_file << "F";
+		else if (IT_entry.idtype == IT::P)
+			IT_file << "P";
+		else
+			IT_file << "-";
+		IT_file << "</td>";
+
+		// Line
+		IT_file << "<td>" << IT_entry.idxfirstLE << "</td>";
+
+		// Value
+		IT_file << "<td>";
+		if (IT_entry.iddatatype == IT::INT) {
+			IT_file << IT_entry.value.vint;
+		}
+		else if (IT_entry.iddatatype == IT::STR) {
+			std::string strValue(IT_entry.value.vstr->str);
+			IT_file << strValue;
+		}
+		else {
+			IT_file << "-";
+		}
+		IT_file << "</td>";
+
+		// Scope
+		IT_file << "<td>";
+		if (IT_entry.scope != NULL) {
+			std::string scopeValue(IT_entry.scope->id);
+			IT_file << scopeValue;
+		}
+		else {
+			IT_file << "-";
+		}
+		IT_file << "</td>";
+
+		IT_file << "</tr>" << std::endl;
+	}
+
+
+	// Закрытие таблицы и HTML-документа
+	IT_file << "</table></body></html>" << std::endl;
+
+	IT_file.close();
+
+	LT_file << "<!DOCTYPE html><html><head><title>Lexem Table</title></head><body>" << std::endl;
+	LT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
+
+	// Заголовок таблицы
+	LT_file << "<tr>"
+		<< "<th>Line</th>"
+		<< "<th>Lexem</th>"
+		<< "</tr>" << std::endl;
+
 	int currentLine = 1;
-	LT_file << "01" << std::setw(8);
+	LT_file << "<tr><td>01</td>" << std::setw(8);
+
+	std::string tmp;
 	for (int i = 0; i < LexTable.size; i++)
 	{
 		LT_entry = LT::GetEntry(LexTable, i);
 		if (currentLine != LT_entry.sn)
 		{
 			currentLine = LT_entry.sn;
-			LT_file << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << std::setw(8);
+			LT_file << "<tr><td>" << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << "</td>";
 		}
-		LT_file << LT_entry.lexema[0];
+		if (LT_entry.lexema[0] != In::IN::Newline)
+		{
+			tmp += LT_entry.lexema[0];
+		}
+		else
+		{
+			LT_file << "<td>" << tmp << "</td></tr>";
+			tmp.clear();
+		}
 	}
+	LT_file << "</table></body></html>" << std::endl;
 	LT_file.close();
-
-	IT_file << std::left;
-	printLine(IT_file);
-	IT_file << "| " << std::setw(3) << "id"
-		<< " | " << std::setw(SETW_VALUE) << "datatype"
-		<< " | " << std::setw(SETW_VALUE) << "idtype"
-		<< " | " << std::setw(SETW_VALUE) << "Line"
-		<< " | " << std::setw(SETW_VALUE) << "value"
-		<< " | " << std::setw(SETW_VALUE) << "Scope" << " |" << std::endl;
-	printLine(IT_file);
-
-	for (int i = 0; i < ID_Table.size; i++) {
-		IT_entry = IT::GetEntry(ID_Table, i);
-
-		IT_file << "| " << std::setw(3) << IT_entry.id << " | ";
-
-		if (IT_entry.iddatatype == 1)
-			IT_file << std::setw(SETW_VALUE) << "INT";
-		else if (IT_entry.iddatatype == 2)
-			IT_file << std::setw(SETW_VALUE) << "STR";
-		else
-			IT_file << std::setw(SETW_VALUE) << "-";
-
-		IT_file << " | ";
-
-		if (IT_entry.idtype == IT::V)
-			IT_file << std::setw(SETW_VALUE) << "V";
-		else if (IT_entry.idtype == IT::L)
-			IT_file << std::setw(SETW_VALUE) << "L";
-		else if (IT_entry.idtype == IT::F)
-			IT_file << std::setw(SETW_VALUE) << "F";
-		else if (IT_entry.idtype == IT::P)
-			IT_file << std::setw(SETW_VALUE) << "P";
-		else
-			IT_file << std::setw(SETW_VALUE) << "-";
-
-		IT_file << " | ";
-
-		IT_file << std::setw(SETW_VALUE) << IT_entry.idxfirstLE << " | ";
-
-		if (IT_entry.iddatatype == IT::INT) {
-			IT_file << std::setw(SETW_VALUE) << IT_entry.value.vint;
-		}
-		else if (IT_entry.iddatatype == IT::STR) {
-			std::string strValue(IT_entry.value.vstr->str);
-			IT_file << std::setw(SETW_VALUE) << strValue.substr(0, SETW_VALUE);
-		}
-		else {
-			IT_file << std::setw(SETW_VALUE) << "-";
-		}
-
-		IT_file << " | ";
-
-		if (IT_entry.scope != NULL) {
-			std::string scopeValue(IT_entry.scope->id);
-			IT_file << std::setw(SETW_VALUE) << scopeValue.substr(0, SETW_VALUE);
-		}
-		else {
-			IT_file << std::setw(SETW_VALUE) << "-";
-		}
-
-		IT_file << " |" << std::endl;
-		printLine(IT_file);
-	}
-
-	IT_file.close();
 }

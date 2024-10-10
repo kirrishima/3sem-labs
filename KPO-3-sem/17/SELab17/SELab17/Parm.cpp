@@ -28,8 +28,8 @@ namespace Parm {
 				log = true;
 			}
 		}
-		parm.it = (fs::path(fs::absolute(parm.out)).parent_path() / "IT.txt").wstring();
-		parm.lt = (fs::path(fs::absolute(parm.out)).parent_path() / "LT.txt").wstring();
+		parm.it = (fs::path(fs::absolute(parm.out)).parent_path() / "IT.html").wstring();
+		parm.lt = (fs::path(fs::absolute(parm.out)).parent_path() / "LT.html").wstring();
 
 		if (!in)
 			throw ERROR_THROW(100);

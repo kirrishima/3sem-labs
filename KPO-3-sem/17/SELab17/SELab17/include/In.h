@@ -42,7 +42,7 @@ namespace In
 			Asterisk,  // '*'
 			Slash,     // '/'
 			Equal,     // '='
-			Newline,   // '\n'
+			Newline = 10,   // '\n'
 			Comma,     // ','
 			T = 1024,
 			F = 2048,

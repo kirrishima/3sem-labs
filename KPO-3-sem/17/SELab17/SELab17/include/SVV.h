@@ -11,5 +11,6 @@ namespace SVV
 	FST::FST* CreateMainFST(const char* str);
 	FST::FST* CreatePrintFST(const char* str);
 	FST::FST* CreateINTLiteralFST(const char* str);
-	const char* CreateIdentifierFST();
+	//const char* CreateIdentifierFST();
+	FST::FST* CreateIdentifierFST(const char* str);
 }
