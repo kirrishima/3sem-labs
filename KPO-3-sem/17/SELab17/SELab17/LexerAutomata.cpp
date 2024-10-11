@@ -134,7 +134,7 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 				IT_entry.scope = NULL;
 				indexIT = IT::search(ID_Table, IT_entry);
 
-				if (indexIT != 1)
+				if (indexIT != -1)
 				{
 					throw ERROR_THROW(105);
 				}
@@ -176,7 +176,6 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 
 				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_DECLARE)
 				{
-					std::cout << LexTable.table[LexTable.size - 1].lexema[0];
 					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag)
 					{
 						IT_entry.iddatatype = IT::STR;
@@ -263,11 +262,6 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 
 					if (indexIT >= 0)
 					{
-						for (int i = 0; i < strlen(IT_entry.id); i++)
-						{
-							std::cout << IT_entry.id[i];
-						}
-
 						LT_entry.idxTI = indexIT;
 					}
 				}
@@ -309,12 +303,12 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 			switch (in.text[i])
 			{
 			case MARK:
-				if (str[0] == '\'' && ID_Table.table[ID_Table.size - 1].idtype == IT::V && ID_Table.table[ID_Table.size - 1].iddatatype == IT::STR)
+			{
+				int index = i + 1;
+				while (index < MAX_LEX_SIZE - 1 && in.text[index++] != MARK);
+
+				if (str[0] == '\'' && ID_Table.size > 0 && ID_Table.table[ID_Table.size - 1].idtype == IT::V && ID_Table.table[ID_Table.size - 1].iddatatype == IT::STR)
 				{
-					int index = i + 1;
-
-					while (index < MAX_LEX_SIZE - 1 && in.text[index++] != MARK);
-
 					if (in.text[index - 1] == MARK)
 					{
 						strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i);
@@ -323,10 +317,40 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 
 						i = index;
 					}
-
 					break;
 				}
-				break;
+				else
+				{
+					LT_entry.idxTI = ID_Table.size;
+
+					str[bufferIndex] = '\0';
+					LT_entry.lexema[0] = LEX_LITERAL;
+
+					sprintf_s(IT_entry.id, "L%d", ++literalsCount);
+
+					IT_entry.iddatatype = IT::STR;
+					IT_entry.idtype = IT::L;
+					IT_entry.idxfirstLE = currentLine;
+
+					int x = 0;
+					for (; i < index; i++)
+					{
+						IT_entry.value.vstr->str[x++] = in.text[i];
+					}
+
+					IT_entry.value.vstr->str[x] = '\0';
+					IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
+					LT_entry.sn = currentLine;
+					IT_entry.scope = scope.top();
+
+					LT::Add(LexTable, LT_entry);
+					IT::Add(ID_Table, IT_entry);
+
+					LT_entry.lexema[0] = NULL;
+				}
+			}
+
+			break;
 			case NEW_LINE:
 				LT_entry.lexema[0] = '\n';
 				LT_entry.sn = currentLine;
@@ -387,7 +411,7 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 			}
 		}
 	}
-
+	std::cout << "aaaa\n";
 	printToFile(IT_entry, param.it, LT_entry, param.lt);
 
 }
@@ -417,7 +441,7 @@ void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry&
 
 	// Начало HTML-документа
 	IT_file << "<!DOCTYPE html><html><head><title>Identifier Table</title></head><body>" << std::endl;
-	IT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
+	IT_file << "<pre><table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
 
 	// Заголовок таблицы
 	IT_file << "<tr>"
@@ -493,7 +517,7 @@ void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry&
 
 
 	// Закрытие таблицы и HTML-документа
-	IT_file << "</table></body></html>" << std::endl;
+	IT_file << "</table></pre></body></html>" << std::endl;
 
 	IT_file.close();
 
@@ -528,6 +552,7 @@ void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry&
 			tmp.clear();
 		}
 	}
+	LT_file << "<td>" << tmp << "</td></tr>";
 	LT_file << "</table></body></html>" << std::endl;
 	LT_file.close();
 }

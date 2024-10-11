@@ -37,16 +37,14 @@ namespace IT
 	{
 		for (int i = 0; i <= idtable.size; i++)
 		{
-			if (strcmp(entry.id, idtable.table[i].id) == NULL && entry.scope == idtable.table[i].scope)
+			if (strcmp(entry.id, idtable.table[i].id) == 0 && entry.scope == idtable.table[i].scope)
 			{
 				return i;
 			}
-			else if (strcmp(entry.id, idtable.table[i].id) == NULL && idtable.table[i].idtype == IT::F)
+			else if (strcmp(entry.id, idtable.table[i].id) == 0 && idtable.table[i].idtype == IT::F)
 			{
 				return i;
 			}
-			else
-				continue;
 		}
 		return -1;
 	}

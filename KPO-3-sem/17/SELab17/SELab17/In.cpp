@@ -26,6 +26,8 @@ namespace In
 
 		while (std::getline(file, tmp))
 		{
+			bool insideString = false;
+
 			auto trimmedString = utils::trim(tmp);
 
 			trimmedLength = trimmedString.length();
@@ -56,6 +58,42 @@ namespace In
 					in.text[in.size++] = ch;
 					break;
 
+				case IN::Mark:
+				{
+					in.text[in.size++] = ch;
+					bool insideString = true;
+
+					while (++position < trimmedLength && insideString)
+					{
+						ch = static_cast<unsigned char>(trimmedString[position]);
+						switch (in.code[ch])
+						{
+						case IN::Newline:
+							in.text[in.size] = '\0';
+							throw ERROR_THROW_IN(111, in.lines, position + 1, in.text);
+							break;
+
+						case IN::F:
+							in.text[in.size] = '\0';
+							throw ERROR_THROW_IN(111, in.lines, position + 1, in.text);
+							break;
+
+						case IN::T:
+							in.text[in.size++] = ch;
+							break;
+
+						case(IN::Mark):
+							insideString = false;
+							in.text[in.size++] = ch;
+							break;
+						default:
+							in.text[in.size++] = ch;
+							break;
+						}
+
+					}
+					break;
+				}
 				case IN::Asterisk:
 				case IN::Equal:
 				case IN::LeftBrace:
