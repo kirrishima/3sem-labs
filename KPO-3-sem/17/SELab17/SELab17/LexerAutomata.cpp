@@ -311,12 +311,44 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 				{
 					if (in.text[index - 1] == MARK)
 					{
-						strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i);
-						ID_Table.table[ID_Table.size - 1].value.vstr->str[index - i] = '\0';
-						ID_Table.table[ID_Table.size - 1].value.vstr->len = index - i;
+						//strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i);
 
-						i = index;
+						sprintf(ID_Table.table[ID_Table.size - 1].value.vstr->str, "L%d\0", literalsCount);
+
+						int len = strlen(ID_Table.table[ID_Table.size - 1].value.vstr->str);
+						//ID_Table.table[ID_Table.size - 1].value.vstr->str[len] = ;
+						ID_Table.table[ID_Table.size - 1].value.vstr->len = len;
+
+						//i = index;
 					}
+
+					LT_entry.idxTI = ID_Table.size;
+
+					str[bufferIndex] = '\0';
+					LT_entry.lexema[0] = LEX_LITERAL;
+
+					sprintf_s(IT_entry.id, "L%d", literalsCount++);
+
+					IT_entry.iddatatype = IT::STR;
+					IT_entry.idtype = IT::L;
+					IT_entry.idxfirstLE = currentLine;
+
+					int x = 0;
+					for (; i < index; i++)
+					{
+						IT_entry.value.vstr->str[x++] = in.text[i];
+					}
+
+					IT_entry.value.vstr->str[x] = '\0';
+					IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
+					LT_entry.sn = currentLine;
+					IT_entry.scope = scope.top();
+
+					LT::Add(LexTable, LT_entry);
+					IT::Add(ID_Table, IT_entry);
+
+					LT_entry.lexema[0] = NULL;
+
 					break;
 				}
 				else

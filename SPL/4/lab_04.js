@@ -1,10 +1,15 @@
 // Задание 1
+console.log('Задание 1');
 
 let goods = new Set(["apple", "orange", "banana", "kivy"]);
 
+function addGood(good) {
+    goods.add(good);
+}
+
 function addGoods(goodsArray) {
     for (let good of goodsArray) {
-        goods.add(good);
+        addGood(good);
     }
 }
 
@@ -22,7 +27,7 @@ function goodsCount() {
     return goods.size;
 }
 
-addGoods(["BANANANANAN"]);
+addGood("BANANANANAN");
 console.log(goods);
 
 removeGoods(["apple", "BANANANANAN"]);
@@ -34,6 +39,7 @@ console.log(isGoodInStock("kivy"));
 console.log(goodsCount());
 
 // Задание 2
+console.log('Задание 2');
 
 let students = new Set();
 
@@ -89,6 +95,7 @@ console.log(...sortStudents());
 console.log(...findAll(1));
 
 // Задание 3
+console.log('Задание 3');
 
 let cart = new Map();
 
@@ -149,6 +156,7 @@ console.log("Корзина после удаления бананов:");
 printMap(cart);
 
 // Задание 4
+console.log('Задание 4');
 
 let cache = new WeakMap();
 
@@ -162,6 +170,6 @@ function calculateSum(obj) {
     }
 }
 
-let obj = [1, 2, 3, 4, 5] ;
+let obj = [1, 2, 3, 4, 5];
 console.log(calculateSum(obj));
 console.log(calculateSum(obj));
