@@ -39,7 +39,7 @@
     <ClCompile Include="FST.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="LT.cpp">
+    <ClCompile Include="Utils.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
     <ClCompile Include="IT.cpp">
@@ -48,10 +48,10 @@
     <ClCompile Include="LexerAutomata.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="SVV.cpp">
+    <ClCompile Include="LT.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
-    <ClCompile Include="Utils.cpp">
+    <ClCompile Include="SVV.cpp">
       <Filter>Resource Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -65,16 +65,7 @@
     <ClInclude Include="include\In.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\IT.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\LexerAutomata.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
     <ClInclude Include="include\Log.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\LT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Out.h">
@@ -87,6 +78,15 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\Utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IT.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LexerAutomata.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\LT.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="stdafx.h">

@@ -19,9 +19,10 @@ namespace IT
 		IDDATATYPE	iddatatype;			// тип данных
 		IDTYPE		idtype;				// тип идентификатора (переменная, функция, параметр, локальная переменная)
 		Entry* scope;
+
 		union
 		{
-			int		vint;						// значение integer
+			int	vint;						// значение integer
 			struct
 			{
 				int len;						// кол-во символов в string
@@ -47,8 +48,8 @@ namespace IT
 	);
 
 	Entry GetEntry(             // получить строку таблицы идентификаторов
-		IdTable& idtable,       // экземпляр таблицы идентификаторов
-		int n                   // номер получаемой строки
+		const IdTable& idtable,       // экземпляр таблицы идентификаторов
+		int n                  // номер получаемой строки
 	);
 
 	int IsId(                   // возврат: номер строки (если есть), TI_NULLIDX (если нет)

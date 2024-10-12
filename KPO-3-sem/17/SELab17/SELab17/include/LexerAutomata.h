@@ -22,6 +22,6 @@ constexpr int ID_SIZE = ID_MAXSIZE - 1;
 
 namespace LexAn
 {
-	char _determineLexeme();
-	void _lexAnalize(Parm::PARM param, In::IN in);
+	char determineLexeme();
+	void lexAnalize(Parm::PARM param, In::IN in);
 }

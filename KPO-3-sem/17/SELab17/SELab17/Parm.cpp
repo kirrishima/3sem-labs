@@ -28,26 +28,37 @@ namespace Parm {
 				log = true;
 			}
 		}
-		parm.it = (fs::path(fs::absolute(parm.out)).parent_path() / "IT.html").wstring();
-		parm.lt = (fs::path(fs::absolute(parm.out)).parent_path() / "LT.html").wstring();
+
 
 		if (!in)
 			throw ERROR_THROW(100);
 
-		if (!out) {
+		if (!out)
+		{
+			parm.it = (fs::path(fs::absolute(parm.in)).parent_path() / "IT.html").wstring();
+			parm.lt = (fs::path(fs::absolute(parm.in)).parent_path() / "LT.html").wstring();
 			parm.out = parm.in + PARM_OUT_DEFAULT_EXT;
 		}
-		if (!log) {
+		else
+		{
+			parm.it = (fs::path(fs::absolute(parm.out)).parent_path() / "IT.html").wstring();
+			parm.lt = (fs::path(fs::absolute(parm.out)).parent_path() / "LT.html").wstring();
+		}
+		if (!log)
+		{
 			parm.log = parm.in + PARM_LOG_DEFAULT_EXT;
 		}
 
-		if (parm.in == parm.log) {
+		if (parm.in == parm.log)
+		{
 			throw (L"Параметры -in и -log не могут иметь одинаковых значений (было передано " + parm.in + L")");
 		}
-		if (parm.in == parm.out) {
+		if (parm.in == parm.out)
+		{
 			throw (L"Параметры -in и -out не могут иметь одинаковых значений (было передано " + parm.in + L")");
 		}
-		if (parm.out == parm.log) {
+		if (parm.out == parm.log)
+		{
 			throw (L"Параметры -out и -log не могут иметь одинаковых значений (было передано " + parm.out + L")");
 		}
 

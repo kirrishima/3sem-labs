@@ -90,7 +90,10 @@ namespace In
 							in.text[in.size++] = ch;
 							break;
 						}
-
+					}
+					if (trimmedString[position] != '\'')
+					{
+						position--;
 					}
 					break;
 				}

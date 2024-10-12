@@ -28,7 +28,7 @@ namespace LT
 		lextable.table[lextable.size++] = entry;
 	}
 
-	Entry GetEntry(LexTable& lextable, int n)
+	Entry GetEntry(const LexTable& lextable, int n)
 	{
 		if (n > LT_MAXSIZE || n < 0)
 		{

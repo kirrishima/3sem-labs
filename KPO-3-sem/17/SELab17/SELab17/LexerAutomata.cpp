@@ -2,10 +2,14 @@
 #include "FST.h"
 #include "LexerAutomata.h"
 #include "SVV.h"
-#include <iomanip>
 #include <memory>
 #include <stack>
-#include <unordered_map>
+#include <string>
+#include "Utils.h"
+
+using namespace SVV;
+using FST::execute;
+using LexAn::Utils::printToFile;
 
 bool stringFlag = false; // stringFlag
 bool _isDeclare = false; // _isDeclare
@@ -14,24 +18,9 @@ LT::LexTable LexTable = LT::Create(LT_MAXSIZE - 1);
 IT::IdTable ID_Table = IT::Create(TI_MAXSIZE - 1);
 
 char* str = new char[MAX_LEX_SIZE];
-using FST::execute;
-using namespace SVV;
-
-void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry& LT_entry, const std::wstring LT_filename);
-
-
-const std::unordered_map<unsigned char, unsigned char> lexems = {
-   {SEMICOLON, LEX_SEMICOLON},
-   {COMMA, LEX_COMMA},
-   {PLUS, LEX_PLUS},
-   {MINUS, LEX_MINUS},
-   {STAR, LEX_STAR},
-   {DIRSLASH, LEX_DIRSLASH},
-   {EQUAL, LEX_EQUAL}
-};
 
 // \0 in case of missmatch of everything
-char LexAn::_determineLexeme()
+char LexAn::determineLexeme()
 {
 	if (execute(*std::unique_ptr<FST::FST>(CreateIntegerFST(str))))
 	{
@@ -82,7 +71,7 @@ char LexAn::_determineLexeme()
 	return '\0';
 }
 
-void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
+void LexAn::lexAnalize(Parm::PARM param, In::IN in)
 {
 	int indexIT; // Индекс для таблицы идентификаторов
 
@@ -118,7 +107,7 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 		else
 		{
 			str[bufferIndex] = '\0';
-			LT_entry.lexema[0] = _determineLexeme();
+			LT_entry.lexema[0] = determineLexeme();
 
 			switch (LT_entry.lexema[0]) {
 
@@ -148,7 +137,7 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 			case LEX_LITERAL:
 			{
 				LT_entry.idxTI = ID_Table.size;
-				sprintf_s(IT_entry.id, "L%d", literalsCount);
+				sprintf_s(IT_entry.id, "L%d", literalsCount++);
 				IT_entry.iddatatype = IT::INT;
 				IT_entry.idtype = IT::L;
 				IT_entry.idxfirstLE = currentLine;
@@ -156,7 +145,15 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 				IT_entry.scope = scope.top();
 				LT_entry.idxTI = ID_Table.size;
 				IT::Add(ID_Table, IT_entry);
-				literalsCount++;
+
+				if (LexTable.size > 3 && LexTable.table[LexTable.size - 4].lexema[0] == LEX_DECLARE
+					&& LexTable.table[LexTable.size - 3].lexema[0] == LEX_INTEGER
+					&& LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID
+					&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL
+					&& ID_Table.table[ID_Table.size - 1].iddatatype == IT::INT)
+				{
+					ID_Table.table[ID_Table.size - 2].value.vint = atoi(str);
+				}
 				break;
 			}
 
@@ -166,79 +163,90 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 					IT_entry.scope = NULL; //Если стек пуст, то текущему идентификатору IT_entry устанавливается область видимости (scope) равной NULL
 				else
 					IT_entry.scope = scope.top(); //устанавливается вершина стека как область видимости текущего идентификатора.
-				LT_entry.idxTI = ID_Table.size;
-				memcpy(IT_entry.id, str, ID_SIZE);
-				IT_entry.id[ID_SIZE] = '\0';
-				IT_entry.iddatatype = IT::INT;
-				IT_entry.value.vint = NULL; // не инициализирован
-				IT_entry.idxfirstLE = currentLine;
-				IT_entry.idtype = IT::V;
 
-				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_DECLARE)
+				LT_entry.idxTI = ID_Table.size; // индекс ID равен размеру таблицы
+				memcpy(IT_entry.id, str, ID_SIZE); // копируем id из строки str, которая была распознана в determineLexeme как идентификатор
+				IT_entry.id[ID_SIZE] = '\0'; // обрезаем ID до 5 символов
+				IT_entry.iddatatype = IT::INT; // по умолчанию расцениваем как INT
+				IT_entry.value.vint = NULL; // не инициализирован
+				IT_entry.idxfirstLE = currentLine; // номер строки для этого id в таблице лексем 
+				IT_entry.idtype = IT::V; // по умолчанию расцениваем как обычную переменную
+
+				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_DECLARE) // если это объявление переменной (ключ. слово declare + тип_данных + текущий_id)
 				{
-					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag)
+					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag) // если это была строка (stringFlag устанавливается в determineLexeme)
 					{
 						IT_entry.iddatatype = IT::STR;
-						strcpy_s(IT_entry.value.vstr->str, "");
+						strcpy_s(IT_entry.value.vstr->str, ""); // по умолчанию без значения, оно будет обработано позднее (если это d t i = 'val')
 						stringFlag = false;
 					}
+
 					indexIT = IT::search(ID_Table, IT_entry);//поиск текущего идентификатора в таблице идентификаторов 
 					if (indexIT != -1) //Если идентификатор уже существует
 					{
 						throw ERROR_THROW(105);
 					}
+
 					LT_entry.idxTI = ID_Table.size;
-					IT::Add(ID_Table, IT_entry);
+					IT::Add(ID_Table, IT_entry); // добавляем id
 					addedToITFlag = true;
 				}
 
-				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_FUNCTION)
+				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_FUNCTION) // если предыдущая лексема была фукнция (f, в коде function)
 				{
-					IT_entry.idtype = IT::F;
+					IT_entry.idtype = IT::F; // указываем это
 					declareFunctionflag = true;
-					if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_STRING && stringFlag)
+
+					if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_STRING && stringFlag) // если функция возвращает строку (по умолчанию мы ставили INT)
 					{
-						IT_entry.iddatatype = IT::STR;
+						IT_entry.iddatatype = IT::STR; // обновляем возвращаемый тип
 						strcpy_s(IT_entry.value.vstr->str, "");
 						stringFlag = false;
 					}
-					indexIT = IT::search(ID_Table, IT_entry);
+
+					indexIT = IT::search(ID_Table, IT_entry); // отсутствие переопределения
+
 					if (indexIT != -1)
 					{
 						throw ERROR_THROW(105);
 					}
+
 					LT_entry.idxTI = ID_Table.size;
 					IT::Add(ID_Table, IT_entry);
 					addedToITFlag = true;
 				}
 
-				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_LEFTTHESIS &&
+				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_LEFTTHESIS && // вид <идентификатор>(<тип> <идентификатор>...
 					LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID &&
 					LexTable.table[LexTable.size - 3].idxTI == ID_Table.size - 1 &&
 					ID_Table.table[ID_Table.size - 1].idtype == IT::F) //текущий идентификатор - параметр функции
 				{
 					IT_entry.idtype = IT::P;
-					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag)
+
+					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag) // если тип параметра - это строка
 					{
 						IT_entry.iddatatype = IT::STR;
 						strcpy_s(IT_entry.value.vstr->str, "");
 						stringFlag = false;
 					}
+
 					indexIT = IT::search(ID_Table, IT_entry);
 					if (indexIT != -1)
 					{
 						throw ERROR_THROW(105);
 					}
+
 					LT_entry.idxTI = ID_Table.size;
 					IT::Add(ID_Table, IT_entry);
 					addedToITFlag = true;
 				}
 
-				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_COMMA && ID_Table.table[LexTable.table[LexTable.size - 2].idxTI].idtype == IT::P)
+				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_COMMA // если это еще один параметр функции
+					&& ID_Table.table[LexTable.table[LexTable.size - 2].idxTI].idtype == IT::P)
 				{
 					IT_entry.idtype = IT::P;
 
-					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag)
+					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag) // опять же, по умолчанию он INT, поэтому проверяем только на STR
 					{
 						IT_entry.iddatatype = IT::STR;
 						strcpy_s(IT_entry.value.vstr->str, "");
@@ -246,7 +254,6 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 					}
 
 					indexIT = IT::search(ID_Table, IT_entry);
-
 					if (indexIT != -1)
 					{
 						throw ERROR_THROW(105);
@@ -259,17 +266,16 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 				if (!addedToITFlag)
 				{
 					indexIT = IT::search(ID_Table, IT_entry);
-
 					if (indexIT >= 0)
 					{
 						LT_entry.idxTI = indexIT;
 					}
 				}
 
-				std::memset(IT_entry.id, NULL, ID_SIZE);
+				std::memset(IT_entry.id, NULL, ID_SIZE); // очищаем ID перед новой итерацией
 
-				IT_entry.iddatatype = IT::INT;
-				IT_entry.value.vint = NULL;
+				IT_entry.iddatatype = IT::INT; // по умолчанию INT
+				IT_entry.value.vint = NULL; // без значения (по факту будет 0)
 				addedToITFlag = false;
 
 				break;
@@ -279,122 +285,149 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 			}
 
 			bufferIndex = 0;
-			std::memset(str, NULL, bufferIndex + 1);
+			std::memset(str, NULL, bufferIndex + 1); // отчищаем также буфер str, в который считавается текст из in.text
 		}
 
-		if (LT_entry.lexema[0] != NULL)
+		if (LT_entry.lexema[0] != NULL) // если лексема была распознана - сохраняем ее
 		{
 			LT_entry.sn = currentLine;
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
-
 		}
-
-		if (lexems.find(in.text[i]) != lexems.end())
+		switch (in.text[i])
 		{
-			LT_entry.lexema[0] = lexems.at(in.text[i]);
+		case SEMICOLON: // для поддерживаемых лексем в виде текущего символа
+			LT_entry.lexema[0] = LEX_SEMICOLON; // сохраняем их
+			goto add_LT_entry; // добавляем их в таблицу
+			break;
+		case COMMA:
+			LT_entry.lexema[0] = LEX_COMMA;
+			goto add_LT_entry;
+			break;
+		case PLUS:
+			LT_entry.lexema[0] = LEX_PLUS;
+			goto add_LT_entry;
+			break;
+		case MINUS:
+			LT_entry.lexema[0] = LEX_MINUS;
+			goto add_LT_entry;
+			break;
+		case STAR:
+			LT_entry.lexema[0] = LEX_STAR;
+			goto add_LT_entry;
+			break;
+		case DIRSLASH:
+			LT_entry.lexema[0] = LEX_DIRSLASH;
+			goto add_LT_entry;
+			break;
+		case EQUAL:
+			LT_entry.lexema[0] = LEX_EQUAL;
+
+		add_LT_entry: // goto я не гей
 			LT_entry.sn = currentLine;
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
-		}
+			break;
 
-		else
+		case MARK: // отдельно для кавычек
 		{
-			switch (in.text[i])
+			int index = i + 1; // индекс второго символа "'" (конец строкового литерала)
+			while (index < MAX_LEX_SIZE - 1 && in.text[index++] != MARK);
+
+			index--; // цикл находит индекс символа за ковычкой
+
+			if (str[0] == '\'' && ID_Table.size > 0 // если это строковой литерал инициализирует переменную
+				&& ID_Table.table[ID_Table.size - 1].idtype == IT::V
+				&& ID_Table.table[ID_Table.size - 1].iddatatype == IT::STR)
 			{
-			case MARK:
-			{
-				int index = i + 1;
-				while (index < MAX_LEX_SIZE - 1 && in.text[index++] != MARK);
-
-				if (str[0] == '\'' && ID_Table.size > 0 && ID_Table.table[ID_Table.size - 1].idtype == IT::V && ID_Table.table[ID_Table.size - 1].iddatatype == IT::STR)
+				if (in.text[index] == MARK) // если была найдена вторая кавычка
 				{
-					if (in.text[index - 1] == MARK)
-					{
-						//strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i);
-
-						sprintf(ID_Table.table[ID_Table.size - 1].value.vstr->str, "L%d\0", literalsCount);
-
-						int len = strlen(ID_Table.table[ID_Table.size - 1].value.vstr->str);
-						//ID_Table.table[ID_Table.size - 1].value.vstr->str[len] = ;
-						ID_Table.table[ID_Table.size - 1].value.vstr->len = len;
-
-						//i = index;
-					}
-
-					LT_entry.idxTI = ID_Table.size;
-
-					str[bufferIndex] = '\0';
-					LT_entry.lexema[0] = LEX_LITERAL;
-
-					sprintf_s(IT_entry.id, "L%d", literalsCount++);
-
-					IT_entry.iddatatype = IT::STR;
-					IT_entry.idtype = IT::L;
-					IT_entry.idxfirstLE = currentLine;
-
-					int x = 0;
-					for (; i < index; i++)
-					{
-						IT_entry.value.vstr->str[x++] = in.text[i];
-					}
-
-					IT_entry.value.vstr->str[x] = '\0';
-					IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
-					LT_entry.sn = currentLine;
-					IT_entry.scope = scope.top();
-
-					LT::Add(LexTable, LT_entry);
-					IT::Add(ID_Table, IT_entry);
-
-					LT_entry.lexema[0] = NULL;
-
-					break;
-				}
-				else
-				{
-					LT_entry.idxTI = ID_Table.size;
-
-					str[bufferIndex] = '\0';
-					LT_entry.lexema[0] = LEX_LITERAL;
-
-					sprintf_s(IT_entry.id, "L%d", ++literalsCount);
-
-					IT_entry.iddatatype = IT::STR;
-					IT_entry.idtype = IT::L;
-					IT_entry.idxfirstLE = currentLine;
-
-					int x = 0;
-					for (; i < index; i++)
-					{
-						IT_entry.value.vstr->str[x++] = in.text[i];
-					}
-
-					IT_entry.value.vstr->str[x] = '\0';
-					IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
-					LT_entry.sn = currentLine;
-					IT_entry.scope = scope.top();
-
-					LT::Add(LexTable, LT_entry);
-					IT::Add(ID_Table, IT_entry);
-
-					LT_entry.lexema[0] = NULL;
+					sprintf(ID_Table.table[ID_Table.size - 1].value.vstr->str, "L%d\0", literalsCount); // сохраняем не значение, а номер литерала. e.g L3 или L0
+					// чтобы сохранить значение 
+					// strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i + 1);
+					int len = strlen(ID_Table.table[ID_Table.size - 1].value.vstr->str);
+					ID_Table.table[ID_Table.size - 1].value.vstr->len = len;
 				}
 			}
+			// и добавляем сам литерал (в любом случае)
+			LT_entry.idxTI = ID_Table.size;
+
+			str[bufferIndex] = '\0';
+			LT_entry.lexema[0] = LEX_LITERAL;
+
+			sprintf_s(IT_entry.id, "L%d", literalsCount++);
+
+			IT_entry.iddatatype = IT::STR;
+			IT_entry.idtype = IT::L;
+			IT_entry.idxfirstLE = currentLine;
+
+			int x = 0;
+			// копирует значение литерала (включая кавычки)
+			strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i + 1);
+
+			IT_entry.value.vstr->str[index - i + 1] = '\0';
+			IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
+			LT_entry.sn = currentLine;
+			IT_entry.scope = scope.top();
+
+			LT::Add(LexTable, LT_entry);
+			IT::Add(ID_Table, IT_entry);
+
+			LT_entry.lexema[0] = NULL;
+
+			i = index;
+		}
+		break;
+
+		case NEW_LINE:
+		{
+			LT_entry.lexema[0] = '\n';
+			LT_entry.sn = currentLine++;
+			LT::Add(LexTable, LT_entry);
+			LT_entry.lexema[0] = NULL;
+			break;
+		}
+
+		case LEFT_BRACE:
+		{
+			LT_entry.lexema[0] = LEX_LEFTBRACE;
+			LT_entry.sn = currentLine;
+			LT::Add(LexTable, LT_entry);
+			LT_entry.lexema[0] = NULL;
+
+			for (int j = ID_Table.size - 1; j >= 0; j--) // ищем ближайшую функцию для установки области видимости в эту функцию
+			{
+				if (ID_Table.table[j].idtype == IT::F)
+				{
+					scope.push(&ID_Table.table[j]);
+					break;
+				}
+			}
+			break;
+		}
+
+		case RIGHT_BRACE:
+		{
+			LT_entry.lexema[0] = LEX_RIGHTBRACE;
+			LT_entry.sn = currentLine;
+			LT::Add(LexTable, LT_entry);
+			LT_entry.lexema[0] = NULL;
+
+			if (!scope.empty()) // '}' - выходим из области видимости 
+				scope.pop();
 
 			break;
-			case NEW_LINE:
-				LT_entry.lexema[0] = '\n';
-				LT_entry.sn = currentLine;
-				currentLine++;
-				LT::Add(LexTable, LT_entry);
-				LT_entry.lexema[0] = NULL;
-				break;
-			case LEFT_BRACE:
-				LT_entry.lexema[0] = LEX_LEFTBRACE;
-				LT_entry.sn = currentLine;
-				LT::Add(LexTable, LT_entry);
-				LT_entry.lexema[0] = NULL;
+		}
+
+		case LEFTTHESIS:
+		{
+			LT_entry.lexema[0] = LEX_LEFTTHESIS;
+			LT_entry.sn = currentLine;
+			LT::Add(LexTable, LT_entry);
+			LT_entry.lexema[0] = NULL;
+
+			if (declareFunctionflag)
+			{
 				for (int j = ID_Table.size - 1; j >= 0; j--)
 				{
 					if (ID_Table.table[j].idtype == IT::F)
@@ -403,188 +436,26 @@ void LexAn::_lexAnalize(Parm::PARM param, In::IN in)
 						break;
 					}
 				}
-				break;
-			case RIGHT_BRACE:
-				LT_entry.lexema[0] = LEX_RIGHTBRACE;
-				LT_entry.sn = currentLine;
-				LT::Add(LexTable, LT_entry);
-				LT_entry.lexema[0] = NULL;
-				if (!scope.empty())
-					scope.pop();
-				break;
-			case LEFTTHESIS:
-				LT_entry.lexema[0] = LEX_LEFTTHESIS;
-				LT_entry.sn = currentLine;
-				LT::Add(LexTable, LT_entry);
-				LT_entry.lexema[0] = NULL;
-				if (declareFunctionflag)
-				{
-					for (int j = ID_Table.size - 1; j >= 0; j--)
-					{
-						if (ID_Table.table[j].idtype == IT::F)
-						{
-							scope.push(&ID_Table.table[j]);
-							break;
-						}
-					}
-				}
-				break;
-			case RIGHTTHESIS:
-				LT_entry.lexema[0] = LEX_RIGHTTHESIS;
-				LT_entry.sn = currentLine;
-				LT::Add(LexTable, LT_entry);
-				LT_entry.lexema[0] = NULL;
-				if (!scope.empty() && declareFunctionflag)
-				{
-					scope.pop();
-					declareFunctionflag = false;
-				}
-				break;
 			}
+			break;
 		}
-	}
-	std::cout << "aaaa\n";
-	printToFile(IT_entry, param.it, LT_entry, param.lt);
-
-}
-
-void printLine(std::ofstream& file) {
-	// В HTML можно опустить линии, поэтому этот метод больше не нужен
-}
-
-void printToFile(IT::Entry& IT_entry, const std::wstring IT_filename, LT::Entry& LT_entry, const std::wstring LT_filename)
-{
-	int SETW_VALUE = 8;
-
-	std::ofstream LT_file(LT_filename); // Файл для записи таблицы лексем
-	std::ofstream IT_file(IT_filename); // Файл для записи таблицы идентификаторов
-
-	if (!LT_file.is_open())
-	{
-		std::wcout << L"Не удалось открыть файл " << LT_filename << L"\n";
-		return;
-	}
-
-	if (!IT_file.is_open())
-	{
-		std::wcout << L"Не удалось открыть файл " << IT_filename << L"\n";
-		return;
-	}
-
-	// Начало HTML-документа
-	IT_file << "<!DOCTYPE html><html><head><title>Identifier Table</title></head><body>" << std::endl;
-	IT_file << "<pre><table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
-
-	// Заголовок таблицы
-	IT_file << "<tr>"
-		<< "<th>ID</th>"
-		<< "<th>Datatype</th>"
-		<< "<th>ID Type</th>"
-		<< "<th>Line</th>"
-		<< "<th>Value</th>"
-		<< "<th>Scope</th>"
-		<< "</tr>" << std::endl;
-
-	// Заполнение таблицы данными
-	for (int i = 0; i < ID_Table.size; i++) {
-		IT_entry = IT::GetEntry(ID_Table, i);
-
-		IT_file << "<tr>";
-
-		// ID
-		IT_file << "<td>" << IT_entry.id << "</td>";
-
-		// Datatype
-		if (IT_entry.iddatatype == 1)
-			IT_file << "<td>INT</td>";
-		else if (IT_entry.iddatatype == 2)
-			IT_file << "<td>STR</td>";
-		else
-			IT_file << "<td>-</td>";
-
-		// ID Type
-		IT_file << "<td>";
-		if (IT_entry.idtype == IT::V)
-			IT_file << "V";
-		else if (IT_entry.idtype == IT::L)
-			IT_file << "L";
-		else if (IT_entry.idtype == IT::F)
-			IT_file << "F";
-		else if (IT_entry.idtype == IT::P)
-			IT_file << "P";
-		else
-			IT_file << "-";
-		IT_file << "</td>";
-
-		// Line
-		IT_file << "<td>" << IT_entry.idxfirstLE << "</td>";
-
-		// Value
-		IT_file << "<td>";
-		if (IT_entry.iddatatype == IT::INT) {
-			IT_file << IT_entry.value.vint;
-		}
-		else if (IT_entry.iddatatype == IT::STR) {
-			std::string strValue(IT_entry.value.vstr->str);
-			IT_file << strValue;
-		}
-		else {
-			IT_file << "-";
-		}
-		IT_file << "</td>";
-
-		// Scope
-		IT_file << "<td>";
-		if (IT_entry.scope != NULL) {
-			std::string scopeValue(IT_entry.scope->id);
-			IT_file << scopeValue;
-		}
-		else {
-			IT_file << "-";
-		}
-		IT_file << "</td>";
-
-		IT_file << "</tr>" << std::endl;
-	}
-
-
-	// Закрытие таблицы и HTML-документа
-	IT_file << "</table></pre></body></html>" << std::endl;
-
-	IT_file.close();
-
-	LT_file << "<!DOCTYPE html><html><head><title>Lexem Table</title></head><body>" << std::endl;
-	LT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
-
-	// Заголовок таблицы
-	LT_file << "<tr>"
-		<< "<th>Line</th>"
-		<< "<th>Lexem</th>"
-		<< "</tr>" << std::endl;
-
-	int currentLine = 1;
-	LT_file << "<tr><td>01</td>" << std::setw(8);
-
-	std::string tmp;
-	for (int i = 0; i < LexTable.size; i++)
-	{
-		LT_entry = LT::GetEntry(LexTable, i);
-		if (currentLine != LT_entry.sn)
+		case RIGHTTHESIS:
 		{
-			currentLine = LT_entry.sn;
-			LT_file << "<tr><td>" << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << "</td>";
+			LT_entry.lexema[0] = LEX_RIGHTTHESIS;
+			LT_entry.sn = currentLine;
+			LT::Add(LexTable, LT_entry);
+			LT_entry.lexema[0] = NULL;
+
+			if (!scope.empty() && declareFunctionflag)
+			{
+				scope.pop();
+				declareFunctionflag = false;
+			}
+			break;
 		}
-		if (LT_entry.lexema[0] != In::IN::Newline)
-		{
-			tmp += LT_entry.lexema[0];
-		}
-		else
-		{
-			LT_file << "<td>" << tmp << "</td></tr>";
-			tmp.clear();
+
 		}
 	}
-	LT_file << "<td>" << tmp << "</td></tr>";
-	LT_file << "</table></body></html>" << std::endl;
-	LT_file.close();
+	printToFile(ID_Table, param.it, LexTable, param.lt, in);
+
 }

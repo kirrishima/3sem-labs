@@ -28,7 +28,7 @@ namespace IT
 		idtable.size += 1;
 	}
 
-	Entry GetEntry(IdTable& idtable, int n)
+	Entry GetEntry(const IdTable& idtable, int n)
 	{
 		return idtable.table[n];
 	}

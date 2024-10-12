@@ -50,7 +50,7 @@ namespace LT              // таблица лексем
 	);
 
 	Entry GetEntry(         // получить строку таблицы лексем
-		LexTable& lextable, // экземпл€р таблицы лексем
+		const LexTable& lextable, // экземпл€р таблицы лексем
 		int n               // номер получаемой строки
 	);
 
