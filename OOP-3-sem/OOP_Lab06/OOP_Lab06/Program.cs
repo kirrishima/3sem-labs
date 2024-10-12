@@ -1,6 +1,4 @@
 ﻿using OOP_Lab05.Controllers;
-using OOP_Lab05.Controllers.Interfaces;
-using OOP_Lab05.Controllers.UI;
 using OOP_Lab05.Shapes;
 using System.Collections;
 

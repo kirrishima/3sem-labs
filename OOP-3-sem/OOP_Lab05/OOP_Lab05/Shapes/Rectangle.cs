@@ -3,7 +3,7 @@ using OOP_Lab05.Controllers.Interfaces;
 
 namespace OOP_Lab05.Shapes
 {
-    public class Rectangle : Figure, IManagement
+    public partial class Rectangle : Figure, IManagement
     {
         public double width;
         public double height;
@@ -45,42 +45,6 @@ namespace OOP_Lab05.Shapes
         {
             Console.WriteLine("Координаты Rectangle: {0}, {1}", Point.X, Point.Y);
             Console.WriteLine("Ширина и высота Rectangle: {0}, {1}", width, height);
-        }
-
-        public override void Show()
-        {
-
-            if (button != null)
-            {
-                button.Show();
-                Console.WriteLine("Ширина кнопки: {0}", width);
-                Console.WriteLine("Высота кнопки: {0}", height);
-            }
-
-            if (checktbox != null)
-            {
-                checktbox.Show();
-                Console.WriteLine("Ширина кнопки: {0}", width);
-                Console.WriteLine("Высота кнопки: {0}", height);
-            }
-
-            if (button == null && checktbox == null)
-            {
-                Console.WriteLine("\nНе является прямоугольной кнопкой ");
-            }
-
-            Console.WriteLine("Координаты кнопки: {0}, {1}", Point.X, Point.Y);
-            Console.WriteLine(newButton);
-        }
-
-        public void Input()
-        {
-            Console.WriteLine("Это класс прямоугольник");
-        }
-
-        public void Resize(double x, double y)
-        {
-            Point = new Utils.Point(x, y);
         }
     }
 }
