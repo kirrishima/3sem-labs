@@ -135,16 +135,10 @@ namespace SVV
 	{
 		return new FST::FST(str,
 			2,
-			FST::NODE(52, relationsForState(0),
+			FST::NODE(NUM_LETTERS * 2, relationsForState(0),
 				relationsForState(1)),
 			FST::NODE()
 		);
 	}
 #undef relationsForState
-
-	const char* CreateIdentifierFST()
-	{
-		return "[a-z]{1,5}";
-	}
-
 }
