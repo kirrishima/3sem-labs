@@ -5,7 +5,8 @@
 
 namespace utils
 {
-	std::string trim(const std::string& str);
+	/*std::string trimmed_pos(const std::string& str);*/
+	std::pair<int, int> trimmed_pos(const std::string& str);
 }
 
 namespace LexAn::Utils

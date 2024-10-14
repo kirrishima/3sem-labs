@@ -28,29 +28,32 @@ namespace In
 		{
 			bool insideString = false;
 
-			auto trimmedString = utils::trim(tmp);
+			std::pair<int, int> p = utils::trimmed_pos(tmp);
 
-			trimmedLength = trimmedString.length();
-
-			in.ignore += tmp.length() - trimmedString.length();
-
-			for (int position = 0; position < trimmedLength; position++)
+			if (p.first != -1)
 			{
-				auto ch = static_cast<unsigned char>(trimmedString[position]);
+				in.ignore += p.first + tmp.length() - p.second - 1;
+			}
+
+			for (int position = p.first; position <= p.second; position++)
+			{
+				auto ch = static_cast<unsigned char>(tmp[position]);
 				switch (in.code[ch])
 				{
 				case IN::T:
 					in.text[in.size++] = ch;
 					break;
+
 				case IN::F:
 					in.text[in.size] = '\0';
 					throw ERROR_THROW_IN(111, in.lines, position + 1, in.text);
-					break;
+
 				case IN::I:
 					in.ignore++;
 					break;
+
 				case IN::Space:
-					if (in.size > 0 && in.text[in.size - 1] == SPACE)
+					if (!insideString && in.size > 0 && in.text[in.size - 1] == SPACE)
 					{
 						in.ignore++;
 						break;
@@ -61,42 +64,15 @@ namespace In
 				case IN::Mark:
 				{
 					in.text[in.size++] = ch;
-					bool insideString = true;
-
-					while (++position < trimmedLength && insideString)
-					{
-						ch = static_cast<unsigned char>(trimmedString[position]);
-						switch (in.code[ch])
-						{
-						case IN::Newline:
-							in.text[in.size] = '\0';
-							throw ERROR_THROW_IN(111, in.lines, position + 1, in.text);
-							break;
-
-						case IN::F:
-							in.text[in.size] = '\0';
-							throw ERROR_THROW_IN(111, in.lines, position + 1, in.text);
-							break;
-
-						case IN::T:
-							in.text[in.size++] = ch;
-							break;
-
-						case(IN::Mark):
-							insideString = false;
-							in.text[in.size++] = ch;
-							break;
-						default:
-							in.text[in.size++] = ch;
-							break;
-						}
-					}
-					if (trimmedString[position] != '\'')
-					{
-						position--;
-					}
+					insideString = !insideString;
 					break;
 				}
+
+				case IN::Newline:
+					in.lines++;
+					in.text[in.size++] = '|';
+					break;
+
 				case IN::Asterisk:
 				case IN::Equal:
 				case IN::LeftBrace:
@@ -109,9 +85,9 @@ namespace In
 				case IN::Slash:
 				case IN::Comma:
 				{
-					if (position + 1 < trimmedLength && trimmedString[position + 1] == SPACE)
+					if (position + 1 <= p.second && tmp[position + 1] == SPACE)
 					{
-						while (position + 1 < trimmedLength && trimmedString[position + 1] == SPACE) {
+						while (position + 1 <= p.second && tmp[position + 1] == SPACE) {
 							position++;
 							in.ignore++;
 						}
@@ -129,14 +105,9 @@ namespace In
 					break;
 				}
 				default:
-					in.text[in.size] = in.code[trimmedString[position]];
+					in.text[in.size] = in.code[tmp[position]];
 					in.size++;
 				}
-			}
-			if (in.text[in.size - 1] != ',')
-			{
-				in.lines++;
-				in.text[in.size++] = '|';
 			}
 		}
 

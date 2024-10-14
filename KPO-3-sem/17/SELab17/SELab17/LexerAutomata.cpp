@@ -19,57 +19,68 @@ IT::IdTable ID_Table = IT::Create(TI_MAXSIZE - 1);
 
 char* str = new char[MAX_LEX_SIZE];
 
-// \0 in case of missmatch of everything
+FST::FST* IntegerFST(CreateIntegerFST(str));
+FST::FST* StringFST(CreateStringFST(str));
+FST::FST* FunctionFST(CreateFunctionFST(str));
+FST::FST* DeclareFST(CreateDeclareFST(str));
+FST::FST* ReturnFST(CreateReturnFST(str));
+FST::FST* MainFST(CreateMainFST(str));
+FST::FST* PrintFST(CreatePrintFST(str));
+FST::FST* INTLiteralFST(CreateINTLiteralFST(str));
+FST::FST* IdentifierFST(CreateIdentifierFST(str));
+
+// \0 in case of mismatch of everything
 char LexAn::determineLexeme()
 {
-	if (execute(*std::unique_ptr<FST::FST>(CreateIntegerFST(str))))
+	if (execute(*IntegerFST))
 	{
 		return LEX_INTEGER;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreateStringFST(str))))
+	if (execute(*StringFST))
 	{
 		stringFlag = true;
 		return LEX_STRING;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreateFunctionFST(str))))
+	if (execute(*FunctionFST))
 	{
 		return LEX_FUNCTION;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreateDeclareFST(str))))
+	if (execute(*DeclareFST))
 	{
 		return LEX_DECLARE;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreateReturnFST(str))))
+	if (execute(*ReturnFST))
 	{
 		return LEX_RETURN;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreateMainFST(str))))
+	if (execute(*MainFST))
 	{
 		return LEX_MAIN;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreatePrintFST(str))))
+	if (execute(*PrintFST))
 	{
 		return LEX_PRINT;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreateINTLiteralFST(str))))
+	if (execute(*INTLiteralFST))
 	{
 		return LEX_LITERAL;
 	}
 
-	if (execute(*std::unique_ptr<FST::FST>(CreateIdentifierFST(str))))
+	if (execute(*IdentifierFST))
 	{
 		return LEX_ID;
 	}
 
 	return '\0';
 }
+
 
 void LexAn::lexAnalize(Parm::PARM param, In::IN in)
 {
@@ -453,9 +464,24 @@ void LexAn::lexAnalize(Parm::PARM param, In::IN in)
 			}
 			break;
 		}
-
 		}
 	}
-	printToFile(ID_Table, param.it, LexTable, param.lt, in);
 
+	try
+	{
+		printToFile(ID_Table, param.it, LexTable, param.lt, in);
+	}
+	catch (...) {}
+
+	delete[] str;
+
+	delete IntegerFST;
+	delete StringFST;
+	delete FunctionFST;
+	delete DeclareFST;
+	delete ReturnFST;
+	delete MainFST;
+	delete PrintFST;
+	delete INTLiteralFST;
+	delete IdentifierFST;
 }

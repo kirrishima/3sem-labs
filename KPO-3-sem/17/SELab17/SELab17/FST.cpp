@@ -38,6 +38,10 @@ namespace FST
 	// Функция execute для выполнения распознавания цепочки
 	bool execute(FST& fst)
 	{
+		short* tmpStates = new short[fst.nstates];
+		// сохраняем состояния для возможности переиспользования (повторного разбора) объекта FST 
+		std::memcpy(tmpStates, fst.rstates, fst.nstates * sizeof(short));
+
 		short* rstates = new short[fst.nstates];
 		std::memset(rstates, -1, fst.nstates * sizeof(short));  // инициализируем массив значением -1
 
@@ -68,7 +72,10 @@ namespace FST
 		}
 
 		delete[] rstates;
-		return rc ? fst.rstates[fst.nstates - 1] == lstring : rc;  // проверяем, достигли ли конечного состояния
+		auto result = rc ? fst.rstates[fst.nstates - 1] == lstring : rc;
+
+		std::memcpy(fst.rstates, tmpStates, fst.nstates * sizeof(short));
+		return result;  // проверяем, достигли ли конечного состояния
 	}
 
 	bool execute(const char* regex, const char* str)
