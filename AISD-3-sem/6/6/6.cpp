@@ -3,7 +3,7 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-
+#include <Windows.h>
 // Структура для узла дерева Хаффмана
 struct Node
 {
@@ -109,10 +109,14 @@ void buildHuffmanTree(const std::string& text)
 
 int main()
 {
+	SetConsoleOutputCP(1251);
+	SetConsoleCP(1251);
+
 	std::string text;
 	std::cout << "Введите текст для кодирования: ";
 	std::getline(std::cin, text);
 
+	std::cout << text << std::endl;
 	buildHuffmanTree(text);
 
 	return 0;
