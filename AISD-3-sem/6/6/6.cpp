@@ -3,7 +3,8 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <Windows.h>
+#include <consoleapi2.h>
+
 // Структура для узла дерева Хаффмана
 struct Node
 {
