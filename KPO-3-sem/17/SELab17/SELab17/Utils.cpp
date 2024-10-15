@@ -26,7 +26,9 @@ namespace utils
 
 namespace LexAn::Utils
 {
-	void printToFile(const IT::IdTable& ID_Table, const std::wstring& IT_filename, const LT::LexTable& LexTable, const std::wstring& LT_filename, const In::IN& in)
+	void printToFile(const IT::IdTable& ID_Table, const std::wstring& IT_filename,
+		const LT::LexTable& LexTable, const std::wstring& LT_filename,
+		const In::IN& in)
 	{
 		IT::Entry IT_entry;
 		LT::Entry LT_entry;
@@ -150,9 +152,16 @@ namespace LexAn::Utils
 				currentLine = LT_entry.sn;
 				LT_file << "<tr><td>" << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << "</td>";
 			}
-			if (LT_entry.lexema[0] != In::IN::Newline)
+			if (LT_entry.lexema[0] != '\n')
 			{
 				tmp += LT_entry.lexema[0];
+
+				//if (LT_entry.idxTI != NULL)
+				//{
+				//	tmp += '!';
+				//	tmp += ID_Table.table[LT_entry.idxTI].id;
+				//	tmp += '|';
+				//}
 			}
 			else
 			{

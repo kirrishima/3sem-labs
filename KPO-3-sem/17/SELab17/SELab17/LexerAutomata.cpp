@@ -124,7 +124,6 @@ void LexAn::lexAnalize(Parm::PARM param, In::IN in)
 
 			case LEX_MAIN:
 			{
-				LT_entry.idxTI = ID_Table.size;
 				memcpy(IT_entry.id, str, ID_SIZE);
 				IT_entry.id[ID_SIZE] = '\0';
 				IT_entry.iddatatype = IT::INT;
@@ -147,7 +146,6 @@ void LexAn::lexAnalize(Parm::PARM param, In::IN in)
 
 			case LEX_LITERAL:
 			{
-				LT_entry.idxTI = ID_Table.size;
 				sprintf_s(IT_entry.id, "L%d", literalsCount++);
 				IT_entry.iddatatype = IT::INT;
 				IT_entry.idtype = IT::L;
@@ -177,6 +175,12 @@ void LexAn::lexAnalize(Parm::PARM param, In::IN in)
 
 				LT_entry.idxTI = ID_Table.size; // индекс ID равен размеру таблицы
 				memcpy(IT_entry.id, str, ID_SIZE); // копируем id из строки str, котора€ была распознана в determineLexeme как идентификатор
+
+				if (strlen(str) > ID_SIZE)
+				{
+					std::cout << str << " слишком длинное им€ идентификатора - допустимый размер - 5 символов. ќно будет обрезано до " << IT_entry.id << std::endl;
+				}
+
 				IT_entry.id[ID_SIZE] = '\0'; // обрезаем ID до 5 символов
 				IT_entry.iddatatype = IT::INT; // по умолчанию расцениваем как INT
 				IT_entry.value.vint = NULL; // не инициализирован

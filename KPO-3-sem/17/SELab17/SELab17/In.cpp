@@ -68,11 +68,6 @@ namespace In
 					break;
 				}
 
-				case IN::Newline:
-					in.lines++;
-					in.text[in.size++] = '|';
-					break;
-
 				case IN::Asterisk:
 				case IN::Equal:
 				case IN::LeftBrace:
@@ -109,8 +104,9 @@ namespace In
 					in.size++;
 				}
 			}
+			in.lines++;
+			in.text[in.size++] = IN_CODE_REPLACE_ENDL;
 		}
-
 		in.text[--in.size] = '\0';
 		return in;
 	}
