@@ -1,6 +1,6 @@
 #include <iostream>
 #include <vector>
-#include <climits> // для INT_MAX
+#include <climits>
 
 using namespace std;
 
@@ -17,19 +17,23 @@ const int GRAPH[SIZE][SIZE] = {
 	{0, 0,  7,  0,  8,  0,  9, 0},
 };
 
-void primMST() {
-	vector<bool> inMST(SIZE, false); // отслеживаем, какие вершины в MST
-	inMST[0] = true; // начинаем с первой вершины
+void primMST()
+{
+	vector<bool> inMST(SIZE, false);
+	inMST[0] = true;
 
-	for (int edges = 0; edges < SIZE - 1; edges++) {
+	for (int edges = 0; edges < SIZE - 1; edges++)
+	{
 		int min = INT_MAX;
 		int x = -1, y = -1;
 
-		// Находим минимальное ребро, соединяющее MST с невыбранной вершиной
-		for (int i = 0; i < SIZE; i++) {
-			if (inMST[i]) { // если вершина уже в MST
-				for (int j = 0; j < SIZE; j++) {
-					if (!inMST[j] && GRAPH[i][j] && GRAPH[i][j] < min) { // ищем ребро к невыбранной вершине
+		for (int i = 0; i < SIZE; i++)
+		{
+			if (inMST[i]) {
+				for (int j = 0; j < SIZE; j++)
+				{
+					if (!inMST[j] && GRAPH[i][j] && GRAPH[i][j] < min)
+					{
 						min = GRAPH[i][j];
 						x = i;
 						y = j;
@@ -40,12 +44,13 @@ void primMST() {
 
 		if (x != -1 && y != -1) {
 			cout << (x + 1) << " - " << (y + 1) << " == " << GRAPH[x][y] << endl;
-			inMST[y] = true; // добавляем вершину в MST
+			inMST[y] = true;
 		}
 	}
 }
 
-int main() {
+int main()
+{
 	primMST();
 	return 0;
 }
