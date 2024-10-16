@@ -1,4 +1,4 @@
-#ifndef LOG_H
+п»ї#ifndef LOG_H
 #define LOG_H
 
 #include "In.h"
@@ -6,22 +6,22 @@
 #include "Error.h"
 #include <string>
 
-namespace Log	// Работа с протоколом
+namespace Log	// Р Р°Р±РѕС‚Р° СЃ РїСЂРѕС‚РѕРєРѕР»РѕРј
 {
-	struct LOG // протокол
+	struct LOG // РїСЂРѕС‚РѕРєРѕР»
 	{
-		std::wstring logfile;  // имя файла протокола
-		std::ofstream* stream; // выходной поток протокола
+		std::wstring logfile;  // РёРјСЏ С„Р°Р№Р»Р° РїСЂРѕС‚РѕРєРѕР»Р°
+		std::ofstream* stream; // РІС‹С…РѕРґРЅРѕР№ РїРѕС‚РѕРє РїСЂРѕС‚РѕРєРѕР»Р°
 	};
 
-	static const LOG INIT_LOG{ L"", NULL };// структура для начальной инициализации LOG
-	LOG getlog(const std::wstring& logfile);// сформировать структуру LOG
-	void WriteLine(LOG log, char* c, ...);// вывести в протокол конкатенацию строк
-	void WriteLine(LOG log, wchar_t* с, ...); //вывести в протокол конкатенацию строк
-	void WriteLog(LOG log);// вывести в протокол заголовок
-	void WriteParm(LOG log, Parm::PARM parm); // вывести в протокол информацию о входных параметрах
-	void WriteIn(LOG log, In::IN in);// вывести в протокол информацию о входном потоке
-	void WriteError(LOG log, Error::ERROR error); // вывести в протокол информацию об ошибке
+	static const LOG INIT_LOG{ L"", NULL };// СЃС‚СЂСѓРєС‚СѓСЂР° РґР»СЏ РЅР°С‡Р°Р»СЊРЅРѕР№ РёРЅРёС†РёР°Р»РёР·Р°С†РёРё LOG
+	LOG getlog(const std::wstring& logfile);// СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ СЃС‚СЂСѓРєС‚СѓСЂСѓ LOG
+	void WriteLine(LOG log, char* c, ...);// РІС‹РІРµСЃС‚Рё РІ РїСЂРѕС‚РѕРєРѕР» РєРѕРЅРєР°С‚РµРЅР°С†РёСЋ СЃС‚СЂРѕРє
+	void WriteLine(LOG log, wchar_t* СЃ, ...); //РІС‹РІРµСЃС‚Рё РІ РїСЂРѕС‚РѕРєРѕР» РєРѕРЅРєР°С‚РµРЅР°С†РёСЋ СЃС‚СЂРѕРє
+	void WriteLog(LOG log);// РІС‹РІРµСЃС‚Рё РІ РїСЂРѕС‚РѕРєРѕР» Р·Р°РіРѕР»РѕРІРѕРє
+	void WriteParm(LOG log, Parm::PARM parm); // РІС‹РІРµСЃС‚Рё РІ РїСЂРѕС‚РѕРєРѕР» РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІС…РѕРґРЅС‹С… РїР°СЂР°РјРµС‚СЂР°С…
+	void WriteIn(LOG log, In::IN in);// РІС‹РІРµСЃС‚Рё РІ РїСЂРѕС‚РѕРєРѕР» РёРЅС„РѕСЂРјР°С†РёСЋ Рѕ РІС…РѕРґРЅРѕРј РїРѕС‚РѕРєРµ
+	void WriteError(LOG log, Error::ERROR error); // РІС‹РІРµСЃС‚Рё РІ РїСЂРѕС‚РѕРєРѕР» РёРЅС„РѕСЂРјР°С†РёСЋ РѕР± РѕС€РёР±РєРµ
 	void Close(LOG log);
 };
 

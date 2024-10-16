@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Out.h"
 
 namespace Out
@@ -24,11 +24,11 @@ namespace Out
 	{
 		if (out.stream)
 		{
-			*out.stream << " ----	Îøèáêà	---- " << std::endl;
-			*out.stream << "Îøèáêà " << error.id << ": " << error.message << std::endl;
+			*out.stream << " ----	ÐžÑˆÐ¸Ð±ÐºÐ°	---- " << std::endl;
+			*out.stream << "ÐžÑˆÐ¸Ð±ÐºÐ° " << error.id << ": " << error.message << std::endl;
 			if (error.inext.col >= 0 && error.inext.line >= 0)
 			{
-				*out.stream << "Ñòðîêà: " << error.inext.line << std::endl << "Ñòîëáåö: " << error.inext.col << std::endl << std::endl;
+				*out.stream << "Ð¡Ñ‚Ñ€Ð¾ÐºÐ°: " << error.inext.line << std::endl << "Ð¡Ñ‚Ð¾Ð»Ð±ÐµÑ†: " << error.inext.col << std::endl << std::endl;
 			}
 		}
 	}

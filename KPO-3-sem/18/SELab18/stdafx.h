@@ -1,4 +1,4 @@
-#ifndef STDAFX_H
+п»ї#ifndef STDAFX_H
 #define STDAFX_H
 
 #define _CRT_SECURE_NO_WARNINGS
@@ -13,10 +13,10 @@
 
 
 #include "Out.h"
-#include "Error.h"		//обработка ошибок
-#include "Parm.h"		//обработка параметров
-#include "Log.h"		//работа с протоколом
-#include "In.h"			//ввод исходного файла
+#include "Error.h"		//РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє
+#include "Parm.h"		//РѕР±СЂР°Р±РѕС‚РєР° РїР°СЂР°РјРµС‚СЂРѕРІ
+#include "Log.h"		//СЂР°Р±РѕС‚Р° СЃ РїСЂРѕС‚РѕРєРѕР»РѕРј
+#include "In.h"			//РІРІРѕРґ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
 #include "FST.h"
 #include "IT.h"
 #include "LT.h"

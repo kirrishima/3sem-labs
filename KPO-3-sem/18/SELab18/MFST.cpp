@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "MFST.h"
 
 namespace MFST
@@ -10,14 +10,14 @@ namespace MFST
 		nrulechain = -1;
 	};
 
-	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrulechain) //(ïîçèöèÿ íà ëåíòå;ñòåê àâòîìàòà; íîìåð òåêóùåé öåïî÷êè òåêóùåãî ïðàâèëà)
+	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrulechain) //(Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð½Ð° Ð»ÐµÐ½Ñ‚Ðµ;ÑÑ‚ÐµÐº Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð°; Ð½Ð¾Ð¼ÐµÑ€ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÐ¸ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°)
 	{
 		lenta_position = pposition;
 		st = pst;
 		nrulechain = pnrulechain;
 	};
 
-	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrule, short pnrulechain) //(ïîçèöèÿ íà ëåíòå;ñòåê àâòîìàòà; íîìåð òåêóùåãî ïðàâèëà; íîìåð òåêóùåé öåïî÷êè òåêóùåãî ïðàâèëà)
+	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrule, short pnrulechain) //(Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ Ð½Ð° Ð»ÐµÐ½Ñ‚Ðµ;ÑÑ‚ÐµÐº Ð°Ð²Ñ‚Ð¾Ð¼Ð°Ñ‚Ð°; Ð½Ð¾Ð¼ÐµÑ€ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°; Ð½Ð¾Ð¼ÐµÑ€ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÐ¸ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ³Ð¾ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°)
 	{
 		lenta_position = pposition;
 		st = pst;
@@ -60,58 +60,58 @@ namespace MFST
 		{
 			if (GRB::Rule::Chain::isN(st.top()))
 			{
-				// Åñëè âåðøèíà ñòåêà ÿâëÿåòñÿ íåòåðìèíàëîì 
+				// Ð•ÑÐ»Ð¸ Ð²ÐµÑ€ÑˆÐ¸Ð½Ð° ÑÑ‚ÐµÐºÐ° ÑÐ²Ð»ÑÐµÑ‚ÑÑ Ð½ÐµÑ‚ÐµÑ€Ð¼Ð¸Ð½Ð°Ð»Ð¾Ð¼ 
 				GRB::Rule rule;
 				if ((nrule = grebach.getRule(st.top(), rule)) >= 0)
 				{
-					// Ïîëó÷àåì ïðàâèëî (getRule) èç ãðàììàòèêè, èñïîëüçóÿ âåðøèíó ñòåêà (st.top()). Åñëè ïðàâèëî ïîëó÷åíî óñïåøíî (nrule >= 0).
-					GRB::Rule::Chain chain; // Ñîçäàåì îáúåêò chain äëÿ õðàíåíèÿ öåïî÷êè.
+					// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð¾ (getRule) Ð¸Ð· Ð³Ñ€Ð°Ð¼Ð¼Ð°Ñ‚Ð¸ÐºÐ¸, Ð¸ÑÐ¿Ð¾Ð»ÑŒÐ·ÑƒÑ Ð²ÐµÑ€ÑˆÐ¸Ð½Ñƒ ÑÑ‚ÐµÐºÐ° (st.top()). Ð•ÑÐ»Ð¸ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð¾ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¾ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾ (nrule >= 0).
+					GRB::Rule::Chain chain; // Ð¡Ð¾Ð·Ð´Ð°ÐµÐ¼ Ð¾Ð±ÑŠÐµÐºÑ‚ chain Ð´Ð»Ñ Ñ…Ñ€Ð°Ð½ÐµÐ½Ð¸Ñ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÐ¸.
 					if ((nrulechain = rule.getNextChain(lenta[lenta_position], chain, nrulechain + 1)) >= 0)
 					{
-						// Ïîëó÷àåì ñëåäóþùóþ öåïî÷êó (getNextChain) èç ïðàâèëà, ñâÿçàííîãî ñ òåêóùåé âåðøèíîé ñòåêà.
+						// ÐŸÐ¾Ð»ÑƒÑ‡Ð°ÐµÐ¼ ÑÐ»ÐµÐ´ÑƒÑŽÑ‰ÑƒÑŽ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÑƒ (getNextChain) Ð¸Ð· Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°, ÑÐ²ÑÐ·Ð°Ð½Ð½Ð¾Ð³Ð¾ Ñ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¹ Ð²ÐµÑ€ÑˆÐ¸Ð½Ð¾Ð¹ ÑÑ‚ÐµÐºÐ°.
 						MFST_TRACE1
 							savestate();
 						st.pop();
-						push_chain(chain); // Ïîìåùàåì öåïî÷êó â ñòåê.
-						rc = NS_OK; // Óñòàíàâëèâàåì êîä óñïåøíîãî çàâåðøåíèÿ.
+						push_chain(chain); // ÐŸÐ¾Ð¼ÐµÑ‰Ð°ÐµÐ¼ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÑƒ Ð² ÑÑ‚ÐµÐº.
+						rc = NS_OK; // Ð£ÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ ÐºÐ¾Ð´ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾Ð³Ð¾ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ñ.
 						MFST_TRACE2
 					}
 					else
 					{
-						// Åñëè öåïî÷êà íå ìîæåò áûòü ïîëó÷åíà.
+						// Ð•ÑÐ»Ð¸ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÐ° Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð°.
 						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE")
-							savediagnosis(NS_NORULECHAIN); // Ñîõðàíÿåì äèàãíîç NS_NORULECHAIN.
+							savediagnosis(NS_NORULECHAIN); // Ð¡Ð¾Ñ…Ñ€Ð°Ð½ÑÐµÐ¼ Ð´Ð¸Ð°Ð³Ð½Ð¾Ð· NS_NORULECHAIN.
 						rc = resetstate() ? NS_NORULECHAIN : NS_NORULE;
 					};
 				}
 				else
 				{
-					rc = NS_ERROR; // Åñëè ïðàâèëî íå ìîæåò áûòü ïîëó÷åíî.
+					rc = NS_ERROR; // Ð•ÑÐ»Ð¸ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð¾ Ð½Ðµ Ð¼Ð¾Ð¶ÐµÑ‚ Ð±Ñ‹Ñ‚ÑŒ Ð¿Ð¾Ð»ÑƒÑ‡ÐµÐ½Ð¾.
 				}
 			}
 			else if ((st.top() == lenta[lenta_position]))
 			{
-				// Åñëè âåðøèíà ñòåêà ñîîòâåòñòâóåò òåêóùåìó ñèìâîëó íà âõîäíîé ëåíòå.
-				lenta_position++; // Ïåðåìåùàåì óêàçàòåëü íà âõîäíîé ëåíòå íà ñëåäóþùèé ñèìâîë.
-				st.pop(); // Óäàëÿåì âåðøèíó ñòåêà.
-				nrulechain = -1; // Ñáðàñûâàåì èíäåêñ öåïî÷êè ïðàâèëà.
-				rc = TS_OK; // Óñòàíàâëèâàåì êîä óñïåøíîãî çàâåðøåíèÿ (TS_OK).
+				// Ð•ÑÐ»Ð¸ Ð²ÐµÑ€ÑˆÐ¸Ð½Ð° ÑÑ‚ÐµÐºÐ° ÑÐ¾Ð¾Ñ‚Ð²ÐµÑ‚ÑÑ‚Ð²ÑƒÐµÑ‚ Ñ‚ÐµÐºÑƒÑ‰ÐµÐ¼Ñƒ ÑÐ¸Ð¼Ð²Ð¾Ð»Ñƒ Ð½Ð° Ð²Ñ…Ð¾Ð´Ð½Ð¾Ð¹ Ð»ÐµÐ½Ñ‚Ðµ.
+				lenta_position++; // ÐŸÐµÑ€ÐµÐ¼ÐµÑ‰Ð°ÐµÐ¼ ÑƒÐºÐ°Ð·Ð°Ñ‚ÐµÐ»ÑŒ Ð½Ð° Ð²Ñ…Ð¾Ð´Ð½Ð¾Ð¹ Ð»ÐµÐ½Ñ‚Ðµ Ð½Ð° ÑÐ»ÐµÐ´ÑƒÑŽÑ‰Ð¸Ð¹ ÑÐ¸Ð¼Ð²Ð¾Ð».
+				st.pop(); // Ð£Ð´Ð°Ð»ÑÐµÐ¼ Ð²ÐµÑ€ÑˆÐ¸Ð½Ñƒ ÑÑ‚ÐµÐºÐ°.
+				nrulechain = -1; // Ð¡Ð±Ñ€Ð°ÑÑ‹Ð²Ð°ÐµÐ¼ Ð¸Ð½Ð´ÐµÐºÑ Ñ†ÐµÐ¿Ð¾Ñ‡ÐºÐ¸ Ð¿Ñ€Ð°Ð²Ð¸Ð»Ð°.
+				rc = TS_OK; // Ð£ÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ ÐºÐ¾Ð´ ÑƒÑÐ¿ÐµÑˆÐ½Ð¾Ð³Ð¾ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ñ (TS_OK).
 				MFST_TRACE3
 			}
 			else
 			{
-				// Åñëè íå âûïîëíåíû íè îäíî èç ïðåäûäóùèõ óñëîâèé.òî âûâîäèòñÿ äèàãíîç
+				// Ð•ÑÐ»Ð¸ Ð½Ðµ Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½Ñ‹ Ð½Ð¸ Ð¾Ð´Ð½Ð¾ Ð¸Ð· Ð¿Ñ€ÐµÐ´Ñ‹Ð´ÑƒÑ‰Ð¸Ñ… ÑƒÑÐ»Ð¾Ð²Ð¸Ð¹.Ñ‚Ð¾ Ð²Ñ‹Ð²Ð¾Ð´Ð¸Ñ‚ÑÑ Ð´Ð¸Ð°Ð³Ð½Ð¾Ð·
 				MFST_TRACE4(TS_NOK / NS_NORULECHAIN)
 					rc = resetstate() ? TS_NOK : NS_NORULECHAIN;
-				// Ñáðàñûâàåì ñîñòîÿíèå è óñòàíàâëèâàåì êîä îøèáêè TS_NOK èëè NS_NORULECHAIN.
+				// Ð¡Ð±Ñ€Ð°ÑÑ‹Ð²Ð°ÐµÐ¼ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ Ð¸ ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ ÐºÐ¾Ð´ Ð¾ÑˆÐ¸Ð±ÐºÐ¸ TS_NOK Ð¸Ð»Ð¸ NS_NORULECHAIN.
 			}
 		}
 		else
 		{
-			rc = LENTA_END; // Åñëè äîñòèãíóò êîíåö âõîäíîé ëåíòû, óñòàíàâëèâàåì êîä LENTA_END.
+			rc = LENTA_END; // Ð•ÑÐ»Ð¸ Ð´Ð¾ÑÑ‚Ð¸Ð³Ð½ÑƒÑ‚ ÐºÐ¾Ð½ÐµÑ† Ð²Ñ…Ð¾Ð´Ð½Ð¾Ð¹ Ð»ÐµÐ½Ñ‚Ñ‹, ÑƒÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ ÐºÐ¾Ð´ LENTA_END.
 			MFST_TRACE4(LENTA_END)
 		};
-		return rc; // Âîçâðàùàåì êîä çàâåðøåíèÿ ðàçáîðà.
+		return rc; // Ð’Ð¾Ð·Ð²Ñ€Ð°Ñ‰Ð°ÐµÐ¼ ÐºÐ¾Ð´ Ð·Ð°Ð²ÐµÑ€ÑˆÐµÐ½Ð¸Ñ Ñ€Ð°Ð·Ð±Ð¾Ñ€Ð°.
 	};
 
 
@@ -129,15 +129,15 @@ namespace MFST
 		return true;
 	};
 
-	bool Mfst::resetstate()//ìåòîä ïðåäíàçíà÷åí äëÿ ñáðîñà ñîñòîÿíèÿ ïàðñåðà (ðàçáîðùèêà
+	bool Mfst::resetstate()//Ð¼ÐµÑ‚Ð¾Ð´ Ð¿Ñ€ÐµÐ´Ð½Ð°Ð·Ð½Ð°Ñ‡ÐµÐ½ Ð´Ð»Ñ ÑÐ±Ñ€Ð¾ÑÐ° ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ñ Ð¿Ð°Ñ€ÑÐµÑ€Ð° (Ñ€Ð°Ð·Ð±Ð¾Ñ€Ñ‰Ð¸ÐºÐ°
 	{
 		bool rc = false;
 		MfstState state;
 		if (rc = (storestate.size() > 0))
 		{
-			// Ïðîâåðÿåì, åñëè â ñòåêå storestate åñòü ñîõðàíåííûå ñîñòîÿíèÿ (storestate.size() > 0).
+			// ÐŸÑ€Ð¾Ð²ÐµÑ€ÑÐµÐ¼, ÐµÑÐ»Ð¸ Ð² ÑÑ‚ÐµÐºÐµ storestate ÐµÑÑ‚ÑŒ ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð½Ñ‹Ðµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ñ (storestate.size() > 0).
 			state = storestate.top();
-			lenta_position = state.lenta_position; // Óñòàíàâëèâàåì çíà÷åíèå lenta_position íà ñîõðàíåííîå ñîñòîÿíèå.
+			lenta_position = state.lenta_position; // Ð£ÑÑ‚Ð°Ð½Ð°Ð²Ð»Ð¸Ð²Ð°ÐµÐ¼ Ð·Ð½Ð°Ñ‡ÐµÐ½Ð¸Ðµ lenta_position Ð½Ð° ÑÐ¾Ñ…Ñ€Ð°Ð½ÐµÐ½Ð½Ð¾Ðµ ÑÐ¾ÑÑ‚Ð¾ÑÐ½Ð¸Ðµ.
 			st = state.st;
 			nrule = state.nrule;
 			nrulechain = state.nrulechain;
@@ -188,8 +188,8 @@ namespace MFST
 		{
 			MFST_TRACE4("------>LENTA_END")
 				std::cout << "------------------------------------------------------------------------------------------   ------" << std::endl;
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: âñåãî ñòðîê %d, ñèíòàêñè÷åñêèé àíàëèç âûïîëíåí áåç îøèáîê", 0, lex.table[lex.size - 1].sn);
-			std::cout << std::setw(4) << std::left << 0 << "âñåãî ñòðîê " << lex.table[lex.size - 1].sn << ", ñèíòàêñè÷åñêèé àíàëèç âûïîëíåí áåç îøèáîê" << std::endl;
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: Ð²ÑÐµÐ³Ð¾ ÑÑ‚Ñ€Ð¾Ðº %d, ÑÐ¸Ð½Ñ‚Ð°ÐºÑÐ¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð°Ð½Ð°Ð»Ð¸Ð· Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½ Ð±ÐµÐ· Ð¾ÑˆÐ¸Ð±Ð¾Ðº", 0, lex.table[lex.size - 1].sn);
+			std::cout << std::setw(4) << std::left << 0 << "Ð²ÑÐµÐ³Ð¾ ÑÑ‚Ñ€Ð¾Ðº " << lex.table[lex.size - 1].sn << ", ÑÐ¸Ð½Ñ‚Ð°ÐºÑÐ¸Ñ‡ÐµÑÐºÐ¸Ð¹ Ð°Ð½Ð°Ð»Ð¸Ð· Ð²Ñ‹Ð¿Ð¾Ð»Ð½ÐµÐ½ Ð±ÐµÐ· Ð¾ÑˆÐ¸Ð±Ð¾Ðº" << std::endl;
 			rc = true;
 			break;
 		}
@@ -240,7 +240,7 @@ namespace MFST
 		{
 			errid = grebach.getRule(diagnosis[n].nrule).iderror;
 			Error::ERROR err = Error::geterror(errid);
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: ñòðîêà %d,%s", err.id, lex.table[lpos].sn, err.message);
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: ÑÑ‚Ñ€Ð¾ÐºÐ° %d,%s", err.id, lex.table[lpos].sn, err.message);
 			rc = buf;
 		}
 		return rc;

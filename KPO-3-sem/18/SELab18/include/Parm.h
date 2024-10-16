@@ -1,30 +1,30 @@
-#ifndef PARAM_H
+п»ї#ifndef PARAM_H
 #define PARAM_H
 
 #include <string>
 #include "tchar.h"
 
-#define PARM_IN L"-in:" // ключ для файла исходного кода
-#define PARM_OUT L"-out:" // ключ для файла объектного кода
-#define PARM_LOG L"-log:" // ключ для файла журнала
+#define PARM_IN L"-in:" // РєР»СЋС‡ РґР»СЏ С„Р°Р№Р»Р° РёСЃС…РѕРґРЅРѕРіРѕ РєРѕРґР°
+#define PARM_OUT L"-out:" // РєР»СЋС‡ РґР»СЏ С„Р°Р№Р»Р° РѕР±СЉРµРєС‚РЅРѕРіРѕ РєРѕРґР°
+#define PARM_LOG L"-log:" // РєР»СЋС‡ РґР»СЏ С„Р°Р№Р»Р° Р¶СѓСЂРЅР°Р»Р°
 
 #define PARM_MAX_SIZE 300
 
-#define PARM_OUT_DEFAULT_EXT L".out" // расширение файла объектного кода по умолчанию
-#define PARM_LOG_DEFAULT_EXT L".log" // расширение файла объектного кода по умолчанию
+#define PARM_OUT_DEFAULT_EXT L".out" // СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»Р° РѕР±СЉРµРєС‚РЅРѕРіРѕ РєРѕРґР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
+#define PARM_LOG_DEFAULT_EXT L".log" // СЂР°СЃС€РёСЂРµРЅРёРµ С„Р°Р№Р»Р° РѕР±СЉРµРєС‚РЅРѕРіРѕ РєРѕРґР° РїРѕ СѓРјРѕР»С‡Р°РЅРёСЋ
 
-namespace Parm // обработка входных параметров 
+namespace Parm // РѕР±СЂР°Р±РѕС‚РєР° РІС…РѕРґРЅС‹С… РїР°СЂР°РјРµС‚СЂРѕРІ 
 {
-	struct PARM // входные параметры	
+	struct PARM // РІС…РѕРґРЅС‹Рµ РїР°СЂР°РјРµС‚СЂС‹	
 	{
-		std::wstring in;  // -in: имя файла исходного кода
-		std::wstring out; // -out: имя файла объектного кода
-		std::wstring log; // -log: имя файла протокола
+		std::wstring in;  // -in: РёРјСЏ С„Р°Р№Р»Р° РёСЃС…РѕРґРЅРѕРіРѕ РєРѕРґР°
+		std::wstring out; // -out: РёРјСЏ С„Р°Р№Р»Р° РѕР±СЉРµРєС‚РЅРѕРіРѕ РєРѕРґР°
+		std::wstring log; // -log: РёРјСЏ С„Р°Р№Р»Р° РїСЂРѕС‚РѕРєРѕР»Р°
 		std::wstring it;
 		std::wstring lt;
 	};
 
-	PARM getparm(int argc, _TCHAR* argv[]); // сформировать struct PARM на основе параметров функции main
+	PARM getparm(int argc, _TCHAR* argv[]); // СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ struct PARM РЅР° РѕСЃРЅРѕРІРµ РїР°СЂР°РјРµС‚СЂРѕРІ С„СѓРЅРєС†РёРё main
 
 };
 

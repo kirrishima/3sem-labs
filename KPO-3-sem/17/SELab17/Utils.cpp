@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "Utils.h"
 #include <iomanip>
 
@@ -34,26 +34,26 @@ namespace LexAn::Utils
 		LT::Entry LT_entry;
 		int SETW_VALUE = 8;
 
-		std::ofstream LT_file(LT_filename); // Файл для записи таблицы лексем
-		std::ofstream IT_file(IT_filename); // Файл для записи таблицы идентификаторов
+		std::ofstream LT_file(LT_filename); // Р¤Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹ Р»РµРєСЃРµРј
+		std::ofstream IT_file(IT_filename); // Р¤Р°Р№Р» РґР»СЏ Р·Р°РїРёСЃРё С‚Р°Р±Р»РёС†С‹ РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ
 
 		if (!LT_file.is_open())
 		{
-			std::wcout << L"Не удалось открыть файл " << LT_filename << L"\n";
+			std::wcout << L"РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» " << LT_filename << L"\n";
 			return;
 		}
 
 		if (!IT_file.is_open())
 		{
-			std::wcout << L"Не удалось открыть файл " << IT_filename << L"\n";
+			std::wcout << L"РќРµ СѓРґР°Р»РѕСЃСЊ РѕС‚РєСЂС‹С‚СЊ С„Р°Р№Р» " << IT_filename << L"\n";
 			return;
 		}
 
-		// Начало HTML-документа
+		// РќР°С‡Р°Р»Рѕ HTML-РґРѕРєСѓРјРµРЅС‚Р°
 		IT_file << "<!DOCTYPE html><html><head><title>Identifier Table</title></head><body>" << std::endl;
 		IT_file << "<pre><table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
 
-		// Заголовок таблицы
+		// Р—Р°РіРѕР»РѕРІРѕРє С‚Р°Р±Р»РёС†С‹
 		IT_file << "<tr>"
 			<< "<th>ID</th>"
 			<< "<th>Datatype</th>"
@@ -63,7 +63,7 @@ namespace LexAn::Utils
 			<< "<th>Scope</th>"
 			<< "</tr>" << std::endl;
 
-		// Заполнение таблицы данными
+		// Р—Р°РїРѕР»РЅРµРЅРёРµ С‚Р°Р±Р»РёС†С‹ РґР°РЅРЅС‹РјРё
 		for (int i = 0; i < ID_Table.size; i++) {
 			IT_entry = IT::GetEntry(ID_Table, i);
 
@@ -126,7 +126,7 @@ namespace LexAn::Utils
 		}
 
 
-		// Закрытие таблицы и HTML-документа
+		// Р—Р°РєСЂС‹С‚РёРµ С‚Р°Р±Р»РёС†С‹ Рё HTML-РґРѕРєСѓРјРµРЅС‚Р°
 		IT_file << "</table></pre></body></html>" << std::endl;
 
 		IT_file.close();
@@ -134,7 +134,7 @@ namespace LexAn::Utils
 		LT_file << "<!DOCTYPE html><html><head><title>Lexem Table</title></head><body>" << std::endl;
 		LT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
 
-		// Заголовок таблицы
+		// Р—Р°РіРѕР»РѕРІРѕРє С‚Р°Р±Р»РёС†С‹
 		LT_file << "<tr>"
 			<< "<th>Line</th>"
 			<< "<th>Lexem</th>"
@@ -178,7 +178,7 @@ namespace LexAn::Utils
 
 		//a << "<!DOCTYPE html><html><head><title>Tables</title></head><body>";
 		//a << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">";
-		//a << "<tr><th>Таблица идентификаторов</th><th>Таблица лексем</th><th>Исходный текст</th></tr><tr><td>";
+		//a << "<tr><th>РўР°Р±Р»РёС†Р° РёРґРµРЅС‚РёС„РёРєР°С‚РѕСЂРѕРІ</th><th>РўР°Р±Р»РёС†Р° Р»РµРєСЃРµРј</th><th>РСЃС…РѕРґРЅС‹Р№ С‚РµРєСЃС‚</th></tr><tr><td>";
 
 		//std::string aa;
 		//int x = 1;
