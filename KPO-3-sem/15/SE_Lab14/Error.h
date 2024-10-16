@@ -1,16 +1,16 @@
-#ifndef ERROR_H
+п»ї#ifndef ERROR_H
 #define ERROR_H
 
 #define ERROR_THROW(id) Error::geterror(id); // throw ERROR_THROW(id)
 #define ERROR_THROW_IN(id, l, c) Error::geterrorin(id, l, c); // throw ERROR_THROW_IN
-#define ERROR_ENTRY(id, m) {id, m, {-1, -1}} // элемент таблицы ошибок
-#define ERROR_MAXSIZE_MESSAGE 200 // максимальная длина сообщения об ошибке
-#define ERROR_ENTRY_NODEF(id) ERROR_ENTRY(-id, "Неопределенная ошибка") // 1 неопределенный элемент таблицы ошибок
-// ERROR_ENTRY_NODEF10(id) - 10 неопределенных элементов таблицы ошибок
+#define ERROR_ENTRY(id, m) {id, m, {-1, -1}} // СЌР»РµРјРµРЅС‚ С‚Р°Р±Р»РёС†С‹ РѕС€РёР±РѕРє
+#define ERROR_MAXSIZE_MESSAGE 200 // РјР°РєСЃРёРјР°Р»СЊРЅР°СЏ РґР»РёРЅР° СЃРѕРѕР±С‰РµРЅРёСЏ РѕР± РѕС€РёР±РєРµ
+#define ERROR_ENTRY_NODEF(id) ERROR_ENTRY(-id, "РќРµРѕРїСЂРµРґРµР»РµРЅРЅР°СЏ РѕС€РёР±РєР°") // 1 РЅРµРѕРїСЂРµРґРµР»РµРЅРЅС‹Р№ СЌР»РµРјРµРЅС‚ С‚Р°Р±Р»РёС†С‹ РѕС€РёР±РѕРє
+// ERROR_ENTRY_NODEF10(id) - 10 РЅРµРѕРїСЂРµРґРµР»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ С‚Р°Р±Р»РёС†С‹ РѕС€РёР±РѕРє
 #define ERROR_ENTRY_NODEF10(id) ERROR_ENTRY_NODEF(id+0),ERROR_ENTRY_NODEF(id+1),ERROR_ENTRY_NODEF(id+2), ERROR_ENTRY_NODEF(id+3), \
 								ERROR_ENTRY_NODEF(id+4), ERROR_ENTRY_NODEF(id+5), ERROR_ENTRY_NODEF(id+6), ERROR_ENTRY_NODEF(id+7), \
 								ERROR_ENTRY_NODEF(id+8), ERROR_ENTRY_NODEF(id+9)
-// ERROR_ENTRY_NODEF100(id) - 100 неопределенных элементов таблицы ошибок
+// ERROR_ENTRY_NODEF100(id) - 100 РЅРµРѕРїСЂРµРґРµР»РµРЅРЅС‹С… СЌР»РµРјРµРЅС‚РѕРІ С‚Р°Р±Р»РёС†С‹ РѕС€РёР±РѕРє
 #define ERROR_ENTRY_NODEF100(id) ERROR_ENTRY_NODEF(id+0),ERROR_ENTRY_NODEF(id+10),ERROR_ENTRY_NODEF(id+2), ERROR_ENTRY_NODEF(id+3), \
 								ERROR_ENTRY_NODEF(id+40), ERROR_ENTRY_NODEF(id+50), ERROR_ENTRY_NODEF(id+6), ERROR_ENTRY_NODEF(id+7), \
 								ERROR_ENTRY_NODEF(id+80), ERROR_ENTRY_NODEF(id+90)
@@ -19,18 +19,18 @@
 
 namespace Error
 {
-	struct ERROR // тип исключения для throw ERROR_THROW | ERROR_THROW_IN
+	struct ERROR // С‚РёРї РёСЃРєР»СЋС‡РµРЅРёСЏ РґР»СЏ throw ERROR_THROW | ERROR_THROW_IN
 	{
-		int id; // код ошибки
-		char message[ERROR_MAXSIZE_MESSAGE]; // сообщение об ошибке	
-		struct IN // расширения для ошибок при обработке входных данных
+		int id; // РєРѕРґ РѕС€РёР±РєРё
+		char message[ERROR_MAXSIZE_MESSAGE]; // СЃРѕРѕР±С‰РµРЅРёРµ РѕР± РѕС€РёР±РєРµ	
+		struct IN // СЂР°СЃС€РёСЂРµРЅРёСЏ РґР»СЏ РѕС€РёР±РѕРє РїСЂРё РѕР±СЂР°Р±РѕС‚РєРµ РІС…РѕРґРЅС‹С… РґР°РЅРЅС‹С…
 		{
-			short line; // номер строки (0, 1, 2, ...)
-			short col; // номер позиции в строке (0, 1, 2, ...)
+			short line; // РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё (0, 1, 2, ...)
+			short col; // РЅРѕРјРµСЂ РїРѕР·РёС†РёРё РІ СЃС‚СЂРѕРєРµ (0, 1, 2, ...)
 		} inext;
 	};
-	ERROR geterror(int id); // сформировать ERROR для ERROR_THROW
-	ERROR geterrorin(int id, int line, int col); // сформировать ERROR для ERROR_THROW_IN
+	ERROR geterror(int id); // СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ ERROR РґР»СЏ ERROR_THROW
+	ERROR geterrorin(int id, int line, int col); // СЃС„РѕСЂРјРёСЂРѕРІР°С‚СЊ ERROR РґР»СЏ ERROR_THROW_IN
 };
 
 #endif // !ERROR_H

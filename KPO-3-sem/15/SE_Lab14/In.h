@@ -1,4 +1,4 @@
-#ifndef IN_H
+﻿#ifndef IN_H
 #define IN_H
 
 #define IN_MAX_LEN_TEXT 1024*1024

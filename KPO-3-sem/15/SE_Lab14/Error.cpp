@@ -1,25 +1,25 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Error.h"
 namespace Error {
-	// ñåğèè îøèáîê: 0 - 99 - ñèñòåìíûå îøèáêè 
-	//				100 - 109 - îøèáêè ïàğàìåòğîâ 
-	//				110 - 119 - îøèáêè îòêğûòèÿ è ÷òåíèÿ ôàéëîâ
+	// ÑĞµÑ€Ğ¸Ğ¸ Ğ¾ÑˆĞ¸Ğ±Ğ¾Ğº: 0 - 99 - ÑĞ¸ÑÑ‚ĞµĞ¼Ğ½Ñ‹Ğµ Ğ¾ÑˆĞ¸Ğ±ĞºĞ¸ 
+	//				100 - 109 - Ğ¾ÑˆĞ¸Ğ±ĞºĞ¸ Ğ¿Ğ°Ñ€Ğ°Ğ¼ĞµÑ‚Ñ€Ğ¾Ğ² 
+	//				110 - 119 - Ğ¾ÑˆĞ¸Ğ±ĞºĞ¸ Ğ¾Ñ‚ĞºÑ€Ñ‹Ñ‚Ğ¸Ñ Ğ¸ Ñ‡Ñ‚ĞµĞ½Ğ¸Ñ Ñ„Ğ°Ğ¹Ğ»Ğ¾Ğ²
 	ERROR errors[ERROR_MAX_ENTRY] =
 	{
-		ERROR_ENTRY(0, "Íåäîïóñòèì êîä îøèáêè"),
-		ERROR_ENTRY(1, "Ñèñòåìíûé ñáîé"),
+		ERROR_ENTRY(0, "ĞĞµĞ´Ğ¾Ğ¿ÑƒÑÑ‚Ğ¸Ğ¼ ĞºĞ¾Ğ´ Ğ¾ÑˆĞ¸Ğ±ĞºĞ¸"),
+		ERROR_ENTRY(1, "Ğ¡Ğ¸ÑÑ‚ĞµĞ¼Ğ½Ñ‹Ğ¹ ÑĞ±Ğ¾Ğ¹"),
 		ERROR_ENTRY_NODEF(2), ERROR_ENTRY_NODEF(3), ERROR_ENTRY_NODEF(4), ERROR_ENTRY_NODEF(5),
 		ERROR_ENTRY_NODEF(6), ERROR_ENTRY_NODEF(7), ERROR_ENTRY_NODEF(8), ERROR_ENTRY_NODEF(9),
 		ERROR_ENTRY_NODEF10(10), ERROR_ENTRY_NODEF10(20), ERROR_ENTRY_NODEF10(30), ERROR_ENTRY_NODEF10(40), ERROR_ENTRY_NODEF10(50),
 		ERROR_ENTRY_NODEF10(60), ERROR_ENTRY_NODEF10(70), ERROR_ENTRY_NODEF10(80), ERROR_ENTRY_NODEF10(90),
-		ERROR_ENTRY(100, "Ïàğàìåòğ -in äîëæåí áûòü çàäàí"),
+		ERROR_ENTRY(100, "ĞŸĞ°Ñ€Ğ°Ğ¼ĞµÑ‚Ñ€ -in Ğ´Ğ¾Ğ»Ğ¶ĞµĞ½ Ğ±Ñ‹Ñ‚ÑŒ Ğ·Ğ°Ğ´Ğ°Ğ½"),
 		ERROR_ENTRY_NODEF(101),ERROR_ENTRY_NODEF(102),ERROR_ENTRY_NODEF(103),
-		ERROR_ENTRY(104, "Ïğåâûøåíà äëèíà âõîäíîãî ïàğàìåòğà"),
+		ERROR_ENTRY(104, "ĞŸÑ€ĞµĞ²Ñ‹ÑˆĞµĞ½Ğ° Ğ´Ğ»Ğ¸Ğ½Ğ° Ğ²Ñ…Ğ¾Ğ´Ğ½Ğ¾Ğ³Ğ¾ Ğ¿Ğ°Ñ€Ğ°Ğ¼ĞµÑ‚Ñ€Ğ°"),
 		ERROR_ENTRY_NODEF(105),ERROR_ENTRY_NODEF(106),ERROR_ENTRY_NODEF(107),
 		ERROR_ENTRY_NODEF(108),ERROR_ENTRY_NODEF(109),
-		ERROR_ENTRY(110, "Îøèáêà ïğè îòêğûòèè ôàéëà ñ èñõîäíûì êîäîì (-in)"),
-		ERROR_ENTRY(111, "Íåäîïóñòèìûé ñèìâîë â èñõîäíîì ôàéëå (-in)"),
-		ERROR_ENTRY(112, "Îøèáêà ïğè ñîçäàíèè ôàéëà ïğîòîêîëà (-log)"),
+		ERROR_ENTRY(110, "ĞÑˆĞ¸Ğ±ĞºĞ° Ğ¿Ñ€Ğ¸ Ğ¾Ñ‚ĞºÑ€Ñ‹Ñ‚Ğ¸Ğ¸ Ñ„Ğ°Ğ¹Ğ»Ğ° Ñ Ğ¸ÑÑ…Ğ¾Ğ´Ğ½Ñ‹Ğ¼ ĞºĞ¾Ğ´Ğ¾Ğ¼ (-in)"),
+		ERROR_ENTRY(111, "ĞĞµĞ´Ğ¾Ğ¿ÑƒÑÑ‚Ğ¸Ğ¼Ñ‹Ğ¹ ÑĞ¸Ğ¼Ğ²Ğ¾Ğ» Ğ² Ğ¸ÑÑ…Ğ¾Ğ´Ğ½Ğ¾Ğ¼ Ñ„Ğ°Ğ¹Ğ»Ğµ (-in)"),
+		ERROR_ENTRY(112, "ĞÑˆĞ¸Ğ±ĞºĞ° Ğ¿Ñ€Ğ¸ ÑĞ¾Ğ·Ğ´Ğ°Ğ½Ğ¸Ğ¸ Ñ„Ğ°Ğ¹Ğ»Ğ° Ğ¿Ñ€Ğ¾Ñ‚Ğ¾ĞºĞ¾Ğ»Ğ° (-log)"),
 		ERROR_ENTRY_NODEF(113),ERROR_ENTRY_NODEF(114),ERROR_ENTRY_NODEF(115),
 		ERROR_ENTRY_NODEF(116),ERROR_ENTRY_NODEF(117),ERROR_ENTRY_NODEF(118), ERROR_ENTRY_NODEF(119),
 		ERROR_ENTRY_NODEF10(120),ERROR_ENTRY_NODEF10(130),ERROR_ENTRY_NODEF10(140),ERROR_ENTRY_NODEF10(150),
@@ -27,7 +27,7 @@ namespace Error {
 		ERROR_ENTRY_NODEF100(200),ERROR_ENTRY_NODEF100(300),ERROR_ENTRY_NODEF100(400),ERROR_ENTRY_NODEF100(500),
 		ERROR_ENTRY_NODEF100(600),ERROR_ENTRY_NODEF100(700),ERROR_ENTRY_NODEF100(800),ERROR_ENTRY_NODEF100(900)
 	};
-	// èñïîëüçóåòñÿ â ìàêğîñå ERROR_THROW
+	// Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·ÑƒĞµÑ‚ÑÑ Ğ² Ğ¼Ğ°ĞºÑ€Ğ¾ÑĞµ ERROR_THROW
 	ERROR geterror(int id)
 	{
 		if (id > 0 && id < ERROR_MAX_ENTRY)
@@ -36,13 +36,13 @@ namespace Error {
 			return errors[0];
 	}
 
-	// èñïîëüçóåòñÿ â ìàêğîñå ERROR_THROW_IN
+	// Ğ¸ÑĞ¿Ğ¾Ğ»ÑŒĞ·ÑƒĞµÑ‚ÑÑ Ğ² Ğ¼Ğ°ĞºÑ€Ğ¾ÑĞµ ERROR_THROW_IN
 	ERROR geterrorin(int id, int line = -1, int col = -1)
 	{
 		if (id > 0 && id < ERROR_MAX_ENTRY) {
-			// ôîğìèğóåì ñòğóêòóğó ERROR
-			errors[id].inext.col = col; // íîìåğ ñòğîêè
-			errors[id].inext.line = line; // ïîçèöèÿ â ñòğîêå
+			// Ñ„Ğ¾Ñ€Ğ¼Ğ¸Ñ€ÑƒĞµĞ¼ ÑÑ‚Ñ€ÑƒĞºÑ‚ÑƒÑ€Ñƒ ERROR
+			errors[id].inext.col = col; // Ğ½Ğ¾Ğ¼ĞµÑ€ ÑÑ‚Ñ€Ğ¾ĞºĞ¸
+			errors[id].inext.line = line; // Ğ¿Ğ¾Ğ·Ğ¸Ñ†Ğ¸Ñ Ğ² ÑÑ‚Ñ€Ğ¾ĞºĞµ
 			return errors[id];
 		}
 		else {

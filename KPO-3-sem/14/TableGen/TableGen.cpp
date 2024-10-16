@@ -1,4 +1,4 @@
-#include <iostream>
+п»ї#include <iostream>
 #include <vector>
 #include <TCHAR.H>
 #include <string>
@@ -12,7 +12,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "ru");
 
 	const int tableSize = 256;
-	const uchar data[] = "MaximGormozaМаксимГормоза2006";
+	const uchar data[] = "MaximGormozaРњР°РєСЃРёРјР“РѕСЂРјРѕР·Р°2006";
 
 	string str(reinterpret_cast<const char*>(data));
 	vector<int> codes;
@@ -28,9 +28,9 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	vector<string> table(tableSize, forbiddenCharTemplate);
 
-	table[static_cast<int>(static_cast<uchar>('\n'))] = allowedCharTemplate; // Разрешить \n
-	table[static_cast<int>(static_cast<uchar>('А'))] = replacementCharTemplate; // Заменить киррилическую 'А' на '-'
-	table[static_cast<int>(static_cast<uchar>('X'))] = ignoredCharTemplate; // Игнорить латинскую 'X'
+	table[static_cast<int>(static_cast<uchar>('\n'))] = allowedCharTemplate; // Р Р°Р·СЂРµС€РёС‚СЊ \n
+	table[static_cast<int>(static_cast<uchar>('Рђ'))] = replacementCharTemplate; // Р—Р°РјРµРЅРёС‚СЊ РєРёСЂСЂРёР»РёС‡РµСЃРєСѓСЋ 'Рђ' РЅР° '-'
+	table[static_cast<int>(static_cast<uchar>('X'))] = ignoredCharTemplate; // РРіРЅРѕСЂРёС‚СЊ Р»Р°С‚РёРЅСЃРєСѓСЋ 'X'
 
 	for (const auto code : codes)
 	{

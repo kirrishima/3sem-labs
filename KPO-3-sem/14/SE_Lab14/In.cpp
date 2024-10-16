@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "In.h"
 #include "Error.h"
 
@@ -9,7 +9,7 @@ namespace In
 	IN getin(wchar_t infile[])
 	{
 				IN in;
-		in.size = 0; in.lines = 0; in.ignore = 0; // 14 лр, стр. 12: ...номер строки (отсчет от 0) и номер позиции в строке (отсчет от 0)...
+		in.size = 0; in.lines = 0; in.ignore = 0; // 14 Р»СЂ, СЃС‚СЂ. 12: ...РЅРѕРјРµСЂ СЃС‚СЂРѕРєРё (РѕС‚СЃС‡РµС‚ РѕС‚ 0) Рё РЅРѕРјРµСЂ РїРѕР·РёС†РёРё РІ СЃС‚СЂРѕРєРµ (РѕС‚СЃС‡РµС‚ РѕС‚ 0)...
 		int col = 0;
 
 		unsigned char* text = new unsigned char[IN_MAX_LEN_TEXT];

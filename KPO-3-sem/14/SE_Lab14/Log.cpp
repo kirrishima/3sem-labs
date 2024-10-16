@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "Log.h"
 #pragma warning(disable:4996)
 
@@ -44,11 +44,11 @@ namespace Log
 
 		while (*currentArg != nullptr && *currentArg != L"")
 		{
-			//длина строки после преобразования
-			size_t len = wcstombs(nullptr, *currentArg, 0) + 1; // +1 для \0
+			//РґР»РёРЅР° СЃС‚СЂРѕРєРё РїРѕСЃР»Рµ РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ
+			size_t len = wcstombs(nullptr, *currentArg, 0) + 1; // +1 РґР»СЏ \0
 			if (len == (size_t)-1)
 			{
-				break; // ошибка преобразования https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/wcstombs-wcstombs-l?view=msvc-170
+				break; // РѕС€РёР±РєР° РїСЂРµРѕР±СЂР°Р·РѕРІР°РЅРёСЏ https://learn.microsoft.com/en-us/cpp/c-runtime-library/reference/wcstombs-wcstombs-l?view=msvc-170
 			}
 
 			char* tempBuffer = (char*)malloc(len);
@@ -72,7 +72,7 @@ namespace Log
 		currentTime = time(NULL);
 		localtime_s(&local, &currentTime);
 		strftime(date, 100, "%d.%m.%Y %H:%M:%S ----", &local);
-		*log.stream << " ----	Протокол	---- " << date << endl;
+		*log.stream << " ----	РџСЂРѕС‚РѕРєРѕР»	---- " << date << endl;
 
 	}
 
@@ -81,7 +81,7 @@ namespace Log
 		char buff[PARM_MAX_SIZE];
 		size_t tsize = 0;
 
-		*log.stream << " ----	Параметры	---- " << endl;
+		*log.stream << " ----	РџР°СЂР°РјРµС‚СЂС‹	---- " << endl;
 		wcstombs_s(&tsize, buff, parm.log, PARM_MAX_SIZE);
 		*log.stream << "-log: \"" << buff << "\"\n";
 		wcstombs_s(&tsize, buff, parm.out, PARM_MAX_SIZE);
@@ -93,25 +93,25 @@ namespace Log
 
 	void WriteIn(LOG log, In::IN in) {
 
-		*log.stream << " ----	Исходные данные	---- " << endl;
-		*log.stream << "Количество символов : " << in.size << endl;
-		*log.stream << "Проигнорировано     : " << in.ignore << endl;
-		*log.stream << "Количество строк    : " << in.lines << endl;
+		*log.stream << " ----	РСЃС…РѕРґРЅС‹Рµ РґР°РЅРЅС‹Рµ	---- " << endl;
+		*log.stream << "РљРѕР»РёС‡РµСЃС‚РІРѕ СЃРёРјРІРѕР»РѕРІ : " << in.size << endl;
+		*log.stream << "РџСЂРѕРёРіРЅРѕСЂРёСЂРѕРІР°РЅРѕ     : " << in.ignore << endl;
+		*log.stream << "РљРѕР»РёС‡РµСЃС‚РІРѕ СЃС‚СЂРѕРє    : " << in.lines << endl;
 	}
 
 	void WriteError(LOG log, Error::ERROR error)
 	{
 		if (log.stream)
 		{
-			*log.stream << " ----	Ошибка	---- " << endl;
-			*log.stream << "Ошибка " << error.id << ": " << error.message << endl;
+			*log.stream << " ----	РћС€РёР±РєР°	---- " << endl;
+			*log.stream << "РћС€РёР±РєР° " << error.id << ": " << error.message << endl;
 			if (error.inext.line != -1)
 			{
-				*log.stream << "Строка: " << error.inext.line << endl << "Столбец: " << error.inext.col << endl << endl;
+				*log.stream << "РЎС‚СЂРѕРєР°: " << error.inext.line << endl << "РЎС‚РѕР»Р±РµС†: " << error.inext.col << endl << endl;
 			}
 		}
 		else
-			cout << "Ошибка " << error.id << ": " << error.message << ", строка " << error.inext.line << ", позиция " << error.inext.col << endl << endl;
+			cout << "РћС€РёР±РєР° " << error.id << ": " << error.message << ", СЃС‚СЂРѕРєР° " << error.inext.line << ", РїРѕР·РёС†РёСЏ " << error.inext.col << endl << endl;
 	}
 
 	void Close(LOG log) {

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include <iostream>
 #include <locale>
 #include <cwchar>
@@ -6,10 +6,10 @@
 #include <time.h>
 
 #include "Out.h"
-#include "Error.h"		//обработка ошибок
-#include "Parm.h"		//обработка параметров
-#include "Log.h"		//работа с протоколом
-#include "In.h"			//ввод исходного файла
+#include "Error.h"		//РѕР±СЂР°Р±РѕС‚РєР° РѕС€РёР±РѕРє
+#include "Parm.h"		//РѕР±СЂР°Р±РѕС‚РєР° РїР°СЂР°РјРµС‚СЂРѕРІ
+#include "Log.h"		//СЂР°Р±РѕС‚Р° СЃ РїСЂРѕС‚РѕРєРѕР»РѕРј
+#include "In.h"			//РІРІРѕРґ РёСЃС…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
 
 using namespace std;
 
@@ -17,44 +17,44 @@ int _tmain(int argc, _TCHAR* argv[])
 {
 	setlocale(LC_ALL, "ru");
 
-	cout << "----    тест Error::geterror    ----\n\n";
+	cout << "----    С‚РµСЃС‚ Error::geterror    ----\n\n";
 	try { throw ERROR_THROW(100); }
 	catch (Error::ERROR e)
 	{
-		cout << "Ошибка " << e.id << ": " << e.message << "\n\n";
+		cout << "РћС€РёР±РєР° " << e.id << ": " << e.message << "\n\n";
 	};
 
-	cout << "----    тест Error::geterrorin    ----\n\n";
+	cout << "----    С‚РµСЃС‚ Error::geterrorin    ----\n\n";
 	try { throw ERROR_THROW_IN(111, 7, 7); }
 	catch (Error::ERROR e)
 	{
-		cout << "Ошибка " << e.id << ": " << e.message << ", строка " << e.inext.line << ", позиция " << e.inext.col << " \n\n";
+		cout << "РћС€РёР±РєР° " << e.id << ": " << e.message << ", СЃС‚СЂРѕРєР° " << e.inext.line << ", РїРѕР·РёС†РёСЏ " << e.inext.col << " \n\n";
 	};
 
-	cout << "---- Тест Parm::getparm ----\n\n";
+	cout << "---- РўРµСЃС‚ Parm::getparm ----\n\n";
 	try {
 		Parm::PARM parm = Parm::getparm(argc, argv);
 		wcout << "-in:" << parm.in << ", -out:" << parm.out << ", -log:" << parm.log << "\n\n";
 	}
 	catch (Error::ERROR e)
 	{
-		cout << "Ошибка " << e.id << ": " << e.message << "\n\n";
+		cout << "РћС€РёР±РєР° " << e.id << ": " << e.message << "\n\n";
 	}
 
-	cout << "---- Тест In::getin -----\n\n";
+	cout << "---- РўРµСЃС‚ In::getin -----\n\n";
 	try
 	{
 		Parm::PARM parm = Parm::getparm(argc, argv);
 		In::IN in = In::getin(parm.in);
 		cout << in.text << endl;
-		cout << "Всего символов: " << in.size << endl;
-		cout << "Всего строк: " << in.lines << endl;
-		cout << "Пропущено: " << in.ignore << endl;
+		cout << "Р’СЃРµРіРѕ СЃРёРјРІРѕР»РѕРІ: " << in.size << endl;
+		cout << "Р’СЃРµРіРѕ СЃС‚СЂРѕРє: " << in.lines << endl;
+		cout << "РџСЂРѕРїСѓС‰РµРЅРѕ: " << in.ignore << endl;
 	}
 	catch (Error::ERROR e)
 	{
-		cout << "Ошибка " << e.id << ": " << e.message << endl;
-		cout << "Cтрока " << e.inext.line << " позиция " << e.inext.col << "\n\n";
+		cout << "РћС€РёР±РєР° " << e.id << ": " << e.message << endl;
+		cout << "CС‚СЂРѕРєР° " << e.inext.line << " РїРѕР·РёС†РёСЏ " << e.inext.col << "\n\n";
 	}
 
 	Log::LOG log = Log::INITLOG;
@@ -64,8 +64,8 @@ int _tmain(int argc, _TCHAR* argv[])
 		Parm::PARM parm = Parm::getparm(argc, argv);
 		log = Log::getlog(parm.log);
 		out = Out::getout(parm.out);
-		Log::WriteLine(log, (char*)"Тест:", (char*)" без ошибок \n", "");
-		Log::WriteLine(log, (wchar_t*)L"Тест:", (wchar_t*)L" без ошибок \n", L"");
+		Log::WriteLine(log, (char*)"РўРµСЃС‚:", (char*)" Р±РµР· РѕС€РёР±РѕРє \n", "");
+		Log::WriteLine(log, (wchar_t*)L"РўРµСЃС‚:", (wchar_t*)L" Р±РµР· РѕС€РёР±РѕРє \n", L"");
 		Log::WriteLog(log);
 		Log::WriteParm(log, parm);
 		In::IN in = In::getin(parm.in);

@@ -1,4 +1,4 @@
-#ifndef OUT_H
+п»ї#ifndef OUT_H
 #define OUT_H
 
 #include "In.h"
@@ -10,14 +10,14 @@ namespace Out
 {
 	struct OUT
 	{
-		std::wstring outfile;    // имя выходного файла
-		std::ofstream* stream;   // выходной поток
+		std::wstring outfile;    // РёРјСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
+		std::ofstream* stream;   // РІС‹С…РѕРґРЅРѕР№ РїРѕС‚РѕРє
 	};
 	static const OUT INIT_OUT = { L"", NULL };
-	OUT getout(const std::wstring& outfile); // функция для открытия выходного файла
-	void WriteOut(OUT out, In::IN in);       // запись данных из входного потока в выходной файл
-	void WriteError(OUT out, Error::ERROR error); // запись ошибок в выходной файл
-	void Close(OUT out);                     // закрытие выходного файла
+	OUT getout(const std::wstring& outfile); // С„СѓРЅРєС†РёСЏ РґР»СЏ РѕС‚РєСЂС‹С‚РёСЏ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
+	void WriteOut(OUT out, In::IN in);       // Р·Р°РїРёСЃСЊ РґР°РЅРЅС‹С… РёР· РІС…РѕРґРЅРѕРіРѕ РїРѕС‚РѕРєР° РІ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
+	void WriteError(OUT out, Error::ERROR error); // Р·Р°РїРёСЃСЊ РѕС€РёР±РѕРє РІ РІС‹С…РѕРґРЅРѕР№ С„Р°Р№Р»
+	void Close(OUT out);                     // Р·Р°РєСЂС‹С‚РёРµ РІС‹С…РѕРґРЅРѕРіРѕ С„Р°Р№Р»Р°
 };
 
 #endif // !OUT_H

@@ -1,4 +1,4 @@
-#include "stdafx.h"
+п»ї#include "stdafx.h"
 #include "Out.h"
 
 namespace Out
@@ -11,7 +11,7 @@ namespace Out
 		if (a.stream->fail()) {
 			throw ERROR_THROW(113);
 		}
-		a.outfile = outfile; // сохраняем имя файла в динамическую строку
+		a.outfile = outfile; // СЃРѕС…СЂР°РЅСЏРµРј РёРјСЏ С„Р°Р№Р»Р° РІ РґРёРЅР°РјРёС‡РµСЃРєСѓСЋ СЃС‚СЂРѕРєСѓ
 		return a;
 	}
 
@@ -24,11 +24,11 @@ namespace Out
 	{
 		if (out.stream)
 		{
-			*out.stream << " ----	Ошибка	---- " << std::endl;
-			*out.stream << "Ошибка " << error.id << ": " << error.message << std::endl;
+			*out.stream << " ----	РћС€РёР±РєР°	---- " << std::endl;
+			*out.stream << "РћС€РёР±РєР° " << error.id << ": " << error.message << std::endl;
 			if (error.inext.col >= 0 && error.inext.line >= 0)
 			{
-				*out.stream << "Строка: " << error.inext.line << std::endl << "Столбец: " << error.inext.col << std::endl << std::endl;
+				*out.stream << "РЎС‚СЂРѕРєР°: " << error.inext.line << std::endl << "РЎС‚РѕР»Р±РµС†: " << error.inext.col << std::endl << std::endl;
 			}
 		}
 	}

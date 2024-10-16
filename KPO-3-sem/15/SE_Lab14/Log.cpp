@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Log.h"
 #pragma warning(disable:4996)
 
@@ -50,35 +50,35 @@ namespace Log
 		time_t currentTime = time(NULL);
 		localtime_s(&local, &currentTime);
 		strftime(date, 100, "%d.%m.%Y %H:%M:%S ----", &local);
-		*log.stream << " ----	Ïðîòîêîë	---- " << date << endl;
+		*log.stream << " ----	ÐŸÑ€Ð¾Ñ‚Ð¾ÐºÐ¾Ð»	---- " << date << endl;
 	}
 
 	void WriteParm(LOG log, Parm::PARM parm) {
-		*log.stream << " ----	Ïàðàìåòðû	---- " << endl;
+		*log.stream << " ----	ÐŸÐ°Ñ€Ð°Ð¼ÐµÑ‚Ñ€Ñ‹	---- " << endl;
 		*log.stream << "-log: \"" << std::string(parm.log.begin(), parm.log.end()) << "\"\n";
 		*log.stream << "-out: \"" << std::string(parm.out.begin(), parm.out.end()) << "\"\n";
 		*log.stream << "-in : \"" << std::string(parm.in.begin(), parm.in.end()) << "\"\n";
 	}
 
 	void WriteIn(LOG log, In::IN in) {
-		*log.stream << " ----	Èñõîäíûå äàííûå	---- " << endl;
-		*log.stream << "Êîëè÷åñòâî ñèìâîëîâ : " << in.size << endl;
-		*log.stream << "Ïðîèãíîðèðîâàíî     : " << in.ignore << endl;
-		*log.stream << "Êîëè÷åñòâî ñòðîê    : " << in.lines << endl;
+		*log.stream << " ----	Ð˜ÑÑ…Ð¾Ð´Ð½Ñ‹Ðµ Ð´Ð°Ð½Ð½Ñ‹Ðµ	---- " << endl;
+		*log.stream << "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÐ¸Ð¼Ð²Ð¾Ð»Ð¾Ð² : " << in.size << endl;
+		*log.stream << "ÐŸÑ€Ð¾Ð¸Ð³Ð½Ð¾Ñ€Ð¸Ñ€Ð¾Ð²Ð°Ð½Ð¾     : " << in.ignore << endl;
+		*log.stream << "ÐšÐ¾Ð»Ð¸Ñ‡ÐµÑÑ‚Ð²Ð¾ ÑÑ‚Ñ€Ð¾Ðº    : " << in.lines << endl;
 	}
 
 	void WriteError(LOG log, Error::ERROR error) {
 		if (log.stream) {
-			*log.stream << " ----	Îøèáêà	---- " << endl;
-			*log.stream << "Îøèáêà " << error.id << ": " << error.message << endl;
+			*log.stream << " ----	ÐžÑˆÐ¸Ð±ÐºÐ°	---- " << endl;
+			*log.stream << "ÐžÑˆÐ¸Ð±ÐºÐ° " << error.id << ": " << error.message << endl;
 			if (error.inext.col >= 0 && error.inext.line >= 0) {
-				*log.stream << "Ñòðîêà: " << error.inext.line << endl << "Ñòîëáåö: " << error.inext.col << endl << endl;
+				*log.stream << "Ð¡Ñ‚Ñ€Ð¾ÐºÐ°: " << error.inext.line << endl << "Ð¡Ñ‚Ð¾Ð»Ð±ÐµÑ†: " << error.inext.col << endl << endl;
 			}
 		}
 		else {
-			cout << "Îøèáêà " << error.id << ": " << error.message;
+			cout << "ÐžÑˆÐ¸Ð±ÐºÐ° " << error.id << ": " << error.message;
 			if (error.inext.col >= 0 && error.inext.line >= 0) {
-				cout << ", ñòðîêà " << error.inext.line << ", ïîçèöèÿ " << error.inext.col;
+				cout << ", ÑÑ‚Ñ€Ð¾ÐºÐ° " << error.inext.line << ", Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ " << error.inext.col;
 			}
 			cout << " \n\n";
 		}

@@ -1,4 +1,4 @@
-#ifndef OUT_H
+﻿#ifndef OUT_H
 #define OUT_H
 
 #include "In.h"

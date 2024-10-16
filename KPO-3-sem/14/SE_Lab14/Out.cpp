@@ -1,4 +1,4 @@
-#include "stdafx.h"
+ï»¿#include "stdafx.h"
 #include "Out.h"
 
 namespace Out
@@ -23,7 +23,7 @@ namespace Out
 
 	void WriteError(OUT log, Error::ERROR error)
 	{
-		*log.stream << "Îøèáêà " << error.id << ": " << error.message << ", ñòðîêà " << error.inext.line << ", ïîçèöèÿ " << error.inext.col << std::endl;
+		*log.stream << "ÐžÑˆÐ¸Ð±ÐºÐ° " << error.id << ": " << error.message << ", ÑÑ‚Ñ€Ð¾ÐºÐ° " << error.inext.line << ", Ð¿Ð¾Ð·Ð¸Ñ†Ð¸Ñ " << error.inext.col << std::endl;
 	}
 
 	void Close(OUT log)
