@@ -39,6 +39,7 @@ console.log(counter_2()); // 3
 console.log(counter_2()); // 4
 
 
+// Задание 2
 console.log('Задание 2');
 
 function calcVolume(length) {
@@ -56,6 +57,7 @@ console.log(calcVolumeLen2(6)(2));
 console.log(calcVolumeLen2(4)(5));
 
 
+// Задание 
 console.log('Задание 3')
 
 // function* moveObj() {
