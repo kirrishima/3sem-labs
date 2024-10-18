@@ -1,35 +1,29 @@
-﻿using System.Numerics;
+﻿using OOP_Lab07;
+using System.Numerics;
+using System.Text.Json;
 
 namespace OOP_Lab03
 {
-    public partial class Array<T> where T : IComparable<T>, ISubtractionOperators<T, T, T>
+    public partial class Array<T> : IEditable<T> where T : struct, ISubtractionOperators<T, T, T>
     {
         protected T[] _array;
-        public Array(int size)
-        {
-            _array = new T[size];
-        }
 
         public T[] Data { get { return _array; } }
 
         public int Length { get { return _array.Length; } }
 
-        public Array(T[] other)
+        public Array(int size)
         {
-            _array = new T[other.Length];
-            System.Array.Copy(other, _array, Length);
+            _array = new T[size];
         }
 
-        public Array(Array<T> other) : this(other._array)
-        {
-
-        }
-
-        public Array(int[] arr)
+        public Array(T[] arr)
         {
             _array = new T[arr.Length];
             System.Array.Copy(arr, _array, Length);
         }
+
+        public Array(Array<T> other) : this(other._array) { }
 
         public override bool Equals(object? obj)
         {
@@ -47,7 +41,7 @@ namespace OOP_Lab03
 
             for (int i = 0; i < this.Length; i++)
             {
-                if (this[i].CompareTo(other[i]) != 0)
+                if (this[i].Equals(other[i]))
                 {
                     return false;
                 }
@@ -72,10 +66,20 @@ namespace OOP_Lab03
         {
             get
             {
+                if (index < 0 || index >= _array.Length)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(index), $"Индекс {index} находится вне допустимого диапазона [{0}, {Length}].");
+                }
+
                 return _array[index];
             }
             set
             {
+                if (index < 0 || index >= _array.Length)
+                {
+                    throw new ArgumentOutOfRangeException(nameof(index), $"Индекс {index} находится вне допустимого диапазона [{0}, {Length}].");
+                }
+
                 _array[index] = value;
             }
         }
@@ -110,38 +114,53 @@ namespace OOP_Lab03
             return array;
         }
 
+        public void Add(T item)
+        {
+            T[] tmp = new T[Length + 1];
+
+            System.Array.Copy(_array, tmp, Length);
+            tmp[tmp.Length - 1] = item;
+
+            _array = tmp;
+        }
+
+        public void Delete(int index)
+        {
+            if (index < 0 || index >= Length)
+                throw new ArgumentOutOfRangeException(nameof(index));
+
+            T[] tmp = new T[Length - 1];
+
+            System.Array.Copy(_array, 0, tmp, 0, index);
+            System.Array.Copy(_array, index + 1, tmp, index, Length - index - 1);
+
+            _array = tmp;
+        }
+
+        public void Show()
+        {
+            Console.WriteLine(this.ToString());
+        }
+
         public override string ToString()
         {
             return $"[{string.Join(", ", _array)}]";
         }
 
-        public class Production
+        public void SaveToFile(string filePath)
         {
-            private int _id;
-            private string _name;
-
-            public int ID { get { return _id; } }
-            public string Name { get { return _name; } set { _name = value; } }
-
-            public Production(int id, string name)
-            {
-                _id = id;
-                _name = name;
-            }
+            string jsonString = JsonSerializer.Serialize(this._array);
+            File.WriteAllText(filePath, jsonString);
         }
 
-        public class Developer
+        public static Array<T> LoadFromFile(string filePath)
         {
-            private string _fullName;
-            private int _id;
-            private string _department;
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"Файл {filePath} не найден.");
 
-            public Developer(string fullName, int id, string department)
-            {
-                _fullName = fullName;
-                _id = id;
-                _department = department;
-            }
+            string jsonString = File.ReadAllText(filePath);
+            T[] data = JsonSerializer.Deserialize<T[]>(jsonString);
+            return new Array<T>(data);
         }
     }
 }

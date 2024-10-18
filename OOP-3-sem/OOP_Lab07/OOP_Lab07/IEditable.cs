@@ -4,8 +4,8 @@
     {
         void Add(T item);
 
-        void Delete(T item);
+        void Delete(int index);
 
-        void Show(T item);
+        void Show();
     }
 }

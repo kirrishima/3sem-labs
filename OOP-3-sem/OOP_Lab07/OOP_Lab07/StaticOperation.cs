@@ -3,7 +3,7 @@ using System.Runtime.CompilerServices;
 
 namespace OOP_Lab03
 {
-    public static class StatisticOperationString
+    public static class StaticOperationString
     {
         static readonly char[] vowels = { 'а', 'е', 'ё', 'и', 'о', 'у', 'ы', 'э', 'ю', 'я' };
 
@@ -13,7 +13,7 @@ namespace OOP_Lab03
         }
     }
 
-    public static class StatisticOperationArray
+    public static class StaticOperationArray
     {
         public static int Sum(Array<int> array)
         {
@@ -30,7 +30,7 @@ namespace OOP_Lab03
             return array.Length;
         }
 
-        public static Array<T> Delete5First<T>(this Array<T> arr) where T : IComparable<T>, ISubtractionOperators<T, T, T>
+        public static Array<T> Delete5First<T>(this Array<T> arr) where T : struct, ISubtractionOperators<T, T, T>
         {
             if (arr.Length <= 5)
             {
