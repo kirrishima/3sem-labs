@@ -31,33 +31,33 @@ namespace IT
 		} value;	// значение идентификатора
 	};
 
-	struct IdTable              // экземпляр таблицы идентификаторов
+	struct ID_Table              // экземпляр таблицы идентификаторов
 	{
 		int maxsize;            // емкость таблицы идентификаторов < TI_MAXSIZE
 		int size;               // текущий размер таблицы идентификаторов < maxsize
 		Entry* table;           // массив строк таблицы идентификаторов
 	};
 
-	IdTable Create(             // создать таблицу идентификаторов
+	ID_Table Create(             // создать таблицу идентификаторов
 		int size                // емкость таблицы идентификаторов < TI_MAXSIZE
 	);
 
 	void Add(                   // добавить строку в таблицу идентификаторов
-		IdTable& idtable,       // экземпляр таблицы идентификаторов
+		ID_Table& idtable,       // экземпляр таблицы идентификаторов
 		Entry entry             // строка таблицы идентификаторов
 	);
 
 	Entry GetEntry(             // получить строку таблицы идентификаторов
-		const IdTable& idtable, // экземпляр таблицы идентификаторов
+		const ID_Table& idtable, // экземпляр таблицы идентификаторов
 		int n                   // номер получаемой строки
 	);
 
 	int IsId(                   // возврат: номер строки (если есть), TI_NULLIDX (если нет)
-		IdTable& idtable,       // экземпляр таблицы идентификаторов
+		ID_Table& idtable,       // экземпляр таблицы идентификаторов
 		char id[ID_MAXSIZE]     // идентификатор
 	);
 
-	int search(IdTable& idtable, Entry& entry); // Возвращает индекс entry в idtable, или -1 если не найдено
+	int search(ID_Table& idtable, Entry& entry); // Возвращает индекс entry в idtable, или -1 если не найдено
 
-	void Delete(IdTable& idtable);  // удалить таблицу лексем (освободить память)
+	void Delete(ID_Table& idtable);  // удалить таблицу лексем (освободить память)
 }

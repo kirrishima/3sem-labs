@@ -1,4 +1,4 @@
-﻿#include "stdafx.h"
+#include "stdafx.h"
 #include "MFST.h"
 
 namespace MFST
@@ -10,14 +10,14 @@ namespace MFST
 		nrulechain = -1;
 	};
 
-	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrulechain) //(позиция на ленте;стек автомата; номер текущей цепочки текущего правила)
+	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrulechain)
 	{
 		lenta_position = pposition;
 		st = pst;
 		nrulechain = pnrulechain;
 	};
 
-	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrule, short pnrulechain) //(позиция на ленте;стек автомата; номер текущего правила; номер текущей цепочки текущего правила)
+	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrule, short pnrulechain)
 	{
 		lenta_position = pposition;
 		st = pst;
@@ -45,7 +45,7 @@ namespace MFST
 		grebach = pgrebach;
 		lex = lextable;
 		lenta = new short[lenta_size = lex.size];
-		for (int k = 0; k < lenta_size; k++)
+		for (int k = 0; k < lex.size; k++)
 			lenta[k] = GRB::Rule::Chain::T(lex.table[k].lexema[0]);
 		lenta_position = 0;
 		st.push(grebach.stbottomT);
@@ -60,61 +60,38 @@ namespace MFST
 		{
 			if (GRB::Rule::Chain::isN(st.top()))
 			{
-				// Если вершина стека является нетерминалом 
 				GRB::Rule rule;
 				if ((nrule = grebach.getRule(st.top(), rule)) >= 0)
 				{
-					// Получаем правило (getRule) из грамматики, используя вершину стека (st.top()). Если правило получено успешно (nrule >= 0).
-					GRB::Rule::Chain chain; // Создаем объект chain для хранения цепочки.
+					GRB::Rule::Chain chain;
 					if ((nrulechain = rule.getNextChain(lenta[lenta_position], chain, nrulechain + 1)) >= 0)
 					{
-						// Получаем следующую цепочку (getNextChain) из правила, связанного с текущей вершиной стека.
 						MFST_TRACE1
-							savestate();
-						st.pop();
-						push_chain(chain); // Помещаем цепочку в стек.
-						rc = NS_OK; // Устанавливаем код успешного завершения.
+							savestate(); st.pop(); push_chain(chain); rc = NS_OK;
 						MFST_TRACE2
 					}
 					else
 					{
-						// Если цепочка не может быть получена.
 						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE")
-							savediagnosis(NS_NORULECHAIN); // Сохраняем диагноз NS_NORULECHAIN.
-						rc = resetstate() ? NS_NORULECHAIN : NS_NORULE;
+							savediagnosis(NS_NORULECHAIN); rc = resetstate() ? NS_NORULECHAIN : NS_NORULE;
 					};
 				}
-				else
-				{
-					rc = NS_ERROR; // Если правило не может быть получено.
-				}
+				else rc = NS_ERROR;
 			}
 			else if ((st.top() == lenta[lenta_position]))
 			{
-				// Если вершина стека соответствует текущему символу на входной ленте.
-				lenta_position++; // Перемещаем указатель на входной ленте на следующий символ.
-				st.pop(); // Удаляем вершину стека.
-				nrulechain = -1; // Сбрасываем индекс цепочки правила.
-				rc = TS_OK; // Устанавливаем код успешного завершения (TS_OK).
+				lenta_position++; st.pop(); nrulechain = -1; rc = TS_OK;
 				MFST_TRACE3
 			}
-			else
-			{
-				// Если не выполнены ни одно из предыдущих условий.то выводится диагноз
-				MFST_TRACE4(TS_NOK / NS_NORULECHAIN)
-					rc = resetstate() ? TS_NOK : NS_NORULECHAIN;
-				// Сбрасываем состояние и устанавливаем код ошибки TS_NOK или NS_NORULECHAIN.
-			}
+			else { MFST_TRACE4(TS_NOK / NS_NORULECHAIN) rc = resetstate() ? TS_NOK : NS_NORULECHAIN; };
 		}
 		else
 		{
-			rc = LENTA_END; // Если достигнут конец входной ленты, устанавливаем код LENTA_END.
-			MFST_TRACE4(LENTA_END)
+			rc = LENTA_END;
+			MFST_TRACE4(LENTA_END);
 		};
-		return rc; // Возвращаем код завершения разбора.
+		return rc;
 	};
-
-
 
 	bool Mfst::push_chain(GRB::Rule::Chain chain)
 	{
@@ -129,30 +106,23 @@ namespace MFST
 		return true;
 	};
 
-	bool Mfst::resetstate()//метод предназначен для сброса состояния парсера (разборщика
+	bool Mfst::resetstate()
 	{
 		bool rc = false;
 		MfstState state;
 		if (rc = (storestate.size() > 0))
 		{
-			// Проверяем, если в стеке storestate есть сохраненные состояния (storestate.size() > 0).
 			state = storestate.top();
-			lenta_position = state.lenta_position; // Устанавливаем значение lenta_position на сохраненное состояние.
+			lenta_position = state.lenta_position;
 			st = state.st;
 			nrule = state.nrule;
 			nrulechain = state.nrulechain;
-
 			storestate.pop();
-
 			MFST_TRACE5("RESSTATE")
 				MFST_TRACE2
-
-
-				rc = true;
-		}
+		};
 		return rc;
 	};
-
 
 	bool Mfst::savediagnosis(RC_STEP prc_step)
 	{
@@ -188,8 +158,8 @@ namespace MFST
 		{
 			MFST_TRACE4("------>LENTA_END")
 				std::cout << "------------------------------------------------------------------------------------------   ------" << std::endl;
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: всего строк %d, синтаксический анализ выполнен без ошибок", 0, lex.table[lex.size - 1].sn);
-			std::cout << std::setw(4) << std::left << 0 << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выполнен без ошибок" << std::endl;
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: ����� ����� %d, �������������� ������ �������� ��� ������", 0, lex.table[lex.size - 1].sn);
+			std::cout << std::setw(4) << std::left << 0 << "����� ����� " << lex.table[lex.size - 1].sn << ", �������������� ������ �������� ��� ������" << std::endl;
 			rc = true;
 			break;
 		}
@@ -240,7 +210,7 @@ namespace MFST
 		{
 			errid = grebach.getRule(diagnosis[n].nrule).iderror;
 			Error::ERROR err = Error::geterror(errid);
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d,%s", err.id, lex.table[lpos].sn, err.message);
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: ������ %d,%s", err.id, lex.table[lpos].sn, err.message);
 			rc = buf;
 		}
 		return rc;

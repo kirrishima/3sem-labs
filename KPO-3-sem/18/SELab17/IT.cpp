@@ -5,9 +5,9 @@
 
 namespace IT
 {
-	IdTable Create(int size)
+	ID_Table Create(int size)
 	{
-		IdTable* tabl = new IdTable;
+		ID_Table* tabl = new ID_Table;
 		if (size > TI_MAXSIZE)
 		{
 			throw ERROR_THROW(116);
@@ -18,7 +18,7 @@ namespace IT
 		return *tabl;
 	}
 
-	void Add(IdTable& idtable, Entry entry)
+	void Add(ID_Table& idtable, Entry entry)
 	{
 		if (idtable.size + 1 > idtable.maxsize)
 		{
@@ -28,12 +28,12 @@ namespace IT
 		idtable.size += 1;
 	}
 
-	Entry GetEntry(const IdTable& idtable, int n)
+	Entry GetEntry(const ID_Table& idtable, int n)
 	{
 		return idtable.table[n];
 	}
 
-	int search(IdTable& idtable, IT::Entry& entry)
+	int search(ID_Table& idtable, IT::Entry& entry)
 	{
 		for (int i = 0; i <= idtable.size; i++)
 		{
@@ -49,7 +49,7 @@ namespace IT
 		return -1;
 	}
 
-	int IsId(IdTable& idtable, char id[ID_MAXSIZE])
+	int IsId(ID_Table& idtable, char id[ID_MAXSIZE])
 	{
 		for (int i = 0; i < idtable.size; i++)
 			if (strcmp(idtable.table[i].id, id) == 0)
@@ -58,7 +58,7 @@ namespace IT
 		return TI_NULLIDX;
 	}
 
-	void Delete(IdTable& idtable)
+	void Delete(ID_Table& idtable)
 	{
 		delete[] idtable.table;
 		idtable.table = nullptr;

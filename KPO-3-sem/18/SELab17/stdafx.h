@@ -9,7 +9,6 @@
 #include <cwchar>
 #include <TCHAR.H>
 #include <time.h>
-#include <stack>
 
 
 #include "Out.h"
@@ -22,8 +21,5 @@
 #include "LT.h"
 #include "SVV.h"
 #include "LexerAutomata.h"
-#include "GRB.h"
-#include "Rules_GRB.h"
-#include "MFST.h"
 
 #endif // !STDAFX_H
