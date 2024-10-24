@@ -22,7 +22,9 @@ console.log(counter2()); // 1
 
 
 console.log('Пример 2');
+
 let currentCount2 = 1;
+
 function makeCounter2() {
     return function () { // (*) return currentCount++;
         return currentCount2++;
@@ -57,45 +59,54 @@ console.log(calcVolumeLen2(6)(2));
 console.log(calcVolumeLen2(4)(5));
 
 
-// Задание 
+// Задание 3
 console.log('Задание 3')
 
-// function* moveObj() {
-//     let x = 0;
-//     let y = 0;
+function* moveObj() {
+    let x = 0;
+    let y = 0;
 
-//     for (let i = 0; i < 10; i++) {
-//         const direction = yield { x, y };
-//         switch (direction) {
-//             case 'l':
-//                 x -= 10;
-//                 break;
-//             case 'r':
-//                 x += 10;
-//                 break;
-//             case 'u':
-//                 y += 10;
-//                 break;
-//             case 'd':
-//                 y -= 10;
-//                 break;
-//             default:
-//                 break;
-//         }
-//         console.log(`x:${x}, y:${y}`);
-//     }
-//     return;
-// }
+    while (true) {
+        const direction = yield { x, y };
+        switch (direction) {
+            case 'l':
+                x -= 10;
+                break;
+            case 'r':
+                x += 10;
+                break;
+            case 'u':
+                y += 10;
+                break;
+            case 'd':
+                y -= 10;
+                break;
+            default:
+                break;
+        }
+        console.log(`x:${x}, y:${y}`);
+    }
+}
 
-// let mov = moveObj();
+let mov = moveObj();
 
-// mov.next();
+mov.next();
 
-// for (let index = 0; index < 10; index++) {
-//     mov.next(prompt());
-// }
+let answer;
+
+for (let i = 0; i < 10000; i++) {
+
+    answer = prompt("Введите направление двжиения (end для выхода)");
+    if (answer == "e") {
+        console.log("Завершение программы");
+        break;
+    }
+    mov.next(answer);
+}
 
 // Задание 4
+
+console.log("Задание 4");
 
 // for (let prop in window) {
 //     if (window.hasOwnProperty(prop)) {
@@ -112,18 +123,17 @@ function globalFunction() {
     return "Это глобальная функция";
 }
 
-console.log(window.globalVar); // "Это глобальная переменная"
-console.log(window.localVar); // undefined, так как let не добавляет переменную в объект window
-console.log(window.constantVar); // undefined, так как const не добавляет переменную в объект window
-console.log(window.globalFunction()); // "Это глобальная функция"
+console.log(window.globalVar);
+console.log(window.localVar);
+console.log(window.constantVar);
+console.log(window.globalFunction());
 
-// Шаг 3: Переопределение переменной через window
 window.globalVar = "Глобальная переменная изменена";
-console.log(globalVar); // "Глобальная переменная изменена"
+console.log(globalVar);
 
-// Переопределение функции через window
+
 window.globalFunction = function () {
     return "Глобальная функция изменена";
 };
-console.log(globalFunction()); // "Глобальная функция изменена"
+console.log(globalFunction());
 
