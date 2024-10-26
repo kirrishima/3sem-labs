@@ -1,6 +1,6 @@
 ﻿namespace OOP_Lab08
 {
-    public class Str
+    public class StringMethods
     {
         public static string RemoveElement(string str)
         {
@@ -15,10 +15,7 @@
             return str;
         }
 
-        public static string RemoveSpaсe(string str)
-        {
-            return str.Replace(" ", string.Empty);
-        }
+        public static string RemoveSpaсe(string str) => str.Replace(" ", string.Empty);
 
         public static string Upper(string str)
         {
@@ -38,9 +35,6 @@
             return str;
         }
 
-        public static string AddToString(string str)
-        {
-            return str += "?????";
-        }
+        public static string AddToString(string str) => str += " Coca Cola";
     }
 }

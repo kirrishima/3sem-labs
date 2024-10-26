@@ -45,9 +45,6 @@
             Console.WriteLine(ToString());
         }
 
-        public override string ToString()
-        {
-            return $"Позиция обьекта: x = {pointX}, y = {pointY}, сжатие = {compressionRatio}";
-        }
+        public override string ToString() => $"Позиция обьекта: x = {pointX}, y = {pointY}, сжатие = {compressionRatio}";
     }
 }

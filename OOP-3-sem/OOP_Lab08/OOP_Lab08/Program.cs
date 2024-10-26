@@ -27,15 +27,15 @@
 
             Func<string, string> a;
 
-            a = Str.RemoveElement;
+            a = StringMethods.RemoveElement;
             Console.WriteLine(a(str));
-            a = Str.RemoveSpaсe;
+            a = StringMethods.RemoveSpaсe;
             Console.WriteLine(a(str));
-            a = Str.Lower;
+            a = StringMethods.Lower;
             Console.WriteLine(a(str));
-            a = Str.Upper;
+            a = StringMethods.Upper;
             Console.WriteLine(a(str));
-            a = Str.AddToString;
+            a = StringMethods.AddToString;
             Console.WriteLine(a(str));
         }
     }
