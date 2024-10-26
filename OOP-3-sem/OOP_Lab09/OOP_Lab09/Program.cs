@@ -6,6 +6,15 @@ namespace OOP_Lab09
     {
         static void Main(string[] args)
         {
+            void Print<K, V>(IDictionary<K, V> book, string s)
+            {
+                Console.WriteLine($"\n{s}");
+                foreach (var item in (IDictionary<K, V>)book)
+                {
+                    Console.WriteLine($"Key: {item.Key}, Value: {item.Value}");
+                }
+            }
+
             var books = new Books<int, char>();
             books.Add(1, 'A');
             books.Add(2, 'B');
@@ -13,29 +22,17 @@ namespace OOP_Lab09
             books.Add(4, 'D');
             books.Add(5, 'E');
 
-            Console.WriteLine("Коллекция Books:");
-            foreach (var item in books)
-            {
-                Console.WriteLine($"Key: {item.Key}, Value: {item.Value}");
-            }
+            Print(books, "Коллекция Books:");
 
             books.Remove(2);
             books.Remove(3);
 
-            Console.WriteLine("\nПосле удаления:");
-            foreach (var item in books)
-            {
-                Console.WriteLine($"Key: {item.Key}, Value: {item.Value}");
-            }
+            Print(books, "После удаления:");
 
             books.Add(6, 'F');
             books[7] = 'G';
 
-            Console.WriteLine("\nПосле добавления:");
-            foreach (var item in books)
-            {
-                Console.WriteLine($"Key: {item.Key}, Value: {item.Value}");
-            }
+            Print(books, "После добавления:");
 
             var dictionary = new Dictionary<int, char>();
 
@@ -44,11 +41,7 @@ namespace OOP_Lab09
                 dictionary.Add(item.Key, item.Value);
             }
 
-            Console.WriteLine("\nКоллекция Dictionary:");
-            foreach (var item in dictionary)
-            {
-                Console.WriteLine($"Key: {item.Key}, Value: {item.Value}");
-            }
+            Print(dictionary, "Коллекция Dictionary:");
 
             char searchValue = 'D';
             bool found = false;
