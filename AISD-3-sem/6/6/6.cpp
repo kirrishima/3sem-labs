@@ -3,17 +3,17 @@
 #include <unordered_map>
 #include <vector>
 #include <string>
-#include <consoleapi2.h>
+#include <Windows.h>
 
-// Структура для узла дерева Хаффмана
 struct Node
 {
 	char ch;
 	int freq;
+	int index;
 	Node* left;
 	Node* right;
 
-	Node(char c, int f) : ch(c), freq(f), left(nullptr), right(nullptr) {}
+	Node(char c, int f, int i) : ch(c), freq(f), index(i), left(nullptr), right(nullptr) {}
 };
 
 // Функция сравнения для приоритетной очереди (минимальная частота на первом месте)
@@ -21,6 +21,10 @@ struct Compare
 {
 	bool operator()(Node* left, Node* right)
 	{
+		if (left->freq == right->freq)
+		{
+			return left->index < right->index;
+		}
 		return left->freq > right->freq;
 	}
 };
@@ -46,9 +50,17 @@ void buildHuffmanTree(const std::string& text)
 {
 	// Подсчет частоты каждого символа
 	std::unordered_map<char, int> freq;
+	std::unordered_map<char, int> i;
+
+	int x = 0;
 	for (char ch : text)
 	{
 		freq[ch]++;
+		if (i.find(ch) == i.end())
+		{
+			i[ch] = x;
+		}
+		x++;
 	}
 
 	// Создание приоритетной очереди
@@ -57,7 +69,7 @@ void buildHuffmanTree(const std::string& text)
 	// Создание узла для каждого символа и добавление в очередь
 	for (auto pair : freq)
 	{
-		pq.push(new Node(pair.first, pair.second));
+		pq.push(new Node(pair.first, pair.second, i[pair.first]));
 	}
 
 	// Построение дерева Хаффмана
@@ -69,7 +81,7 @@ void buildHuffmanTree(const std::string& text)
 
 		// Создание нового внутреннего узла с суммой частот
 		int sum = left->freq + right->freq;
-		Node* node = new Node('\0', sum);
+		Node* node = new Node('\0', sum, min(left->index, right->index));
 		node->left = left;
 		node->right = right;
 
