@@ -42,23 +42,6 @@ namespace OOP_Lab09
             }
 
             Print(dictionary, "Коллекция Dictionary:");
-
-            char searchValue = 'D';
-            bool found = false;
-            foreach (var kvp in dictionary)
-            {
-                if (kvp.Value == searchValue)
-                {
-                    Console.WriteLine($"\nЗначение '{searchValue}' найдено с ключом {kvp.Key}.");
-                    found = true;
-                    break;
-                }
-            }
-
-            if (!found)
-            {
-                Console.WriteLine($"\nЗначение '{searchValue}' не найдено.");
-            }
         }
     }
 }
