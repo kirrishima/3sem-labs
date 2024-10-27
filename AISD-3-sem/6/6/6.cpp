@@ -50,15 +50,16 @@ void buildHuffmanTree(const std::string& text)
 {
 	// Подсчет частоты каждого символа
 	std::unordered_map<char, int> freq;
-	std::unordered_map<char, int> i;
+	// Индекс первого вхождения в строку
+	std::unordered_map<char, int> firstIndex;
 
 	int x = 0;
 	for (char ch : text)
 	{
 		freq[ch]++;
-		if (i.find(ch) == i.end())
+		if (firstIndex.find(ch) == firstIndex.end())
 		{
-			i[ch] = x;
+			firstIndex[ch] = x;
 		}
 		x++;
 	}
@@ -69,7 +70,7 @@ void buildHuffmanTree(const std::string& text)
 	// Создание узла для каждого символа и добавление в очередь
 	for (auto pair : freq)
 	{
-		pq.push(new Node(pair.first, pair.second, i[pair.first]));
+		pq.push(new Node(pair.first, pair.second, firstIndex[pair.first]));
 	}
 
 	// Построение дерева Хаффмана
@@ -106,7 +107,7 @@ void buildHuffmanTree(const std::string& text)
 	std::cout << "\nКоды Хаффмана:\n";
 	for (auto pair : huffmanCode)
 	{
-		std::cout << pair.first << ": " << pair.second << '\n';
+		std::cout << '\'' << pair.first << '\'' << ": " << pair.second << '\n';
 	}
 
 	// Кодирование текста

@@ -1,4 +1,6 @@
 using System;
+using System.Collections.ObjectModel;
+using System.Collections.Specialized;
 
 namespace OOP_Lab09
 {
@@ -42,6 +44,25 @@ namespace OOP_Lab09
             }
 
             Print(dictionary, "Коллекция Dictionary:");
+
+            ObservableCollection<Books<int, char>> observableCollection = [];
+
+            observableCollection.CollectionChanged += OnChange;
+            observableCollection.Add(books);
+            observableCollection.RemoveAt(0);
+        }
+
+        private static void OnChange(object? sender, NotifyCollectionChangedEventArgs e)
+        {
+            switch (e.Action)
+            {
+                case NotifyCollectionChangedAction.Add:
+                    Console.WriteLine("\nДобавлен элемент в коллекцию MyCollection");
+                    break;
+                case NotifyCollectionChangedAction.Remove:
+                    Console.WriteLine("\nУдалён элемент в коллекции MyCollection");
+                    break;
+            }
         }
     }
 }
