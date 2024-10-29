@@ -1,10 +1,13 @@
 #pragma once
 #include "Error.h"
+
 typedef short GRBALPHABET;
+
 #define GRB_ERROR_SERIES 600
 #define NS(n) GRB::Rule::Chain::N(n)
 #define TS(n) GRB::Rule::Chain::T(n)
 #define ISNS(n)	GRB::Rule::Chain::isN(n)
+
 namespace GRB
 {
 	struct Rule							//правило в грамматике Грейбах
@@ -48,8 +51,10 @@ namespace GRB
 		GRBALPHABET startN;				//стартовый символ
 		GRBALPHABET stbottomT;			//дно стека
 		Rule* rules;					//множество правил
+
 		Greibach() { this->size = 0; this->startN = 0; this->stbottomT = 0; this->rules = 0; };
 		Greibach(GRBALPHABET pstartN, GRBALPHABET pstbottomT, short psize, Rule r, ...);
+
 		short getRule(GRBALPHABET pnn, Rule& prule);
 		Rule getRule(short n);
 	};

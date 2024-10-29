@@ -20,7 +20,7 @@ IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
 
 char* str = new char[MAX_LEX_SIZE];
 
-FST::FST* IntegerFST(CreateIntegerFST(str));
+  FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* StringFST(CreateStringFST(str));
 FST::FST* FunctionFST(CreateFunctionFST(str));
 FST::FST* DeclareFST(CreateDeclareFST(str));

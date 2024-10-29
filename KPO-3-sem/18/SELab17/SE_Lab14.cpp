@@ -1,11 +1,57 @@
 ﻿#include "stdafx.h"
 #include "MFST.h"
 
+#define TEST
+
 using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[]) {
 	setlocale(LC_ALL, "rus");
 
+#ifdef TEST
+	int x = 0;
+	auto table = LT::Create(26);
+	LT::Add(table, { 't', 1 });
+	LT::Add(table, { 'i', 1 });
+	LT::Add(table, { 'f', 1 });
+
+	LT::Add(table, { '(', 1 });
+	LT::Add(table, { 't', 1 });
+	LT::Add(table, { 'i', 1 });
+
+	LT::Add(table, { ',', 1 });
+	LT::Add(table, { 't', 1 });
+	LT::Add(table, { 'i', 1 });
+	LT::Add(table, { ')', 1 });
+
+	LT::Add(table, { '{', 1 });
+	LT::Add(table, { 'd', 1 });
+	LT::Add(table, { 't', 1 });
+	LT::Add(table, { 'i', 1 });
+	LT::Add(table, { ';', 1 });
+
+	LT::Add(table, { 'i', 1 });
+	LT::Add(table, { '=', 1 });
+	LT::Add(table, { 'i', 1 });
+	LT::Add(table, { 'v', 1 });
+
+
+	LT::Add(table, { '(', 1 });
+	LT::Add(table, { 'i', 1 });
+	LT::Add(table, { 'v', 1 });
+	LT::Add(table, { 'i', 1 });
+	LT::Add(table, { ')', 1 });
+
+	LT::Add(table, { ';', 1 });
+	LT::Add(table, { '$', 1 });
+
+	MFST_TRACE_START
+		MFST::Mfst mfst(table, GRB::getGreibach());
+	mfst.start();
+#endif // TEST
+
+
+#ifndef TEST
 	try {
 		Parm::PARM parm = Parm::getparm(argc, argv);
 		In::IN in = In::getin(parm.in);
@@ -40,7 +86,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Log::Close(log);
 		Out::Close(out);
 
-	}
+}
 	catch (Error::ERROR e)
 	{
 		cout << "Ошибка" << e.id << ':' << e.message << endl << endl;
@@ -52,5 +98,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	}
 
 	system("pause");
+#endif // !TEST
 	return 0;
 }

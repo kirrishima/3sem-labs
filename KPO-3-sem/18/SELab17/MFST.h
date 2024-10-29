@@ -1,7 +1,7 @@
 #pragma once
 #include "GRB.h"
 #include "stdafx.h"
-#include<iomanip>
+#include <iomanip>
 #include <stack>
 
 class MFSTSTSTACK :public std::stack<short> {
@@ -14,7 +14,6 @@ public:
 
 static int FST_TRACE_n = -1;
 static char rbuf[205], sbuf[205], lbuf[1024];
-
 
 
 #define MFST_TRACE_START std::cout<< std::setw(4)<<std::left<<"иру"<<":"\
