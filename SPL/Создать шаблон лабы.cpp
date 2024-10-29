@@ -94,12 +94,12 @@ int main()
 		{
 			std::cout << "Created directory " << jsFilePath << "\n";
 
-			std::u8string content = u8"// /////////////// Задание 1 ///////////////\nconsole.log('\\nЗадание 1\\n')" 
-			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 2 ///////////////\nconsole.log('\\nЗадание 2\\n')") 
-			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 3 ///////////////\nconsole.log('\\nЗадание 3\\n')") 
-			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 4 ///////////////\nconsole.log('\\nЗадание 4\\n')");
-			
-			jsFile.write(reinterpret_cast<const char *>(content.c_str()), content.size());
+			for (int i = 1; i < 5; i++)
+			{
+				std::string num = std::to_string(i);
+				std::u8string content = u8"///////////////// Задание " + std::u8string(num.begin(), num.end()) + u8" ///////////////\nconsole.log('\\n==== Задание " + std::u8string(num.begin(), num.end()) + u8" ====\\n')\n\n\n\n";
+				jsFile.write(reinterpret_cast<const char *>(content.c_str()), content.size());
+			}
 		}
 	}
 	catch (const std::exception &ex)
