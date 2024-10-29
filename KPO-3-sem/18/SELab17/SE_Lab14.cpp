@@ -1,8 +1,6 @@
 ﻿#include "stdafx.h"
 #include "MFST.h"
 
-#define TEST
-
 using namespace std;
 
 int _tmain(int argc, _TCHAR* argv[]) {
@@ -10,10 +8,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 #ifdef TEST
 	int x = 0;
-	auto table = LT::Create(26);
+	auto table = LT::Create(30);
 	LT::Add(table, { 't', 1 });
-	LT::Add(table, { 'i', 1 });
 	LT::Add(table, { 'f', 1 });
+	LT::Add(table, { 'i', 1 });
 
 	LT::Add(table, { '(', 1 });
 	LT::Add(table, { 't', 1 });
@@ -42,8 +40,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	LT::Add(table, { 'i', 1 });
 	LT::Add(table, { ')', 1 });
 
+
+	//LT::Add(table, { '}', 1 });
+
 	LT::Add(table, { ';', 1 });
-	LT::Add(table, { '$', 1 });
 
 	MFST_TRACE_START
 		MFST::Mfst mfst(table, GRB::getGreibach());
@@ -86,7 +86,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Log::Close(log);
 		Out::Close(out);
 
-}
+	}
 	catch (Error::ERROR e)
 	{
 		cout << "Ошибка" << e.id << ':' << e.message << endl << endl;

@@ -52,7 +52,7 @@ namespace GRB
 	char* Rule::getCRule(char* b, short nchain)
 	{
 		char buf[200];
-		b[0] = Chain::alphabet_to_char(this->nn);
+		b[0] = Chain::alphabet_to_char(nn);
 		b[1] = '-';
 		b[2] = '>';
 		b[3] = 0x00;

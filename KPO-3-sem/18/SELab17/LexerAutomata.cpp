@@ -20,7 +20,7 @@ IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
 
 char* str = new char[MAX_LEX_SIZE];
 
-  FST::FST* IntegerFST(CreateIntegerFST(str));
+FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* StringFST(CreateStringFST(str));
 FST::FST* FunctionFST(CreateFunctionFST(str));
 FST::FST* DeclareFST(CreateDeclareFST(str));
@@ -397,9 +397,9 @@ LT::LexTable LexAn::lexAnalize(Parm::PARM param, In::IN in)
 
 		case NEW_LINE:
 		{
-			LT_entry.lexema[0] = '|';
+			//LT_entry.lexema[0] = '|';
 			LT_entry.sn = currentLine++;
-			LT::Add(LexTable, LT_entry);
+			//LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
 			break;
 		}
