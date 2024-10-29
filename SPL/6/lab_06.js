@@ -14,7 +14,8 @@ let user = {
     age: 52
 }
 
-let admin = { user: ... };
+let admin = { admin: "powerfull", ...user };
+
 console.log(admin);
 
 // /////////////// Задание 3 ///////////////
