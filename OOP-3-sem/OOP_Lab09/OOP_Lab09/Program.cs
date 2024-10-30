@@ -1,4 +1,3 @@
-using System;
 using System.Collections.ObjectModel;
 using System.Collections.Specialized;
 
@@ -57,10 +56,10 @@ namespace OOP_Lab09
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    Console.WriteLine("\nДобавлен элемент в коллекцию MyCollection");
+                    Console.WriteLine("Добавлен элемент в коллекцию MyCollection");
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    Console.WriteLine("\nУдалён элемент в коллекции MyCollection");
+                    Console.WriteLine("Удалён элемент в коллекции MyCollection");
                     break;
             }
         }
