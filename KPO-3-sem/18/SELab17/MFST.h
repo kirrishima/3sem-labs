@@ -25,27 +25,23 @@ static char rbuf[205], sbuf[205], lbuf[1024];
 #define MFST_TRACE1		 std::cout<< std::setw(4)<<std::left<<++FST_TRACE_n<<": "\
 								  << std::setw(20)<<std::left<<rule.getCRule(rbuf,nrulechain)\
 								  << std::setw(30)<<std::left<<getCLenta(lbuf,lenta_position)\
-								  << std::setw(20)<<std::left<<getCSt(sbuf)\
-								  << std::endl;
+								  << std::setw(20)<<std::left<<getCSt(sbuf) << '\n';
 
 #define MFST_TRACE2		 std::cout<< std::setw(4)<<std::left<<FST_TRACE_n<<": "\
 								  << std::setw(20)<<std::left<<" "\
 								  << std::setw(30)<<std::left<<getCLenta(lbuf,lenta_position)\
-								  << std::setw(20)<<std::left<<getCSt(sbuf)\
-								  << std::endl;
+								  << std::setw(20)<<std::left<<getCSt(sbuf) << '\n';
 
 #define MFST_TRACE3		 std::cout<< std::setw(4)<<std::left<<++FST_TRACE_n<<": "\
 								  << std::setw(20)<<std::left<<" "\
 								  << std::setw(30)<<std::left<<getCLenta(lbuf,lenta_position)\
-								  << std::setw(20)<<std::left<<getCSt(sbuf)\
-								  << std::endl;
+								  << std::setw(20)<<std::left<<getCSt(sbuf) << '\n';
 
 #define MFST_TRACE4(c)		std::cout<<std::setw(4)<<std::left << ++FST_TRACE_n << ": "<<std::setw(20)<< std::left <<c<<std::endl;
 #define MFST_TRACE5(c)		std::cout<<std::setw(4)<<std::left << FST_TRACE_n << ": "<<std::setw(20)<< std::left <<c<<std::endl;
 #define MFST_TRACE6(c,k)	std::cout<<std::setw(4)<<std::left << FST_TRACE_n << ": "<<std::setw(20)<< std::left << c << k <<std::endl;
 #define MFST_TRACE7			std::cout<<std::setw(4)<<std::left << state.lenta_position << ": "\
-							<<std::setw(20)<< std::left << rule.getCRule(rbuf,state.nrulechain)\
-							<<std::endl;
+							<<std::setw(20)<< std::left << rule.getCRule(rbuf,state.nrulechain) << '\n';
 
 
 typedef MFSTSTSTACK MFSTSTSTACK;
@@ -67,17 +63,17 @@ namespace MFST
 	public:
 		using std::stack<MfstState>::c;
 	};
-	struct Mfst							//магазинный автомат
+	struct Mfst						//магазинный автомат
 	{
-		enum RC_STEP {					//код вовзрата функции step
-			NS_OK,					//найдено правило и цепочка, цепочка записана в стек
-			NS_NORULE,				//не найдено правило грамматики(ошибка в грамматике)
-			NS_NORULECHAIN,			//не найдена подходящая цепочка правила(ошибка в исходном коде)
-			NS_ERROR,				//неизвествный нетерминальный символ грамматики
-			TS_OK,					//тек. символ ленты == вершине стека, продвинулась лента, pop стека
-			TS_NOK,					//тек. символ ленты != вершине стека, продвинулась лента, pop стека
-			LENTA_END,				//текущая позиция ленты >= lenta_size
-			SURPRISE,				//неожиданный код возврата (ошибка в step)
+		enum RC_STEP {				// код вовзрата функции step
+			NS_OK,					// найдено правило и цепочка, цепочка записана в стек
+			NS_NORULE,				// не найдено правило грамматики(ошибка в грамматике)
+			NS_NORULECHAIN,			// не найдена подходящая цепочка правила(ошибка в исходном коде)
+			NS_ERROR,				// неизвествный нетерминальный символ грамматики
+			TS_OK,					// тек. символ ленты == вершине стека, продвинулась лента, pop стека
+			TS_NOK,					// тек. символ ленты != вершине стека, продвинулась лента, pop стека
+			LENTA_END,				// текущая позиция ленты >= lenta_size
+			SURPRISE,				// неожиданный код возврата (ошибка в step)
 		};
 		struct MfstDiagnosis		//диагностика
 		{
@@ -85,7 +81,7 @@ namespace MFST
 			RC_STEP rc_step;			//код завершения шага
 			short nrule;				//номер правила
 			short nrule_chain;			//номер цепочки правила
-			MfstDiagnosis();			//==
+			MfstDiagnosis();
 			MfstDiagnosis(short plenta_position, RC_STEP prc_step, short pnrule, short pnrule_chain);
 
 		} diagnosis[MFST_DIAGN_NUMBER]; 		// последние самые глубокие сообщения
