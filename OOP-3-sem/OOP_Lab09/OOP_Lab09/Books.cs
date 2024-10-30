@@ -5,7 +5,7 @@ namespace OOP_Lab09
 {
     internal class Books<Tkey, Tvalue> : IDictionary<Tkey, Tvalue>
     {
-        private List<KeyValuePair<Tkey, Tvalue>> _keyValuePairs = [];
+        private List<KeyValuePair<Tkey, Tvalue>> _keyValuePairsList = [];
 
         public Tvalue this[Tkey key]
         {
@@ -29,16 +29,16 @@ namespace OOP_Lab09
                 }
                 else
                 {
-                    _keyValuePairs[index] = new KeyValuePair<Tkey, Tvalue>(key, value);
+                    _keyValuePairsList[index] = new KeyValuePair<Tkey, Tvalue>(key, value);
                 }
             }
         }
 
-        public ICollection<Tkey> Keys => (ICollection<Tkey>)_keyValuePairs.Select(p => p.Key);
+        public ICollection<Tkey> Keys => (ICollection<Tkey>)_keyValuePairsList.Select(p => p.Key);
 
-        public ICollection<Tvalue> Values => (ICollection<Tvalue>)_keyValuePairs.Select(p => p.Value);
+        public ICollection<Tvalue> Values => (ICollection<Tvalue>)_keyValuePairsList.Select(p => p.Value);
 
-        public int Count => _keyValuePairs.Count;
+        public int Count => _keyValuePairsList.Count;
 
         public bool IsReadOnly => false;
 
@@ -53,16 +53,16 @@ namespace OOP_Lab09
             {
                 throw new ArgumentException($"{item.Key} уже есть в списке.");
             }
-            _keyValuePairs.Add(new KeyValuePair<Tkey, Tvalue>(item.Key, item.Value));
+            _keyValuePairsList.Add(new KeyValuePair<Tkey, Tvalue>(item.Key, item.Value));
         }
 
-        public void Clear() => _keyValuePairs.Clear();
+        public void Clear() => _keyValuePairsList.Clear();
 
         public bool Contains(KeyValuePair<Tkey, Tvalue> item) =>
-            _keyValuePairs.Any(p => EqualityComparer<Tkey>.Default.Equals(p.Key, item.Key)
+            _keyValuePairsList.Any(p => EqualityComparer<Tkey>.Default.Equals(p.Key, item.Key)
             && EqualityComparer<Tvalue>.Default.Equals(p.Value, item.Value));
 
-        public bool ContainsKey(Tkey key) => _keyValuePairs.Any(p => EqualityComparer<Tkey>.Default.Equals(p.Key, key));
+        public bool ContainsKey(Tkey key) => _keyValuePairsList.Any(p => EqualityComparer<Tkey>.Default.Equals(p.Key, key));
 
         public void CopyTo(KeyValuePair<Tkey, Tvalue>[] array, int arrayIndex)
         {
@@ -71,32 +71,32 @@ namespace OOP_Lab09
                 throw new ArgumentOutOfRangeException($"{arrayIndex} не может быть меньше нуля");
             }
 
-            _keyValuePairs.CopyTo(array, arrayIndex);
+            _keyValuePairsList.CopyTo(array, arrayIndex);
         }
 
         public IEnumerator<KeyValuePair<Tkey, Tvalue>> GetEnumerator()
         {
-            return _keyValuePairs.GetEnumerator();
+            return _keyValuePairsList.GetEnumerator();
         }
 
         public void Remove(Tkey key)
         {
-            var item = _keyValuePairs.FirstOrDefault(p => EqualityComparer<Tkey>.Default.Equals(p.Key, key));
+            var item = _keyValuePairsList.FirstOrDefault(p => EqualityComparer<Tkey>.Default.Equals(p.Key, key));
 
             if (!item.Equals(default(KeyValuePair<Tkey, Tvalue>)))
             {
-                _keyValuePairs.Remove(item);
+                _keyValuePairsList.Remove(item);
             }
         }
 
         public bool Remove(KeyValuePair<Tkey, Tvalue> item)
         {
-            return _keyValuePairs.Remove(item);
+            return _keyValuePairsList.Remove(item);
         }
 
         public bool TryGetValue(Tkey key, [MaybeNullWhen(false)] out Tvalue value)
         {
-            var item = _keyValuePairs.FirstOrDefault(t => EqualityComparer<Tkey>.Default.Equals(t.Key, key));
+            var item = _keyValuePairsList.FirstOrDefault(t => EqualityComparer<Tkey>.Default.Equals(t.Key, key));
 
             if (!EqualityComparer<Tkey>.Default.Equals(item.Key, default(Tkey)))
             {
@@ -110,7 +110,7 @@ namespace OOP_Lab09
 
         public int FindIndexOf(Tkey key)
         {
-            return _keyValuePairs.FindIndex(p => EqualityComparer<Tkey>.Default.Equals(p.Key, key));
+            return _keyValuePairsList.FindIndex(p => EqualityComparer<Tkey>.Default.Equals(p.Key, key));
         }
 
         IEnumerator IEnumerable.GetEnumerator()
@@ -127,7 +127,7 @@ namespace OOP_Lab09
                 return false;
             }
 
-            _keyValuePairs.RemoveAt(index);
+            _keyValuePairsList.RemoveAt(index);
 
             return true;
         }

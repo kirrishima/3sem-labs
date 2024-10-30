@@ -83,6 +83,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		MFST_TRACE_START
 			MFST::Mfst mfst(LexTable, GRB::getGreibach());
 		mfst.start();
+		mfst.savededucation();
+		mfst.printrules();
 		Log::Close(log);
 		Out::Close(out);
 
