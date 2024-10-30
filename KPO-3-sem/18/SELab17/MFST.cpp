@@ -8,14 +8,14 @@ namespace MFST
 		lenta_position = 0;
 		nrule = -1;
 		nrulechain = -1;
-	};
+	}
 
 	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrulechain)
 	{
 		lenta_position = pposition;
 		st = pst;
 		nrulechain = pnrulechain;
-	};
+	}
 
 	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrule, short pnrulechain)
 	{
@@ -23,7 +23,7 @@ namespace MFST
 		st = pst;
 		nrule = pnrule;
 		nrulechain = pnrulechain;
-	};
+	}
 
 	Mfst::MfstDiagnosis::MfstDiagnosis()
 	{
@@ -31,22 +31,27 @@ namespace MFST
 		rc_step = SURPRISE;
 		nrule = -1;
 		nrule_chain = -1;
-	};
+	}
+
 	Mfst::MfstDiagnosis::MfstDiagnosis(short plenta_position, RC_STEP prc_step, short pnrule, short pnrule_chain)
 	{
 		lenta_position = plenta_position;
 		rc_step = prc_step;
 		nrule = pnrule;
 		nrule_chain = pnrule_chain;
-	};
+	}
+
 	Mfst::Mfst() { lenta = 0; lenta_size = lenta_position = 0; };
+
 	Mfst::Mfst(LT::LexTable& lextable, GRB::Greibach pgrebach)
 	{
 		grebach = pgrebach;
 		lex = lextable;
 		lenta = new short[lenta_size = lex.size];
+
 		for (int k = 0; k < lex.size; k++)
-			lenta[k] = GRB::Rule::Chain::T(lex.table[k].lexema[0]);
+			lenta[k] = TS(lex.table[k].lexema[0]);
+
 		lenta_position = 0;
 		st.push(grebach.stbottomT);
 		st.push(grebach.startN);
@@ -58,7 +63,7 @@ namespace MFST
 		RC_STEP rc = SURPRISE;
 		if (lenta_position < lenta_size)
 		{
-			if (GRB::Rule::Chain::isN(st.top()))
+			if (ISNS(st.top()))
 			{
 				GRB::Rule rule;
 				if ((nrule = grebach.getRule(st.top(), rule)) >= 0)
@@ -74,7 +79,7 @@ namespace MFST
 					{
 						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE")
 							savediagnosis(NS_NORULECHAIN); rc = resetstate() ? NS_NORULECHAIN : NS_NORULE;
-					};
+					}
 				}
 				else rc = NS_ERROR;
 			}
@@ -83,21 +88,24 @@ namespace MFST
 				lenta_position++; st.pop(); nrulechain = -1; rc = TS_OK;
 				MFST_TRACE3
 			}
-			else { MFST_TRACE4(TS_NOK / NS_NORULECHAIN) rc = resetstate() ? TS_NOK : NS_NORULECHAIN; };
+			else
+			{
+				MFST_TRACE4(TS_NOK / NS_NORULECHAIN) rc = resetstate() ? TS_NOK : NS_NORULECHAIN;
+			}
 		}
 		else
 		{
 			rc = LENTA_END;
 			MFST_TRACE4(LENTA_END);
-		};
+		}
 		return rc;
-	};
+	}
 
 	bool Mfst::push_chain(GRB::Rule::Chain chain)
 	{
 		for (int k = chain.size - 1; k >= 0; k--) st.push(chain.nt[k]);
 		return true;
-	};
+	}
 
 	bool Mfst::savestate()
 	{
@@ -110,6 +118,7 @@ namespace MFST
 	{
 		bool rc = false;
 		MfstState state;
+
 		if (rc = (storestate.size() > 0))
 		{
 			state = storestate.top();
@@ -120,9 +129,9 @@ namespace MFST
 			storestate.pop();
 			MFST_TRACE5("RESSTATE")
 				MFST_TRACE2
-		};
+		}
 		return rc;
-	};
+	}
 
 	bool Mfst::savediagnosis(RC_STEP prc_step)
 	{
@@ -141,7 +150,7 @@ namespace MFST
 		}
 
 		return rc;
-	};
+	}
 
 	bool Mfst::start()
 	{
@@ -181,7 +190,7 @@ namespace MFST
 
 		}
 		return rc;
-	};
+	}
 
 	char* Mfst::getCSt(char* buf)
 	{
@@ -194,6 +203,7 @@ namespace MFST
 		buf[st.size()] = '\0';
 		return buf;
 	}
+
 	char* Mfst::getCLenta(char* buf, short pos, short n)
 	{
 		short i, k = (pos + n < lenta_size) ? pos + n : lenta_size;
@@ -201,11 +211,13 @@ namespace MFST
 		buf[i - pos] = 0x00;
 		return buf;
 	}
+
 	char* Mfst::getDiagnosis(short n, char* buf)
 	{
 		char* rc = new char[200] {};
 		int errid = 0;
 		int lpos = -1;
+
 		if (n < MFST_DIAGN_NUMBER && (lpos = diagnosis[n].lenta_position) >= 0)
 		{
 			errid = grebach.getRule(diagnosis[n].nrule).iderror;
@@ -213,6 +225,7 @@ namespace MFST
 			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d,%s", err.id, lex.table[lpos].sn, err.message);
 			rc = buf;
 		}
+
 		return rc;
 	}
 	void Mfst::printrules()
@@ -224,8 +237,8 @@ namespace MFST
 			state = storestate.c[i];
 			rule = grebach.getRule(state.nrule);
 			MFST_TRACE7
-		};
-	};
+		}
+	}
 
 	bool Mfst::savededucation()
 	{

@@ -30,15 +30,13 @@ namespace In
 
 			std::pair<int, int> p = utils::trimmed_pos(tmp);
 
-			if (p.first == -1)
+			if (p.first == -1 || p.second == -1)
+
 			{
 				continue;
 			}
 
-			if (p.first != -1)
-			{
-				in.ignore += p.first + tmp.length() - p.second - 1;
-			}
+			in.ignore += p.first + tmp.length() - p.second - 1;
 
 			for (int position = p.first; position <= p.second; position++)
 			{

@@ -19,7 +19,7 @@ int main()
 
 		int n = 0;
 
-		for (const auto &directory : std::filesystem::directory_iterator(std::filesystem::current_path()))
+		for (const auto& directory : std::filesystem::directory_iterator(std::filesystem::current_path()))
 		{
 			int tmp;
 			try
@@ -56,8 +56,8 @@ int main()
 			std::getline(std::cin, input);
 
 			std::transform(input.begin(), input.end(), input.begin(),
-						   [](unsigned char c)
-						   { return std::tolower(c); });
+				[](unsigned char c)
+				{ return std::tolower(c); });
 
 			if (input != "y")
 			{
@@ -77,9 +77,22 @@ int main()
 		}
 		else
 		{
-			std::u8string content = u8"<!DOCTYPE html>\n" + std::u8string(u8"<html lang=\"ru\">\n") + std::u8string(u8"\t<head>\n") + std::u8string(u8"\t\t<meta charset=\"UTF-8\"/>\n") + std::u8string(u8"\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n") + std::u8string(u8"\t\t<script src=\"") + std::u8string(jsFilename.begin(), jsFilename.end()) + std::u8string(u8"\"></script>\n") + std::u8string(u8"\t\t<title>Скриптовые языки разметки ") + std::u8string(folderNameInFiles.begin(), folderNameInFiles.end()) + std::u8string(u8"</title>\n") + std::u8string(u8"\t</head>\n") + std::u8string(u8"\t<body></body>\n") + std::u8string(u8"</html>");
+			std::u8string content = u8"<!DOCTYPE html>\n" 
+				+ std::u8string(u8"<html lang=\"ru\">\n") 
+				+ std::u8string(u8"\t<head>\n") 
+				+ std::u8string(u8"\t\t<meta charset=\"UTF-8\"/>\n") 
+				+ std::u8string(u8"\t\t<meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\"/>\n") 
+				+ std::u8string(u8"\t\t<script src=\"") 
+				+ std::u8string(jsFilename.begin(), jsFilename.end()) 
+				+ std::u8string(u8"\"></script>\n") 
+				+ std::u8string(u8"\t\t<title>Скриптовые языки разметки ") 
+				+ std::u8string(folderNameInFiles.begin(), folderNameInFiles.end()) 
+				+ std::u8string(u8"</title>\n")
+				+ std::u8string(u8"\t</head>\n") 
+				+ std::u8string(u8"\t<body></body>\n") 
+				+ std::u8string(u8"</html>");
 
-			htmlFile.write(reinterpret_cast<const char *>(content.c_str()), content.size());
+			htmlFile.write(reinterpret_cast<const char*>(content.c_str()), content.size());
 
 			std::cout << "Created directory " << htmlFilePath << "\n";
 		}
@@ -94,15 +107,16 @@ int main()
 		{
 			std::cout << "Created directory " << jsFilePath << "\n";
 
-			std::u8string content = u8"// /////////////// Задание 1 ///////////////\nconsole.log('\\nЗадание 1\\n')" 
-			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 2 ///////////////\nconsole.log('\\nЗадание 2\\n')") 
-			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 3 ///////////////\nconsole.log('\\nЗадание 3\\n')") 
-			+ std::u8string(u8"\n\n\n\n// /////////////// Задание 4 ///////////////\nconsole.log('\\nЗадание 4\\n')");
-			
-			jsFile.write(reinterpret_cast<const char *>(content.c_str()), content.size());
+			for (int i = 1; i < 5; i++)
+			{
+				std::string num = std::to_string(i);
+				std::u8string content = u8"///////////////// Задание " + std::u8string(num.begin(), num.end()) 
+					+ u8" ///////////////\nconsole.log('\\n==== Задание " + std::u8string(num.begin(), num.end()) + u8" ====\\n')\n\n\n\n";
+				jsFile.write(reinterpret_cast<const char*>(content.c_str()), content.size());
+			}
 		}
 	}
-	catch (const std::exception &ex)
+	catch (const std::exception& ex)
 	{
 		std::cout << ex.what() << "\n";
 		system("pause");
