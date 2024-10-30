@@ -82,7 +82,7 @@ void buildHuffmanTree(const std::string& text)
 
 		// Создание нового внутреннего узла с суммой частот
 		int sum = left->freq + right->freq;
-		Node* node = new Node('\0', sum, min(left->index, right->index));
+		Node* node = new Node('\0', sum, max(left->index, right->index));
 		node->left = left;
 		node->right = right;
 

@@ -30,6 +30,11 @@ namespace In
 
 			std::pair<int, int> p = utils::trimmed_pos(tmp);
 
+			if (p.first == -1)
+			{
+				continue;
+			}
+
 			if (p.first != -1)
 			{
 				in.ignore += p.first + tmp.length() - p.second - 1;
