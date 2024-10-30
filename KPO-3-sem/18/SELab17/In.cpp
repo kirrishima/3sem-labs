@@ -31,7 +31,6 @@ namespace In
 			std::pair<int, int> p = utils::trimmed_pos(tmp);
 
 			if (p.first == -1 || p.second == -1)
-
 			{
 				continue;
 			}

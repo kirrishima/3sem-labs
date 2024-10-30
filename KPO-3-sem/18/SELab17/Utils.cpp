@@ -150,50 +150,15 @@ namespace LexAn::Utils
 			{
 				currentLine = LT_entry.sn;
 				LT_file << "<tr><td>" << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << "</td>";
-			}
-			if (LT_entry.lexema[0] != '|')
-			{
-				tmp += LT_entry.lexema[0];
-
-				//if (LT_entry.idxTI != NULL)
-				//{
-				//	tmp += '!';
-				//	tmp += ID_Table.table[LT_entry.idxTI].id;
-				//	tmp += '|';
-				//}
-			}
-			else
-			{
 				LT_file << "<td>" << tmp << "</td></tr>";
 				tmp.clear();
+				continue;
 			}
+
+			tmp += LT_entry.lexema[0];
 		}
 		LT_file << "<td>" << tmp << "</td></tr>";
 		LT_file << "</table></body></html>" << std::endl;
 		LT_file.close();
-
-
-		//std::ofstream a("ABOBA.html");
-
-		//a << "<!DOCTYPE html><html><head><title>Tables</title></head><body>";
-		//a << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">";
-		//a << "<tr><th>Таблица идентификаторов</th><th>Таблица лексем</th><th>Исходный текст</th></tr><tr><td>";
-
-		//std::string aa;
-		//int x = 1;
-		//a << x << "</td><td>";
-		//for (size_t i = 0; i < in.size; i++)
-		//{
-		//	if (in.text[i] == '|')
-		//	{
-		//		a << "</td></tr><tr><td>" << ++x << "</td><td>";
-		//	}
-		//	else
-		//	{
-		//		a << static_cast<unsigned char>(in.text[i]);
-		//	}
-		//}
-		//a << "</table></body></html>" << std::endl;
-		//a.close();
 	}
 }
