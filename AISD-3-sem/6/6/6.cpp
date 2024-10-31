@@ -1,137 +1,108 @@
 ﻿#include <iostream>
-#include <queue>
-#include <unordered_map>
 #include <vector>
+#include <list>
+#include <map>
 #include <string>
 #include <Windows.h>
 
-struct Node
-{
-	char ch;
-	int freq;
-	int index;
-	Node* left;
-	Node* right;
-
-	Node(char c, int f, int i) : ch(c), freq(f), index(i), left(nullptr), right(nullptr) {}
+struct Node {
+	int number;
+	std::string symbol = "";
+	Node* left, * right;
 };
 
-// Функция сравнения для приоритетной очереди (минимальная частота на первом месте)
-struct Compare
-{
-	bool operator()(Node* left, Node* right)
-	{
-		if (left->freq == right->freq)
-		{
-			return left->index < right->index;
-		}
-		return left->freq > right->freq;
-	}
-};
 
-// Функция для печати кодов Хаффмана
-void printCodes(struct Node* root, std::string str, std::unordered_map<char, std::string>& huffmanCode)
-{
-	if (root == nullptr)
-		return;
+Node* HuffmanAlgorithm(std::list<Node*>& nodes) {
+	while (nodes.size() != 1) {
+		nodes.sort([](Node* firstNode, Node* secondNode) -> bool { return firstNode->number < secondNode->number; });
 
-	// Если найден листовой узел
-	if (!root->left && !root->right)
-	{
-		huffmanCode[root->ch] = str;
+		Node* left = nodes.front();
+		nodes.pop_front();
+		Node* right = nodes.front();
+		nodes.pop_front();
+
+		Node* parent = new Node;
+		parent->left = left;
+		parent->right = right;
+		parent->symbol += left->symbol + right->symbol;
+		parent->number = left->number + right->number;
+
+		nodes.push_back(parent);
 	}
 
-	printCodes(root->left, str + "0", huffmanCode);
-	printCodes(root->right, str + "1", huffmanCode);
+	return nodes.front();
 }
 
-// Функция для построения дерева Хаффмана и кодирования символов
-void buildHuffmanTree(const std::string& text)
-{
-	// Подсчет частоты каждого символа
-	std::unordered_map<char, int> freq;
-	// Индекс первого вхождения в строку
-	std::unordered_map<char, int> firstIndex;
-
-	int x = 0;
-	for (char ch : text)
-	{
-		freq[ch]++;
-		if (firstIndex.find(ch) == firstIndex.end())
-		{
-			firstIndex[ch] = x;
-		}
-		x++;
+void BuildTable(Node* root, std::vector<bool>& code, std::map<char, std::vector<bool>>& matchingTable) {
+	if (root->left != nullptr) {
+		code.push_back(0);
+		BuildTable(root->left, code, matchingTable);
 	}
 
-	// Создание приоритетной очереди
-	std::priority_queue<Node*, std::vector<Node*>, Compare> pq;
-
-	// Создание узла для каждого символа и добавление в очередь
-	for (auto pair : freq)
-	{
-		pq.push(new Node(pair.first, pair.second, firstIndex[pair.first]));
+	if (root->right != nullptr) {
+		code.push_back(1);
+		BuildTable(root->right, code, matchingTable);
 	}
 
-	// Построение дерева Хаффмана
-	while (pq.size() != 1)
-	{
-		// Два узла с наименьшей частотой
-		Node* left = pq.top(); pq.pop();
-		Node* right = pq.top(); pq.pop();
-
-		// Создание нового внутреннего узла с суммой частот
-		int sum = left->freq + right->freq;
-		Node* node = new Node('\0', sum, max(left->index, right->index));
-		node->left = left;
-		node->right = right;
-
-		pq.push(node);
+	if (root->left == nullptr && root->right == nullptr) {
+		matchingTable[root->symbol[0]] = code;
 	}
 
-	// Корневой узел
-	Node* root = pq.top();
-
-	// Таблица для хранения кодов символов
-	std::unordered_map<char, std::string> huffmanCode;
-	printCodes(root, "", huffmanCode);
-
-	// Вывод таблицы частот
-	std::cout << "Частота символов:\n";
-	for (auto pair : freq)
-	{
-		std::cout << pair.first << ": " << pair.second << '\n';
+	if (!code.empty()) {
+		code.pop_back();
 	}
-
-	// Вывод кодов Хаффмана
-	std::cout << "\nКоды Хаффмана:\n";
-	for (auto pair : huffmanCode)
-	{
-		std::cout << '\'' << pair.first << '\'' << ": " << pair.second << '\n';
-	}
-
-	// Кодирование текста
-	std::string encodedString;
-	for (char ch : text)
-	{
-		encodedString += huffmanCode[ch];
-	}
-
-	// Вывод закодированной строки
-	std::cout << "\nЗакодированная последовательность:\n" << encodedString << '\n';
 }
 
-int main()
-{
-	SetConsoleOutputCP(1251);
+
+int main() {
 	SetConsoleCP(1251);
+	SetConsoleOutputCP(1251);
 
+	std::map<char, int> counter;
+	std::map<char, std::vector<bool>> matchingTable;
+	std::list<Node*> nodes;
+	std::vector<bool> code;
 	std::string text;
-	std::cout << "Введите текст для кодирования: ";
-	std::getline(std::cin, text);
 
-	std::cout << text << std::endl;
-	buildHuffmanTree(text);
+	getline(std::cin, text);
+	int size = text.size();
+	for (int i = 0; i < size; i++) {
+		counter[text[i]]++;
+	}
+	std::cout << "\nЧастота:\n";
+	for (auto it = counter.begin(); it != counter.end(); it++) {
+		std::cout << '\'' << it->first << '\'' << " -> " << it->second << std::endl;
+		Node* node = new Node;
+		node->symbol += it->first;
+		node->number = it->second;
+		node->left = nullptr;
+		node->right = nullptr;
+		nodes.push_back(node);
+	}
+
+	std::cout << std::endl;
+	Node* root = HuffmanAlgorithm(nodes);
+	BuildTable(root, code, matchingTable);
+
+	std::cout << "\nКоды символов:\n";
+	for (const auto& itm : matchingTable) {
+		std::cout << '\'' << itm.first << '\'' << " = ";
+		int tempSize = itm.second.size();
+		for (int i = 0; i < tempSize; i++) {
+			std::cout << itm.second[i];
+		}
+		std::cout << std::endl;
+	}
+	std::cout << "\nКод строки: ";
+	for (int i = 0; i < size; i++) {
+		const std::vector<bool>& temp = matchingTable.at(text[i]);
+		int sizeTemp = temp.size();
+		for (int j = 0; j < sizeTemp; j++) {
+			std::cout << temp[j];
+		}
+	}
+	std::cout << std::endl;
+
 
 	return 0;
 }

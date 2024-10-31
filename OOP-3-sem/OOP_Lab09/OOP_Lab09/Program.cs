@@ -20,8 +20,8 @@ namespace OOP_Lab09
             books.Add(1, 'A');
             books.Add(2, 'B');
             books.Add(3, 'C');
-            books.Add(4, 'D');
-            books.Add(5, 'E');
+            books[4] = 'D';
+            books[5] = 'E';
 
             Print(books, "Коллекция Books:");
 
@@ -56,10 +56,10 @@ namespace OOP_Lab09
             switch (e.Action)
             {
                 case NotifyCollectionChangedAction.Add:
-                    Console.WriteLine("Добавлен элемент в коллекцию MyCollection");
+                    Console.WriteLine("Добавлен элемент");
                     break;
                 case NotifyCollectionChangedAction.Remove:
-                    Console.WriteLine("Удалён элемент в коллекции MyCollection");
+                    Console.WriteLine("Удалён элемент");
                     break;
             }
         }
