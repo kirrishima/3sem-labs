@@ -153,15 +153,17 @@ void Ping(
 int main(int argc, char** argv)
 {
 	setlocale(LC_ALL, "RUS");
-	char hostIp[80];
-	unsigned int ms;
-	unsigned int reqNumber;
-	cout << "Введите адрес хоста" << endl;
-	cin >> hostIp;
-	cout << "Введите время ожидания ответа в мс" << endl;
-	cin >> ms;
-	cout << "Введите количество запросов" << endl;
-	cin >> reqNumber;
+
+
+	if (argc < 4) {
+		cout << "Использование: " << argv[0] << " <адрес хоста> <время ожидания в мс> <количество запросов>" << endl;
+		return 1;
+	}
+
+	const char* hostIp = argv[1];
+	unsigned int ms = std::stoi(argv[2]);
+	unsigned int reqNumber = std::stoi(argv[3]);
+
 	Ping(hostIp, ms, reqNumber);
 	return 0;
 }
