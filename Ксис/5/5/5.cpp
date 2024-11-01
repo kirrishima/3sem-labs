@@ -17,15 +17,16 @@
 #define IP_BAD_REQ 11011
 #define IP_BAD_ROUTE 11012
 #define IP_TTL_EXPIRED_TRANSIT 11013
-IP_OPTION_INFORMATION option = { 255, 255, 240, 0, 0 };
+//IP_OPTION_INFORMATION option = { 255, 255, 240, 0, 0 };
+IP_OPTION_INFORMATION option = { 255, 0, 0, 0, 0 };
 
 using namespace std;
 
-
-// Первый параметр – адрес хоста, который будет пинговаться, 
-// второй – время ожидания ответа (в мс) после запроса, 
-// третий – количество посылаемых запросов
-void Ping(const char* cHost, unsigned int Timeout, unsigned int RequestCount)
+void Ping(
+	const char* cHost, // адрес хоста, который будет пинговаться
+	unsigned int Timeout, // время ожидания ответа (в мс) после запроса
+	unsigned int RequestCount // количество посылаемых запросов
+)
 {
 	// Создать файл сервиса
 	HANDLE hIP = IcmpCreateFile();
@@ -42,7 +43,6 @@ void Ping(const char* cHost, unsigned int Timeout, unsigned int RequestCount)
 	int MinMS = -1; // минимальное время ответа (мс)
 
 	// Выделяем память под пакет – буфер ответа
-
 	PICMP_ECHO_REPLY pIpe =
 		(PICMP_ECHO_REPLY)GlobalAlloc(GHND,
 			sizeof(ICMP_ECHO_REPLY) + sizeof(SendData));
@@ -60,18 +60,24 @@ void Ping(const char* cHost, unsigned int Timeout, unsigned int RequestCount)
 
 	for (unsigned int c = 0; c < RequestCount; c++)
 	{
-		int dwStatus = IcmpSendEcho(hIP,
-			ipaddr,
-			SendData,
-			sizeof(SendData),
-			&option,
-			pIpe,
-			sizeof(ICMP_ECHO_REPLY) +
-			sizeof(SendData),
-			Timeout);
+		int dwStatus = IcmpSendEcho(hIP, //манипулятор, полученный на первом шаге инициализации hIP
+			ipaddr, //IP-адрес опрашиваемого узла
+			SendData, // указатель на отправляемые в эхо-запросе данные SendData
+			sizeof(SendData), // размер этих данных
+			&option, // указателем option на структуру, содержащую дополнительные опции запроса
+			pIpe, // указатель на буфер для эхо - ответов pIpe
+			sizeof(ICMP_ECHO_REPLY) + sizeof(SendData), // размер этого буфера
+			Timeout); // Таймаут
+
+		//Возвращаемое функцией IcmpSendEcho значение dwStatus 
+		//представляет собой количество полученных эхо-ответов
 
 		if (dwStatus > 0)
 		{
+			//Обращаясь к полям структуры, выводим на консоль IP - адрес,
+			//	время, прошедшее с момента отправки эхо - запроса до получения
+			//	эхо - ответа(RTT), число переданных байт и т.п. Фиксируем 
+			//  максимальное и минимальное время.
 			for (int i = 0; i < dwStatus; i++)
 			{
 				unsigned char* pIpPtr =
