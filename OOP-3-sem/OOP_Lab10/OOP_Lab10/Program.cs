@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using OOP_Lab02;
 
 namespace OOP_Lab10
@@ -39,7 +40,7 @@ namespace OOP_Lab10
 
             List<Airline> airlines = [
                 new Airline("London, UK", 101, "Airbus A320", new TimeOnly(10, 30, 0), [DayOfWeek.Tuesday, DayOfWeek.Friday]),
-                new Airline("New York, USA", 102, "Boeing 747", new TimeOnly(14, 15, 0), [DayOfWeek.Wednesday, DayOfWeek.Saturday]),
+                new Airline("New York, USA", 102, "Boeing 747", new TimeOnly(14, 15, 0), [DayOfWeek.Wednesday, DayOfWeek.Friday]),
                 new Airline("Tokyo, Japan", 103, "Airbus A380", new TimeOnly(8, 45, 0), [DayOfWeek.Monday, DayOfWeek.Thursday]),
                 new Airline("Paris, France", 104, "Boeing 787", new TimeOnly(16, 0, 0), [DayOfWeek.Sunday, DayOfWeek.Thursday]),
                 new Airline("Berlin, Germany", 105, "Embraer E190", new TimeOnly(12, 30, 0), [DayOfWeek.Monday, DayOfWeek.Friday]),
@@ -50,14 +51,30 @@ namespace OOP_Lab10
                 new Airline("Toronto, Canada", 110, "Boeing 787", new TimeOnly(7, 0, 0), [DayOfWeek.Wednesday, DayOfWeek.Saturday])
             ];
 
+            PrintElements(airlines);
             // 3
 
             var dest = airlines.Where((a) => a.Destination.StartsWith("Toronto"));
 
             PrintElements(dest);
 
-            int c = (from line in airlines where line.DaysOfWeeks.Contains(DayOfWeek.Monday) select line).Count();
-            Console.WriteLine(c);
+            Console.WriteLine(" оличество рейсов дл€ заданного дн€ недели (Monday)");
+            var c = from line in airlines where line.DaysOfWeeks.Contains(DayOfWeek.Monday) orderby line.DepartureTime select line;
+            Console.WriteLine(c.Count());
+
+            Console.WriteLine("–ейс который вылетает в понедельник раньше всех");
+            Console.WriteLine(c.Take(1).First());
+            Console.WriteLine("–ейс который вылетает в среду или п€тницу  позже всех");
+
+            var cc = from line in airlines
+                     where line.DaysOfWeeks.SequenceEqual([DayOfWeek.Wednesday, DayOfWeek.Friday])
+                     orderby line.DepartureTime
+                     select line;
+            Console.WriteLine(cc.Last());
+
+            Console.WriteLine("—писок рейсов, упор€доченных по времени вылета");
+            var ccc = from line in airlines orderby line.DepartureTime.Ticks, line.ID select line;
+            PrintElements(ccc);
         }
     }
 }

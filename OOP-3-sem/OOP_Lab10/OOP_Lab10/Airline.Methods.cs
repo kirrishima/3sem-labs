@@ -56,7 +56,7 @@
 
         public override string ToString()
         {
-            return $"Рейс {flightNumber} в {destination}, {planeType}. Отправка: {departureTime.ToString("hh\\:mm")}, Дни: {string.Join(", ", daysOfWeeks)}";
+            return $"Рейс {flightNumber} в {destination}, {planeType}. Отправка: {departureTime.ToString("HH\\:mm")}, Дни: {string.Join(", ", daysOfWeeks)}";
         }
 
         private static int GenerateId()

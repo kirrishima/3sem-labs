@@ -54,7 +54,6 @@ posts.forEach(element => {
     console.log(element.likesCount);
 });
 
-console.log(messages);
 console.log(dialogs.filter((dialog) => dialog.id % 2 == 0));
 
 let newMessages = messages.map(function (m) {
