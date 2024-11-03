@@ -58,23 +58,25 @@ namespace OOP_Lab10
 
             PrintElements(dest);
 
-            Console.WriteLine("Количество рейсов для заданного дня недели (Monday)");
+            Console.WriteLine("\nКоличество рейсов для заданного дня недели (Monday)");
             var c = from line in airlines where line.DaysOfWeeks.Contains(DayOfWeek.Monday) orderby line.DepartureTime select line;
             Console.WriteLine(c.Count());
 
-            Console.WriteLine("Рейс который вылетает в понедельник раньше всех");
+            Console.WriteLine("\nРейс который вылетает в понедельник раньше всех");
             Console.WriteLine(c.Take(1).First());
-            Console.WriteLine("Рейс который вылетает в среду или пятницу  позже всех");
+            Console.WriteLine("\nРейс который вылетает в среду или пятницу  позже всех");
 
             var cc = from line in airlines
-                     where line.DaysOfWeeks.SequenceEqual([DayOfWeek.Wednesday, DayOfWeek.Friday])
-                     orderby line.DepartureTime
+                     where line.DaysOfWeeks.Contains(DayOfWeek.Wednesday) || line.DaysOfWeeks.Contains(DayOfWeek.Friday)
+                     orderby line.DepartureTime descending
                      select line;
-            Console.WriteLine(cc.Last());
+            Console.WriteLine(cc.First());
 
-            Console.WriteLine("Список рейсов, упорядоченных по времени вылета");
+            Console.WriteLine("\nСписок рейсов, упорядоченных по времени вылета");
             var ccc = from line in airlines orderby line.DepartureTime.Ticks, line.ID select line;
             PrintElements(ccc);
+
+
         }
     }
 }
