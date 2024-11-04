@@ -76,7 +76,47 @@ namespace OOP_Lab10
             var ccc = from line in airlines orderby line.DepartureTime.Ticks, line.ID select line;
             PrintElements(ccc);
 
+            // 4
 
+            var myQuery = from line in airlines
+                          where line.PlaneType.Contains("Boeing")
+                          orderby line.FlightNumber
+                          group line by string.Join(", ", line.DaysOfWeeks);
+
+            Console.WriteLine("Мой мега пупер классный запрос:");
+            foreach (var item in myQuery.TakeWhile(g => g.Key != "Aboba"))
+            {
+                // Выводим дни недели, по которым сгруппирован рейс
+                Console.WriteLine($"Дни отправки: {item.Key}");
+                foreach (var line in item)
+                {
+                    Console.WriteLine(line);
+                }
+                Console.WriteLine();
+            }
+
+            // 5
+
+            var first = airlines.Take(airlines.Count / 2);
+            var second = airlines.Skip(airlines.Count / 2);
+
+            PrintElements(first);
+            PrintElements(second);
+
+
+            var res = from line in first
+                      join otherLine in second on new
+                      {
+                          x = line.DaysOfWeeks.FirstOrDefault(),
+                          y = line.DaysOfWeeks.LastOrDefault()
+                      } equals new
+                      {
+                          x = otherLine.DaysOfWeeks.FirstOrDefault(),
+                          y = otherLine.DaysOfWeeks.LastOrDefault()
+                      }
+                      select $"1st: {line}\n2nd: {otherLine}\n";
+
+            PrintElements(res);
         }
     }
 }
