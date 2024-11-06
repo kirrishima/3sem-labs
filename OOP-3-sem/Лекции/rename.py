@@ -20,3 +20,4 @@ def rename_files(path):
                 print(f'Renamed "{file_name}" to "{new_file_name}"')
 
 rename_files(os.path.dirname(os.path.abspath(__file__)))
+rename_files(os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))),  "Лабы"))
