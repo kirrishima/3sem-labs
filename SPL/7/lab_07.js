@@ -123,22 +123,21 @@ console.log(circle.area);
 ///////////////// Задание 8 ///////////////
 console.log('\n==== Задание 8 ====\n');
 
-{
-    let car = {};
-    Object.defineProperties(car, {
-        make: { value: "Honda", writable: true, configurable: true },
-        model: { value: "Civic", writable: true, configurable: true },
-        year: { value: 2020, writable: true, configurable: true }
-    });
+car = {};
 
-    Object.defineProperties(car, {
-        make: { writable: false, configurable: false },
-        model: { writable: false, configurable: false },
-        year: { writable: false, configurable: false }
-    });
+Object.defineProperties(car, {
+    make: { value: "Honda", writable: true, configurable: true },
+    model: { value: "Civic", writable: true, configurable: true },
+    year: { value: 2020, writable: true, configurable: true }
+});
 
-    console.log(car);
-}
+Object.defineProperties(car, {
+    make: { writable: false, configurable: false },
+    model: { writable: false, configurable: false },
+    year: { writable: false, configurable: false }
+});
+
+console.log(car);
 
 ///////////////// Задание 9 ///////////////
 console.log('\n==== Задание 9 ====\n');
