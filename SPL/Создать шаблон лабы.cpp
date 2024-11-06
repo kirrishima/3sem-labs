@@ -111,7 +111,7 @@ int main()
 			{
 				std::string num = std::to_string(i);
 				std::u8string content = u8"///////////////// Задание " + std::u8string(num.begin(), num.end()) 
-					+ u8" ///////////////\nconsole.log('\\n==== Задание " + std::u8string(num.begin(), num.end()) + u8" ====\\n')\n\n\n\n";
+					+ u8" ///////////////\nconsole.log('\\n==== Задание " + std::u8string(num.begin(), num.end()) + u8" ====\\n');\n\n\n\n";
 				jsFile.write(reinterpret_cast<const char*>(content.c_str()), content.size());
 			}
 		}
