@@ -7,11 +7,14 @@ def rename_files():
         if file_name.endswith(('.pdf', '.docx')):
             # Ищем номер лабораторной работы
             lab_number_match = re.search(r'Лабораторная работа (\d+)', file_name)
+            if not lab_number_match:
+                lab_number_match = re.search(r'Лабоарторная работа (\d+)', file_name)
             if lab_number_match:
                 lab_number = lab_number_match.group(1)
-                
                 # Ищем основное название файла после номера лабораторной работы
                 main_title_match = re.search(r'Лабораторная работа \d+\.\s*(.*)\.', file_name)
+                if not main_title_match:
+                    main_title_match = re.search(r'Лабоарторная работа \d+\.\s*(.*)\.', file_name)
                 if main_title_match:
                     main_title = main_title_match.group(1).strip()
                     
