@@ -1,8 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Xml;
-
-struct Item
+﻿struct Item
 {
     public string Name;
     public int Weight;
@@ -22,7 +18,7 @@ class Program
             int cw = items[i - 1].Weight;
             int cc = items[i - 1].Cost;
 
-            for (global::System.Int32 j = 0; j <= maxWeight; j++)
+            for (int j = 0; j <= maxWeight; j++)
             {
                 table[i, j] = table[i - 1, j];
 
@@ -64,7 +60,7 @@ class Program
         {
             if (table[i - 1, maxWeight] != table[i, maxWeight])
             {
-                Console.Write($"{items[i - 1].Name} ");
+                Console.WriteLine($"{items[i - 1].Name}. Масса: {items[i - 1].Weight}. Цена: {items[i - 1].Cost}");
                 maxWeight -= items[i - 1].Weight;
             }
         }
@@ -83,13 +79,5 @@ class Program
 
         int maxWeight = 7;
         var c = Knapsack(maxWeight, items);
-        /*
-                Console.WriteLine($"Максимальная стоимость: {maxCost}");
-                Console.WriteLine("Предметы, которые были добавлены в рюкзак:");
-
-                foreach (var item in selectedItems)
-                {
-                    Console.WriteLine($"Name: {item.Name}, Weight: {item.Weight}, Cost: {item.Cost}");
-                }*/
     }
 }
