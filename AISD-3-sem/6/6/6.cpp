@@ -2,6 +2,7 @@
 #include <vector>
 #include <list>
 #include <map>
+#include <set>
 #include <string>
 #include <Windows.h>
 
@@ -9,6 +10,9 @@ struct Node {
 	int number;
 	std::string symbol = "";
 	Node* left, * right;
+	Node(int num, const std::string& sym, Node* l = nullptr, Node* r = nullptr)
+		: number(num), symbol(sym), left(l), right(r) {}
+	Node() {}
 };
 
 
@@ -65,19 +69,32 @@ int main() {
 	std::string text;
 
 	getline(std::cin, text);
-	int size = text.size();
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < text.size(); i++) {
 		counter[text[i]]++;
 	}
+
+	std::set<int, std::greater<int>> uniqueNumbers;
+
+	for (const auto& pair : counter) {
+		uniqueNumbers.insert(pair.second);
+	}
+
 	std::cout << "\nЧастота:\n";
-	for (auto it = counter.begin(); it != counter.end(); it++) {
-		std::cout << '\'' << it->first << '\'' << " -> " << it->second << std::endl;
-		Node* node = new Node;
-		node->symbol += it->first;
-		node->number = it->second;
-		node->left = nullptr;
-		node->right = nullptr;
-		nodes.push_back(node);
+	for (auto elem : uniqueNumbers)
+	{
+		auto it = counter.rbegin();
+		for (int j = counter.size() - 1; j >= 0; j--)
+		{
+			auto p = *it++;
+			if (p.second == elem)
+			{
+				std::cout << '\'' << p.first << '\'' << " -> " << p.second << std::endl;
+			}
+		}
+	}
+
+	for (auto p : counter) {
+		nodes.push_back(new Node{ p.second, *(new std::string(1, p.first)), nullptr, nullptr });
 	}
 
 	std::cout << std::endl;
@@ -87,14 +104,14 @@ int main() {
 	std::cout << "\nКоды символов:\n";
 	for (const auto& itm : matchingTable) {
 		std::cout << '\'' << itm.first << '\'' << " = ";
-		int tempSize = itm.second.size();
-		for (int i = 0; i < tempSize; i++) {
+		for (int i = 0; i < itm.second.size(); i++) {
 			std::cout << itm.second[i];
 		}
 		std::cout << std::endl;
 	}
+
 	std::cout << "\nКод строки: ";
-	for (int i = 0; i < size; i++) {
+	for (int i = 0; i < text.size(); i++) {
 		const std::vector<bool>& temp = matchingTable.at(text[i]);
 		int sizeTemp = temp.size();
 		for (int j = 0; j < sizeTemp; j++) {
