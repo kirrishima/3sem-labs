@@ -140,7 +140,6 @@ namespace LexAn::Utils
 			<< "</tr>" << std::endl;
 
 		int currentLine = 1;
-		LT_file << "<tr><td>01</td>" << std::setw(8);
 
 		std::string tmp;
 		for (int i = 0; i < LexTable.size; i++)
@@ -148,15 +147,17 @@ namespace LexAn::Utils
 			LT_entry = LT::GetEntry(LexTable, i);
 			if (currentLine != LT_entry.sn)
 			{
-				currentLine = LT_entry.sn;
 				LT_file << "<tr><td>" << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << "</td>";
 				LT_file << "<td>" << tmp << "</td></tr>";
 				tmp.clear();
+				currentLine = LT_entry.sn;
+				tmp += LT_entry.lexema[0];
 				continue;
 			}
 
 			tmp += LT_entry.lexema[0];
 		}
+		LT_file << "<tr><td>" << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << "</td>";
 		LT_file << "<td>" << tmp << "</td></tr>";
 		LT_file << "</table></body></html>" << std::endl;
 		LT_file.close();
