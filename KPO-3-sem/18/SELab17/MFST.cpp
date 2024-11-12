@@ -1,7 +1,7 @@
 #include "stdafx.h"
-#include "MFST.h" // Подключение заголовочного файла с объявлениями, необходимыми для MFST
+#include "MFST.h" 
 
-namespace MFST // Определение пространства имен MFST
+namespace MFST
 {
 	// Конструктор MfstState без параметров, инициализирует поля значениями по умолчанию
 	MfstState::MfstState()
