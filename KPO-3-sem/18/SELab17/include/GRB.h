@@ -1,5 +1,6 @@
-#pragma once
-#include "Error.h"
+#ifndef GRB_H
+
+#define GRB_H
 
 typedef short GRBALPHABET;
 
@@ -60,3 +61,4 @@ namespace GRB
 	};
 	Greibach getGreibach();
 }
+#endif // !GRB_H

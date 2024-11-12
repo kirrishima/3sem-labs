@@ -98,13 +98,13 @@
     <ClInclude Include="stdafx.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Rule.h">
+    <ClInclude Include="include\GRB.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="MFST.h">
+    <ClInclude Include="include\MFST.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="GRB.h">
+    <ClInclude Include="include\Rule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

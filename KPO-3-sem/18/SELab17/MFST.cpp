@@ -1,282 +1,312 @@
 #include "stdafx.h"
-#include "MFST.h"
+#include "MFST.h" // Подключение заголовочного файла с объявлениями, необходимыми для MFST
 
-namespace MFST
+namespace MFST // Определение пространства имен MFST
 {
-	// Конструктор по умолчанию для состояния автомата (инициализация полей)
+	// Конструктор MfstState без параметров, инициализирует поля значениями по умолчанию
 	MfstState::MfstState()
 	{
-		lenta_position = 0;   // начальная позиция на ленте
-		nrule = -1;           // правило не выбрано
-		nrulechain = -1;      // цепочка в правиле не выбрана
-	}
+		lenta_position = 0; // Позиция в ленте
+		nrule = -1; // Индекс текущего правила (-1 означает отсутствие)
+		nrulechain = -1; // Индекс цепочки правила (-1 означает отсутствие)
+	};
 
-	// Конструктор состояния автомата с указанием позиции, стека и цепочки
+	// Конструктор MfstState с параметрами
 	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrulechain)
 	{
-		lenta_position = pposition;  // устанавливает текущую позицию на ленте
-		st = pst;                    // сохраняет стек
-		nrulechain = pnrulechain;    // сохраняет номер цепочки
-	}
+		lenta_position = pposition; // Инициализация позиции в ленте
+		st = pst; // Инициализация стека
+		nrulechain = pnrulechain; // Инициализация индекса цепочки правила
+	};
 
-	// Конструктор состояния с позицией, стеком, правилом и цепочкой
+	// Конструктор MfstState с дополнительным параметром для индекса правила
 	MfstState::MfstState(short pposition, MFSTSTSTACK pst, short pnrule, short pnrulechain)
 	{
-		lenta_position = pposition;  // текущая позиция на ленте
-		st = pst;                    // текущий стек
-		nrule = pnrule;              // выбранное правило
-		nrulechain = pnrulechain;    // текущая цепочка
-	}
+		lenta_position = pposition; // Инициализация позиции в ленте
+		st = pst; // Инициализация стека
+		nrule = pnrule; // Инициализация индекса текущего правила
+		nrulechain = pnrulechain; // Инициализация индекса цепочки правила
+	};
 
-	// Конструктор диагностики по умолчанию (инициализация полей)
+	// Конструктор MfstDiagnosis без параметров, инициализирует поля значениями по умолчанию
 	Mfst::MfstDiagnosis::MfstDiagnosis()
 	{
-		lenta_position = -1;     // позиция на ленте (-1 — неинициализировано)
-		rc_step = SURPRISE;      // код шага (SURPRISE — неожиданный результат)
-		nrule = -1;              // правило (-1 — не выбрано)
-		nrule_chain = -1;        // цепочка правила (-1 — не выбрана)
-	}
+		lenta_position = -1; // Позиция в ленте (-1 означает отсутствие)
+		rc_step = SURPRISE; // Шаг синтаксического анализа, установленный в состояние "неожиданность"
+		nrule = -1; // Индекс текущего правила (-1 означает отсутствие)
+		nrule_chain = -1; // Индекс цепочки правила (-1 означает отсутствие)
+	};
 
-	// Конструктор диагностики с параметрами позиции, шага, правила и цепочки
+	// Конструктор MfstDiagnosis с параметрами
 	Mfst::MfstDiagnosis::MfstDiagnosis(short plenta_position, RC_STEP prc_step, short pnrule, short pnrule_chain)
 	{
-		lenta_position = plenta_position;  // текущая позиция на ленте
-		rc_step = prc_step;                // код шага (например, NS_OK, TS_OK и т.д.)
-		nrule = pnrule;                    // номер правила
-		nrule_chain = pnrule_chain;        // номер цепочки правила
-	}
+		lenta_position = plenta_position; // Позиция в ленте
+		rc_step = prc_step; // Текущий шаг синтаксического анализа
+		nrule = pnrule; // Индекс текущего правила
+		nrule_chain = pnrule_chain; // Индекс цепочки правила
+	};
 
-	// Конструктор автомата по умолчанию (инициализация ленты и её позиции)
-	Mfst::Mfst() { lenta = 0; lenta_size = lenta_position = 0; };
+	// Конструктор Mfst без параметров, инициализирует ленту и позицию
+	Mfst::Mfst() {
+		lenta = 0; // Указатель на ленту
+		lenta_size = lenta_position = 0; // Размер ленты и позиция инициализируются нулем
+	};
 
-	// Основной конструктор автомата, принимает таблицу лексем и грамматику
+	// Конструктор Mfst с параметрами таблицы лексем и грамматики Грейбаха
 	Mfst::Mfst(LT::LexTable& lextable, GRB::Greibach pgrebach)
 	{
-		grebach = pgrebach;                   // установка грамматики
-		lex = lextable;                       // установка таблицы лексем
-		lenta = new short[lenta_size = lex.size];  // инициализация ленты
+		grebach = pgrebach; // Инициализация грамматики
+		lex = lextable; // Инициализация таблицы лексем
+		lenta_size = lex.size; // Установка размера ленты
+		lenta = new short[lenta_size]; // Создание ленты
 
-		// Перекодировка лексем из таблицы в формат алфавита Грейбаха
-		for (int k = 0; k < lex.size; k++)
-			lenta[k] = TS(lex.table[k].lexema[0]);
+		// Заполнение ленты лексемами из таблицы
+		for (int k = 0; k < lenta_size; k++)
+			lenta[k] = GRB::Rule::Chain::T(lex.table[k].lexema[0]);
 
-		lenta_position = 0;                   // начальная позиция на ленте
-		st.push(grebach.stbottomT);           // добавление дна стека
-		st.push(grebach.startN);              // добавление стартового символа грамматики
-		nrulechain = -1;                      // текущая цепочка
+		lenta_position = 0; // Инициализация позиции в ленте
+		st.push(grebach.stbottomT); // Добавление символа дна стека
+		st.push(grebach.startN); // Добавление стартового нетерминала
+		nrulechain = -1; // Индекс цепочки правила
 	}
 
-	// Метод для выполнения одного шага автомата
+	// Основной метод шага синтаксического анализа
 	Mfst::RC_STEP Mfst::step()
 	{
-		RC_STEP rc = SURPRISE;                // код шага (SURPRISE — неожиданный результат)
-		if (lenta_position < lenta_size)      // проверка конца ленты
+		RC_STEP rc = SURPRISE; // Инициализация результата как "неожиданность"
+
+		if (lenta_position < lenta_size) // Проверка, не достигнут ли конец ленты
 		{
-			if (ISNS(st.top()))               // если вершина стека — нетерминал
+			if (GRB::Rule::Chain::isN(st.top())) // Если вершина стека - нетерминал
 			{
-				GRB::Rule rule;               // правило для текущего нетерминала
-				if ((nrule = grebach.getRule(st.top(), rule)) >= 0) // попытка получить правило
+				GRB::Rule rule;
+				if ((nrule = grebach.getRule(st.top(), rule)) >= 0) // Получение правила для нетерминала
 				{
-					GRB::Rule::Chain chain;   // цепочка, соответствующая правилу
-					if ((nrulechain = rule.getNextChain(lenta[lenta_position], chain, nrulechain + 1)) >= 0) // поиск цепочки
+					GRB::Rule::Chain chain;
+					if ((nrulechain = rule.getNextChain(lenta[lenta_position], chain, nrulechain + 1)) >= 0) // Поиск цепочки правил
 					{
-						MFST_TRACE1           // трассировка
-							savestate();          // сохранение состояния
-						st.pop();             // удаление нетерминала
-						push_chain(chain);    // добавление цепочки в стек
-						rc = NS_OK;           // успешный шаг
-						MFST_TRACE2           // трассировка
+						MFST_TRACE1 // Отладочная информация
+							savestate(); // Сохранение текущего состояния
+						st.pop(); // Удаление нетерминала из стека
+						push_chain(chain); // Добавление цепочки в стек
+						rc = NS_OK; // Успешный шаг с нетерминалом
+						MFST_TRACE2 // Отладочная информация
 					}
-					else // цепочка не найдена
+					else
 					{
-						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE")  // трассировка
-							savediagnosis(NS_NORULECHAIN);            // диагностика
-						rc = resetstate() ? NS_NORULECHAIN : NS_NORULE;  // восстановление состояния
-					}
+						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE") // Отладочная информация
+							savediagnosis(NS_NORULECHAIN); // Сохранение диагноза ошибки
+						rc = resetstate() ? NS_NORULECHAIN : NS_NORULE; // Сброс состояния или ошибка
+					};
 				}
-				else rc = NS_ERROR;           // ошибка правила
+				else
+				{
+					rc = NS_ERROR; // Ошибка при поиске правила
+				}
 			}
-			else if ((st.top() == lenta[lenta_position])) // терминал на вершине совпадает с символом ленты
+			else if ((st.top() == lenta[lenta_position])) // Если вершина стека - терминал и совпадает с текущей лексемой
 			{
-				lenta_position++;             // продвижение по ленте
-				st.pop();                     // удаление терминала из стека
-				nrulechain = -1;              // сброс цепочки
-				rc = TS_OK;                   // успешный шаг
-				MFST_TRACE3                   // трассировка
+				lenta_position++; // Переход к следующей позиции в ленте
+				st.pop(); // Удаление терминала из стека
+				nrulechain = -1; // Сброс индекса цепочки правила
+				rc = TS_OK; // Успешный шаг с терминалом
+				MFST_TRACE3 // Отладочная информация
 			}
 			else
 			{
-				MFST_TRACE4(TS_NOK / NS_NORULECHAIN)  // трассировка ошибки
-					rc = resetstate() ? TS_NOK : NS_NORULECHAIN;  // ошибка терминала, восстановление состояния
+				MFST_TRACE4("TS_NOK/NS_NORULECHAIN") // Отладочная информация
+					rc = resetstate() ? TS_NOK : NS_NORULECHAIN; // Сброс состояния или ошибка
 			}
 		}
 		else
 		{
-			rc = LENTA_END;                   // достигнут конец ленты
-			MFST_TRACE4(LENTA_END);           // трассировка
-		}
-		return rc;
-	}
+			rc = LENTA_END; // Конец ленты
+			MFST_TRACE4("LENTA_END") // Отладочная информация
+		};
 
-	// Добавляет цепочку в стек в обратном порядке
+		return rc; // Возврат результата шага
+	};
+
+	// Метод для добавления цепочки символов в стек
 	bool Mfst::push_chain(GRB::Rule::Chain chain)
 	{
-		for (int k = chain.size - 1; k >= 0; k--) // от конца к началу
-			st.push(chain.nt[k]);                 // добавление символов цепочки в стек
-		return true;
-	}
+		for (int k = chain.size - 1; k >= 0; k--) // Обратный порядок добавления символов
+			st.push(chain.nt[k]); // Добавление символов в стек
 
-	// Сохраняет текущее состояние автомата в стек состояний
-	bool Mfst::savestate()
-	{
-		storestate.push(MfstState(lenta_position, st, nrule, nrulechain));  // сохранение позиции, стека, правила и цепочки
-		MFST_TRACE6("SAVESTATE:", storestate.size());                      // трассировка
 		return true;
 	};
 
-	// Восстанавливает последнее сохраненное состояние
+	// Метод для сохранения состояния синтаксического анализа
+	bool Mfst::savestate()
+	{
+		storestate.push(MfstState(lenta_position, st, nrule, nrulechain)); // Сохранение состояния в стек
+		MFST_TRACE6("SAVESTATE:", storestate.size()); // Отладочная информация
+		return true;
+	};
+
+	// Метод для восстановления состояния синтаксического анализа
 	bool Mfst::resetstate()
 	{
 		bool rc = false;
 		MfstState state;
 
-		if (rc = (storestate.size() > 0)) // проверка, есть ли сохраненные состояния
+		if (rc = (storestate.size() > 0)) // Проверка, есть ли сохраненные состояния
 		{
-			state = storestate.top();     // верхнее состояние
-			lenta_position = state.lenta_position;  // позиция на ленте
-			st = state.st;                // стек
-			nrule = state.nrule;          // правило
-			nrulechain = state.nrulechain;  // цепочка
-			storestate.pop();             // удаление состояния
-			MFST_TRACE5("RESSTATE")       // трассировка
-				MFST_TRACE2                   // трассировка
-		}
-		return rc;
-	}
+			state = storestate.top(); // Получение верхнего состояния из стека
+			lenta_position = state.lenta_position; // Восстановление позиции в ленте
+			st = state.st; // Восстановление стека
+			nrule = state.nrule; // Восстановление индекса правила
+			nrulechain = state.nrulechain; // Восстановление индекса цепочки правила
 
-	// Сохраняет диагностику текущего состояния
+			storestate.pop(); // Удаление восстановленного состояния из стека
+
+			MFST_TRACE5("RESSTATE") // Отладочная информация
+				MFST_TRACE2 // Отладочная информация
+
+				rc = true;
+		}
+
+		return rc;
+	};
+
+	// Метод для сохранения диагноза ошибки синтаксического анализа
 	bool Mfst::savediagnosis(RC_STEP prc_step)
 	{
 		bool rc = false;
 		short k = 0;
 
 		while (k < MFST_DIAGN_NUMBER && lenta_position <= diagnosis[k].lenta_position)
-			k++;
+			k++; // Поиск свободной позиции для диагноза
 
 		if (rc = (k < MFST_DIAGN_NUMBER))
 		{
-			diagnosis[k] = MfstDiagnosis(lenta_position, prc_step, nrule, nrulechain); // сохранение данных диагностики
+			diagnosis[k] = MfstDiagnosis(lenta_position, prc_step, nrule, nrulechain); // Сохранение диагноза
 
 			for (int i = k + 1; i < MFST_DIAGN_NUMBER; i++)
-				diagnosis[i].lenta_position = -1; // очистка диагностики
+				diagnosis[i].lenta_position = -1; // Очистка оставшихся диагнозов
 		}
-		return rc;
-	}
 
-	// Запускает автомат
+		return rc;
+	};
+
+	// Метод для начала синтаксического анализа
 	bool Mfst::start()
 	{
 		bool rc = false;
-		RC_STEP rc_step = SURPRISE;           // начальный код шага
-		char buf[MFST_DIAGN_MAXSIZE]{};       // буфер диагностики
-		rc_step = step();                     // выполнение шага
-		while (rc_step == NS_OK || rc_step == NS_NORULECHAIN || rc_step == TS_OK || rc_step == TS_NOK)
-			rc_step = step();                 // повторяем шаги, пока они успешны
+		RC_STEP rc_step = SURPRISE;
+		char buf[MFST_DIAGN_MAXSIZE] = {};
+		rc_step = step(); // Выполнение первого шага
 
-		switch (rc_step)                      // обработка завершения
+		while (rc_step == NS_OK || rc_step == NS_NORULECHAIN || rc_step == TS_OK || rc_step == TS_NOK)
+			rc_step = step(); // Выполнение шагов синтаксического анализа, пока они успешны
+
+		switch (rc_step) // Обработка результатов анализа
 		{
-		case LENTA_END:                       // конец ленты
+		case LENTA_END:
 		{
-			MFST_TRACE4("------>LENTA_END")   // трассировка
+			MFST_TRACE4("------>LENTA_END") // Отладочная информация
 				std::cout << "------------------------------------------------------------------------------------------   ------" << std::endl;
 			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: всего строк %d, синтаксический анализ выполнен без ошибок", 0, lex.table[lex.size - 1].sn);
-			std::cout << std::setw(4) << std::left << 0 << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выполнен без ошибок" << std::endl;
+			std::cout << std::setw(4) << std::left << 0 << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выпол без ошибок" << std::endl;
 			rc = true;
 			break;
 		}
-		case NS_NORULE:                       // ошибка правила
+
+		case NS_NORULE:
 		{
-			MFST_TRACE4("------>NS_NORULE")   // трассировка
+			MFST_TRACE4("------>NS_NORULE") // Отладочная информация
 				std::cout << "------------------------------------------------------------------------------------------   ------" << std::endl;
-			std::cout << getDiagnosis(0, buf) << std::endl;
-			std::cout << getDiagnosis(1, buf) << std::endl;
-			std::cout << getDiagnosis(2, buf) << std::endl;
+			std::cout << getDiagnosis(0, buf) << std::endl; // Вывод диагностики
+			std::cout << getDiagnosis(1, buf) << std::endl; // Вывод диагностики
+			std::cout << getDiagnosis(2, buf) << std::endl; // Вывод диагностики
 			break;
 		}
-		case NS_NORULECHAIN:  MFST_TRACE4("------>NS_NORULECHAIN"); break;
-		case NS_ERROR:        MFST_TRACE4("------>NS_ERROR"); break;
-		case SURPRISE:        MFST_TRACE4("------>NS_SURPRISE"); break;
-		}
-		return rc;
-	}
 
-	// Получить содержимое стека в строковом виде
+		case NS_NORULECHAIN:
+			MFST_TRACE4("------>NS_NORULECHAIN"); // Отладочная информация
+			break;
+
+		case NS_ERROR:
+			MFST_TRACE4("------>NS_ERROR"); // Отладочная информация
+			break;
+
+		case SURPRISE:
+			MFST_TRACE4("------>NS_SURPRISE"); // Отладочная информация
+			break;
+		}
+
+		return rc;
+	};
+
+	// Метод для получения содержимого стека в виде строки
 	char* Mfst::getCSt(char* buf)
 	{
 		short p;
-		for (int k = (signed)st.size() - 1; k >= 0; --k)
+		for (int k = static_cast<signed>(st.size()) - 1; k >= 0; --k)
 		{
-			p = st.c[k];                          // символ из стека
-			buf[st.size() - 1 - k] = GRB::Rule::Chain::alphabet_to_char(p); // преобразование
+			p = (st.c[k]); // Получение символа из стека
+			buf[st.size() - 1 - k] = GRB::Rule::Chain::alphabet_to_char(p); // Преобразование в символ
 		}
-		buf[st.size()] = '\0';
+		buf[st.size()] = '\0'; // Завершение строки
 		return buf;
 	}
 
-	// Получить строковое представление ленты от заданной позиции
+	// Метод для получения части ленты в виде строки
 	char* Mfst::getCLenta(char* buf, short pos, short n)
 	{
-		short i, k = (pos + n < lenta_size) ? pos + n : lenta_size;
+		short i, k = (pos + n < lenta_size) ? pos + n : lenta_size; // Определение границ
 		for (i = pos; i < k; i++)
-			buf[i - pos] = GRB::Rule::Chain::alphabet_to_char(lenta[i]); // преобразование
-		buf[i - pos] = 0x00;
+			buf[i - pos] = GRB::Rule::Chain::alphabet_to_char(lenta[i]); // Преобразование в символы
+		buf[i - pos] = 0x00; // Завершение строки
 		return buf;
 	}
 
-	// Получить диагностику ошибки
+	// Метод для получения текста диагноза ошибки
 	char* Mfst::getDiagnosis(short n, char* buf)
 	{
-		char* rc = new char[200] {};
+		char* rc = new char[200] {}; // Создание строки для диагноза
 		int errid = 0;
 		int lpos = -1;
 
-		if (n < MFST_DIAGN_NUMBER && (lpos = diagnosis[n].lenta_position) >= 0)
+		if (n < MFST_DIAGN_NUMBER && (lpos = diagnosis[n].lenta_position) >= 0) // Проверка диагноза
 		{
-			errid = grebach.getRule(diagnosis[n].nrule).iderror;
-			Error::ERROR err = Error::geterror(errid);
+			errid = grebach.getRule(diagnosis[n].nrule).iderror; // Получение идентификатора ошибки
+			Error::ERROR err = Error::geterror(errid); // Получение сообщения об ошибке
 			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d,%s", err.id, lex.table[lpos].sn, err.message);
-			rc = buf;
+			rc = buf; // Формирование текста ошибки
 		}
+
 		return rc;
 	}
 
-	// Печатает последовательность правил
+	// Метод для вывода правил синтаксического анализа
 	void Mfst::printrules()
 	{
 		MfstState state;
 		GRB::Rule rule;
-		for (unsigned short i = 0; i < storestate.size(); i++)
+		for (unsigned short i = 0; i < storestate.size(); i++) // Перебор всех сохраненных состояний
 		{
-			state = storestate.c[i];
-			rule = grebach.getRule(state.nrule);
-			MFST_TRACE7
-		}
-	}
+			state = storestate.c[i]; // Получение состояния
+			rule = grebach.getRule(state.nrule); // Получение правила
+			MFST_TRACE7 // Отладочная информация
+		};
+	};
 
-	// Сохраняет последовательность правил и цепочек
+	// Метод для сохранения выводов синтаксического анализа
 	bool Mfst::savededucation()
 	{
 		MfstState state;
 		GRB::Rule rule;
-		deducation.nrules = new short[deducation.size = storestate.size()];
-		deducation.nrulechains = new short[deducation.size];
+		deducation.nrules = new short[deducation.size = storestate.size()]; // Создание массива правил
+		deducation.nrulechains = new short[deducation.size]; // Создание массива цепочек правил
 
-		for (unsigned short i = 0; i < storestate.size(); i++)
+		for (unsigned short i = 0; i < storestate.size(); i++) // Перебор всех сохраненных состояний
 		{
-			state = storestate.c[i];
-			deducation.nrules[i] = state.nrule;
-			deducation.nrulechains[i] = state.nrulechain;
+			state = storestate.c[i]; // Получение состояния
+			deducation.nrules[i] = state.nrule; // Сохранение индекса правила
+			deducation.nrulechains[i] = state.nrulechain; // Сохранение индекса цепочки
 		}
+
 		return true;
 	}
 }

@@ -1,7 +1,6 @@
 ﻿#pragma once
-
-#include "GRB.h"
 #include "Error.h"
+#include "GRB.h"
 
 #define GRB_ERROR_SERIES 600
 #define NS(n) GRB::Rule::Chain::N(n)

@@ -69,7 +69,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	Parm::PARM parm = Parm::getparm(argc, argv);
 	Out::OUT out = Out::INIT_OUT;
 	In::IN in = In::getin(parm.in);
-
+	cout << '\n';
 	try {
 		out = Out::getout(parm.out);
 		log = Log::getlog(parm.log);
@@ -78,11 +78,13 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Log::WriteParm(log, parm);
 		Out::WriteOut(out, in);
 		Log::WriteIn(log, in);
-
+		cout << '\n';
 		LT::LexTable LexTable = LexAn::lexAnalize(parm, in);
+		cout << '\n';
 		MFST_TRACE_START
 			MFST::Mfst mfst(LexTable, GRB::getGreibach());
 		mfst.start();
+		cout << '\n';
 		mfst.savededucation();
 		mfst.printrules();
 		Log::Close(log);

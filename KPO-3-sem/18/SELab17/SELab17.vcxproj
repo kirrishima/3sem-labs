@@ -163,20 +163,20 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="GRB.h" />
     <ClInclude Include="include\Error.h" />
     <ClInclude Include="include\FST.h" />
+    <ClInclude Include="include\GRB.h" />
     <ClInclude Include="include\In.h" />
     <ClInclude Include="include\IT.h" />
     <ClInclude Include="include\LexerAutomata.h" />
     <ClInclude Include="include\Log.h" />
     <ClInclude Include="include\LT.h" />
+    <ClInclude Include="include\MFST.h" />
     <ClInclude Include="include\Out.h" />
     <ClInclude Include="include\Parm.h" />
+    <ClInclude Include="include\Rule.h" />
     <ClInclude Include="include\SVV.h" />
     <ClInclude Include="include\Utils.h" />
-    <ClInclude Include="MFST.h" />
-    <ClInclude Include="Rule.h" />
     <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
