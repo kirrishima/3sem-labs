@@ -1,6 +1,7 @@
 ﻿#include <iostream>
 #include <vector>
 #include <string>
+#include <algorithm>
 
 using namespace std;
 
@@ -27,12 +28,17 @@ void findLIS(const vector<int>& arr)
 		LIS[i].push_back(arr[i]);
 	}
 
-	cout << "Длина: " << LIS[LIS.size() - 1].size() << endl;
+	sort(LIS.begin(), LIS.end(), [](const vector<int>& a, const vector<int>& b) {
+		return a.size() > b.size() || (a.size() == b.size() && &a < &b);
+		});
+
+	cout << "\nДлина: " << LIS[0].size() << endl;
 
 	cout << "Максимальная возрастающая подпоследовательность: ";
-	for (int i : LIS[LIS.size() - 1]) {
+	for (int i : LIS[0]) {
 		cout << i << " ";
 	}
+	cout << '\n';
 }
 
 int main()
@@ -40,29 +46,17 @@ int main()
 	setlocale(LC_ALL, "rus");
 	vector<int> arr;
 
-	cout << "Введите элементы последовательности (для выхода -0:) ";
+	int n;
+	cout << "Введите число элементов последовательности: ";
+	scanf_s("%d", &n);
+	printf_s("Введите %d элементов последовательности: ", n);
 
-	string num;
-	while (true)
-	{
+	int num;
+	for (; n > 0; n--) {
 		cin >> num;
-		if (num == "0") {
-			break;
-		}
-		arr.push_back(stoi(num));
+		arr.push_back(num);
 	}
-
-	cout << "Исходная последовательность: ";
-
-	for (auto el : arr)
-	{
-		cout << el << " ";
-	}
-	cout << endl;
 
 	findLIS(arr);
-
-	cout << endl << endl;
-
 	return 0;
 }
