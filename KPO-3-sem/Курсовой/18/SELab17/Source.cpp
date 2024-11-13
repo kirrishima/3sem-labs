@@ -16,7 +16,7 @@ namespace CD
 		return expr.find('+') == std::string::npos && expr.find('-') == std::string::npos;
 	}
 
-	void gen(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, const std::wstring& OUT_FILEPATH)
+	void gen(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, const std::wstring& OUT_FILEPATH, bool p)
 	{
 		ofstream wfile(OUT_FILEPATH);
 
@@ -31,12 +31,19 @@ namespace CD
 		wfile << "WriteConsoleA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD\n";
 		wfile << "GetStdHandle PROTO :DWORD\n";
 		wfile << "\nSTD_OUTPUT_HANDLE EQU -11  ; Дескриптор для стандартного вывода консоли\n";
-		wfile << "\n.stack 4096\n";
+		wfile << "\n.stack 4096\n\n";
 
 		__s_const(LEX_TABLE, ID_TABLE, wfile);
+		wfile << '\n';
 		__s_data(LEX_TABLE, ID_TABLE, wfile);
+		wfile << "\n\n.code\n";
 
-		wfile << "\n.code\nmain proc\nstart:\n";
+		if (p)
+		{
+			wfile << printAsmCode;
+		}
+
+		wfile << "\nmain proc\nstart:\n";
 		for (size_t i = 0; i < LEX_TABLE.size; i++)
 		{
 			switch (LEX_TABLE.table[i].lexema[0])
@@ -76,7 +83,7 @@ namespace CD
 					wfile << "\tmov eax, " << expr << '\n';
 					wfile << "\tmov [" << var << "], " << "eax" << '\n';
 				}
-
+				wfile << '\n';
 
 				break;
 			}
@@ -87,36 +94,16 @@ namespace CD
 			//	break;
 			//}
 			case 'p':
-				wfile << "\tmov eax, " << (ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].idtype == IT::L ? "__" : "") << ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].id << "\n";
-				wfile << "\tmov ecx, 10\n";
-				wfile << "\tmov edi, offset buffer + 8\n";
-				wfile << "\tconvertLoop:\n"
-					"\t\txor edx, edx ; Обнуляем edx перед делением\n"
-					"\t\tdiv ecx ; Делим eax на 10, результат деления в eax, остаток в edx\n"
-					"\t\tadd dl, '0' ; Преобразуем остаток в ASCII\n"
-					"\t\tdec edi ; Переходим к предыдущей позиции буфера\n"
-					"\t\tmov [edi], dl ; Сохраняем символ в буфере\n"
-					"\t\ttest eax, eax ; Проверяем, остались ли ещё цифры\n"
-					"\t\tjnz convertLoop ; Если остались, продолжаем цикл\n"
-					"\n"
-					"\t\t; Получаем дескриптор консоли\n"
-					"\t\tpush STD_OUTPUT_HANDLE\n"
-					"\t\tcall GetStdHandle\n"
-					"\t\tmov ebx, eax ; Сохраняем дескриптор в ebx для использования в WriteConsoleA\n"
-					"\n"
-					"\t\t; Выводим строку в консоль\n"
-					"\t\tlea edx, [buffer] ; Указываем начало строки (buffer)\n"
-					"\t\tmov eax, OFFSET buffer + 8 ; Конец строки, включая \"result: \" и число\n"
-					"\t\tsub eax, edi ; Вычисляем длину строки\n"
-					"\t\tadd eax, 8 ; Увеличиваем длину на 8 для учёта \"result: \"\n"
-					"\t\tpush 0 ; lpOverlapped (NULL)\n"
-					"\t\tpush OFFSET bytesWritten ; lpNumberOfBytesWritten\n"
-					"\t\tpush eax ; nNumberOfBytesToWrite\n"
-					"\t\tpush edx ; lpBuffer (начало всей строки)\n"
-					"\t\tpush ebx ; hConsoleOutput (дескриптор консоли)\n"
-					"\t\tcall WriteConsoleA ; Вызываем WriteConsoleA для вывода строки\n";
-
-				goto exit;
+				if (ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].idtype == IT::L)
+				{
+					wfile << "\tmov eax, __" << ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].id << "\n";
+				}
+				else
+				{
+					wfile << "\tmov eax, [" << ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].id << "]\n";
+				}
+				wfile << "\tcall ConvertToString            ; Преобразуем число в строку\n"
+					<< "\tcall PrintToConsole             ; Выводим строку в консоль\n\n";
 				break;
 			case ';':
 				//wfile << ";\n\t";
@@ -174,8 +161,9 @@ namespace CD
 		}
 	}
 
-	void generateAssembly(const std::string& expr, std::ofstream& outFile) {
-		outFile << "\n\t; original expression:  " << expr << "\n";
+	void generateAssembly(const std::string& expr, std::ofstream& outFile)
+	{
+		outFile << "\t; original expression:  " << expr << "\n";
 
 		std::string variable;
 		char op = '+';

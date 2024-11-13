@@ -1,0 +1,7 @@
+{
+int a = 12;
+int f = a + 100;
+int x = a + f;
+f = 13 + x;print(x);
+print(f);
+}

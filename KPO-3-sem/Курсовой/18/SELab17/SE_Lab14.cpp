@@ -1,8 +1,12 @@
 ﻿#include "stdafx.h"
 #include "MFST.h"
 #include "cd.h"
+#include "algorithm"
 
 using namespace std;
+using namespace MFST;
+using namespace GRB;
+
 
 int _tmain(int argc, _TCHAR* argv[]) {
 	setlocale(LC_ALL, "rus");
@@ -90,12 +94,31 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		cout << '\n';
 		mfst.savededucation();
 		mfst.printrules();
+
+		bool hasP = false;
+
+		MfstState state;
+		GRB::Rule rule;
+		char rbuf[300];
+
+		for (unsigned short i = 0; i < mfst.storestate.size(); i++) // Перебор всех сохраненных состояний
+		{
+			state = mfst.storestate.c[i]; // Получение состояния
+			rule = mfst.grebach.getRule(state.nrule); // Получение правила
+			rule.getCRule(rbuf, state.nrulechain);
+			if (std::find(rbuf, rbuf + strlen(rbuf), 'p') != rbuf + strlen(rbuf))
+			{
+				hasP = true;
+				break;
+			}
+		};
+
 		Log::Close(log);
 		Out::Close(out);
 
 		cout << "\n";
 
-		CD::gen(LexTable, IdTable);
+		CD::gen(LexTable, IdTable, L"result.txt", hasP);
 	}
 	catch (Error::ERROR e)
 	{
