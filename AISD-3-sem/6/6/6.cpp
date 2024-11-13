@@ -74,6 +74,7 @@ int main() {
 	}
 
 	std::set<int, std::greater<int>> uniqueNumbers;
+	std::list<char> nnn;
 
 	for (const auto& pair : counter) {
 		uniqueNumbers.insert(pair.second);
@@ -89,6 +90,7 @@ int main() {
 			if (p.second == elem)
 			{
 				std::cout << '\'' << p.first << '\'' << " -> " << p.second << std::endl;
+				nnn.push_back(p.first);
 			}
 		}
 	}
@@ -102,12 +104,22 @@ int main() {
 	BuildTable(root, code, matchingTable);
 
 	std::cout << "\nКоды символов:\n";
-	for (const auto& itm : matchingTable) {
-		std::cout << '\'' << itm.first << '\'' << " = ";
-		for (int i = 0; i < itm.second.size(); i++) {
-			std::cout << itm.second[i];
+	//for (const auto& itm : matchingTable) {
+	//	std::cout << '\'' << itm.first << '\'' << " = ";
+	//	for (int i = 0; i < itm.second.size(); i++) {
+	//		std::cout << itm.second[i];
+	//	}
+	//	std::cout << std::endl;
+	//}
+
+	for (auto elem : nnn)
+	{
+		std::cout << '\'' << elem << '\'' << ": ";
+		for (auto b : matchingTable[elem])
+		{
+			std::cout << b;
 		}
-		std::cout << std::endl;
+		std::cout << '\n';
 	}
 
 	std::cout << "\nКод строки: ";
