@@ -68,6 +68,7 @@ int main() {
 	std::vector<bool> code;
 	std::string text;
 
+	std::cout << "Введите строку: ";
 	getline(std::cin, text);
 	for (int i = 0; i < text.size(); i++) {
 		counter[text[i]]++;
@@ -104,13 +105,6 @@ int main() {
 	BuildTable(root, code, matchingTable);
 
 	std::cout << "\nКоды символов:\n";
-	//for (const auto& itm : matchingTable) {
-	//	std::cout << '\'' << itm.first << '\'' << " = ";
-	//	for (int i = 0; i < itm.second.size(); i++) {
-	//		std::cout << itm.second[i];
-	//	}
-	//	std::cout << std::endl;
-	//}
 
 	for (auto elem : nnn)
 	{
