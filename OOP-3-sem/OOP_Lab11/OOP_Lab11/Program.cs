@@ -15,8 +15,8 @@ namespace OOP_Lab11
     {
         private static Assembly Assembly { get; set; } = Assembly.LoadFrom("OOP_Lab03.dll"); // dll из 3 лабы закинуть в bin\Debug\net8.0
 
-        private static Type OOP3Array = Assembly.GetType("OOP_Lab03.Array");
-        private static Type OOP3Static = Assembly.GetType("OOP_Lab03.StatisticOperation");
+        private static Type? OOP3Array = Assembly.GetType("OOP_Lab03.Array");
+        private static Type? OOP3Static = Assembly.GetType("OOP_Lab03.StatisticOperation");
 
 
         public static void Print<T>(IEnumerable<T> collection)
@@ -57,7 +57,6 @@ namespace OOP_Lab11
             Reflector.PrintAllMethodsContainingParamsWithType(typeof(List<>), typeof(int));
             Console.WriteLine();
 
-            // 1.g
 
             var myObject = Reflector.Create(OOP3Array, new int[] { 1, 2, 3, 4, 5, 6, 7, 78, 52, 8, 99, 0 });
             var methodName = "get_Item";

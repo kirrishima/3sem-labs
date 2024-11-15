@@ -13,7 +13,7 @@ namespace OOP_Lab11
 
         public static IEnumerable<string> GetInterfaces(Type type) => type.GetInterfaces().Select(i => i.ToString());
 
-        public static IEnumerable<string> GetFieldsAndProps(Type type) =>
+        public static IEnumerable<string?> GetFieldsAndProps(Type type) =>
             type.GetFields().Select(f => f.ToString()).Concat(type.GetProperties().Select(p => p.ToString()));
 
         public static void PrintAllMethodsContainingParamsWithType(Type type, Type param)
@@ -28,7 +28,7 @@ namespace OOP_Lab11
             }
         }
 
-        public static object Create(Type type, params object[] data) => Activator.CreateInstance(type, data);
+        public static object? Create(Type type, params object[] data) => Activator.CreateInstance(type, data);
 
         public static object? Invoke(object obj, string methodName, object[] parameters)
         {
