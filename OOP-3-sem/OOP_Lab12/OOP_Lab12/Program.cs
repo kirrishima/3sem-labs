@@ -19,6 +19,20 @@ namespace OOP_Lab12
 
             Console.WriteLine();
             GMSFileInfo.PrintFileInfo($"{Assembly.GetCallingAssembly().GetName().Name}.dll");
+            GMSFileInfo.PrintFullPath($"{Assembly.GetCallingAssembly().GetName().Name}.dll");
+            GMSFileInfo.PrintDates($"{Assembly.GetCallingAssembly().GetName().Name}.dll");
+
+            Console.WriteLine();
+            GMSDirInfo.PrintFilesCount("E:\\3 sem\\OOP-3-sem\\Лекции");
+            GMSDirInfo.PrintCreationDate("E:\\3 sem\\OOP-3-sem\\Лекции");
+            GMSDirInfo.PrintSubDirsCount("E:\\3 sem\\OOP-3-sem\\Лекции");
+            GMSDirInfo.PrintParentDirs("E:\\3 sem\\OOP-3-sem\\Лекции");
+
+            Console.WriteLine();
+            DriveInfo driveInfo = new DriveInfo("c");
+            Console.WriteLine(driveInfo.Name);
+
+            GMSFileManager.ListDrive("h");
         }
     }
 }
