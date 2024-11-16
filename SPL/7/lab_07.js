@@ -4,8 +4,8 @@ console.log('\n==== Задание 1 ====\n');
 let person = {
     name: "Oleg",
     age: 52,
-    greet: function () { console.log(`Привет, ${this.name}!`); },
-    ageAfterYears: function (years) { return this.age + years; }
+    greet() { console.log(`Привет, ${this.name}!`); },
+    ageAfterYears(years) { return this.age + years; }
 }
 
 person.greet();
@@ -17,7 +17,7 @@ console.log('\n==== Задание 2 ====\n')
 let car = {
     model: "Tesla",
     year: 2077,
-    getInfo: function () { console.log(`Модель: ${this.model}, Year: ${this.year}`) }
+    getInfo() { console.log(`Модель: ${this.model}, Year: ${this.year}`) }
 }
 
 car.getInfo();
@@ -37,8 +37,8 @@ function Book(title, author) {
 }
 
 let myBook = new Book("Фотолупы 2024", "Валерий Жмышенко");
-console.log(myBook.getTitle()); // JavaScript: The Good Parts
-console.log(myBook.getAuthor()); // Douglas Crockford
+console.log(myBook.getTitle());
+console.log(myBook.getAuthor());
 
 ///////////////// Задание 4 ///////////////
 console.log('\n==== Задание 4 ====\n');
@@ -80,7 +80,7 @@ console.log(counter.getCount());
 ///////////////// Задание 6 ///////////////
 console.log('\n==== Задание 6 ====\n');
 
-let item = {};
+let item = {name: "o"};
 Object.defineProperty(item, "price", {
     value: 100,
     writable: true,
