@@ -2,15 +2,19 @@
 #include "cd.h"
 #include "vector"
 #include "sstream"
+#include <Windows.h>
+#include "filesystem"
 
 using namespace std;
 
 namespace CD
 {
+	std::string wstring_to_string(const std::wstring& wstr);
+
 	void __s_const(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, std::ofstream& OUT_FILE);
 	void __s_data(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, std::ofstream& OUT_FILE);
 
-	void generateAssembly(const std::string& expr, std::ofstream& outFile);
+	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile);
 
 	bool isAssignment(const std::string& expr) {
 		return expr.find('+') == std::string::npos && expr.find('-') == std::string::npos;
@@ -24,6 +28,7 @@ namespace CD
 			std::cerr << "Не удалось открыть файл\n";
 			return;
 		}
+
 		wfile << ".586\n";
 		wfile << ".model flat, stdcall\n";
 		wfile << "includelib kernel32.lib\n";
@@ -74,7 +79,7 @@ namespace CD
 
 				if (!isAssignment(expr))
 				{
-					generateAssembly(expr, wfile);
+					__generate_math_expressions(expr, wfile);
 
 					wfile << "\tmov [" << var << "], eax\n";
 				}
@@ -122,6 +127,49 @@ namespace CD
 		}
 	exit:
 		wfile << "\tpush 0\n" << "\tcall ExitProcess\n" << "main ENDP" << "\nend main";
+
+		SetConsoleOutputCP(1251);
+		SetConsoleCP(1251);
+
+		auto a = std::filesystem::path(OUT_FILEPATH).parent_path().wstring();
+
+		std::wstring mlPath = LR"("C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\bin\Hostx86\x86\)";
+		//std::wstring compile = (mlPath + L"ml\" /c /Fo \"" + OUT_FILEPATH + L".obj\" \"" + OUT_FILEPATH + L"\"");
+		std::wstring link = (mlPath + L"link\" /SUBSYSTEM:CONSOLE \"" + OUT_FILEPATH + L".obj\" user32.lib kernel32.lib\"");
+
+		std::wstring compile = L"chdir \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx86\\x86\" && ml /c /Fo \"E:\\3 sem\\KPO-3-sem\\Курсовой\\18\\Debug\\input.txt.asm.obj\" \"E:\\3 sem\\KPO-3-sem\\Курсовой\\18\\Debug\\input.txt.asm\"";
+
+		cout << (wstring_to_string(compile).c_str()) << endl;
+		// Вставляем команду в system() для выполнения
+		system((wstring_to_string(compile).c_str()));
+
+		////system(wstring_to_string(cmdPath).c_str());
+		//cout << (wstring_to_string(compile).c_str()) << endl;
+		//system((wstring_to_string(compile).c_str()));
+
+		//cout << wstring_to_string(compile) << endl;
+		//std::system(wstring_to_string(compile).c_str());
+
+		//cout << wstring_to_string(link) << endl;
+		//std::system(wstring_to_string(link).c_str());
+	}
+
+	std::string wstring_to_string(const std::wstring& wstr) {
+		// Determine the length of the resulting multibyte string
+		size_t required_size;
+		wcstombs_s(&required_size, nullptr, 0, wstr.c_str(), _TRUNCATE);
+
+		// Create a buffer to hold the multibyte string
+		std::vector<char> buffer(required_size);
+
+		// Convert the wide string to a multibyte string
+		size_t converted_size;
+		wcstombs_s(&converted_size, buffer.data(), buffer.size(), wstr.c_str(), _TRUNCATE);
+
+		// Create a std::string from the buffer
+		std::string str(buffer.data(), converted_size - 1);  // Exclude the null terminator
+
+		return str;
 	}
 
 	void __s_const(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, std::ofstream& OUT_FILE)
@@ -142,8 +190,8 @@ namespace CD
 	void __s_data(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, std::ofstream& OUT_FILE)
 	{
 		OUT_FILE << ".data\n"
-			<< "buffer db \"result: \", 10 DUP(0)  ; Буфер для сообщения с результатом, включая место для числа\n"
-			<< "bytesWritten DWORD 0             ; Переменная для записи количества байт\n";
+			<< "\tbuffer db \"result: \", 10 DUP(0)  ; Буфер для сообщения с результатом, включая место для числа\n"
+			<< "\tbytesWritten DWORD 0               ; Переменная для записи количества байт\n";
 
 		for (size_t i = 0; i < ID_TABLE.size; i++)
 		{
@@ -161,7 +209,7 @@ namespace CD
 		}
 	}
 
-	void generateAssembly(const std::string& expr, std::ofstream& outFile)
+	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile)
 	{
 		outFile << "\t; original expression:  " << expr << "\n";
 

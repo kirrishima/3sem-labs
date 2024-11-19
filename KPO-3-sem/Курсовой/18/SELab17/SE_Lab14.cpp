@@ -3,10 +3,11 @@
 #include "cd.h"
 #include "algorithm"
 
+#define NO_MFST
+
 using namespace std;
 using namespace MFST;
 using namespace GRB;
-
 
 int _tmain(int argc, _TCHAR* argv[]) {
 	setlocale(LC_ALL, "rus");
@@ -88,6 +89,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		auto [LexTable, IdTable] = LexAn::lexAnalize(parm, in);
 
 		cout << '\n';
+
+#ifndef NO_MFST
 		MFST_TRACE_START
 			MFST::Mfst mfst(LexTable, GRB::getGreibach());
 		mfst.start();
@@ -112,13 +115,18 @@ int _tmain(int argc, _TCHAR* argv[]) {
 				break;
 			}
 		};
+#endif // !NO_MFST
+
+#ifdef NO_MFST
+		bool hasP = true;
+#endif // NO_MFST
 
 		Log::Close(log);
 		Out::Close(out);
 
 		cout << "\n";
 
-		CD::gen(LexTable, IdTable, L"result.txt", hasP);
+		CD::gen(LexTable, IdTable, parm.asem, hasP);
 	}
 	catch (Error::ERROR e)
 	{

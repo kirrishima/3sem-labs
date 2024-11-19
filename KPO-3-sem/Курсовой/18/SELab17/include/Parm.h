@@ -18,6 +18,9 @@ namespace Parm // обработка входных параметров
 		std::wstring log; // -log: имя файла протокола
 		std::wstring it;
 		std::wstring lt;
+		std::wstring asem;
+		std::wstring obj;
+		std::wstring exe;
 	};
 
 	PARM getparm(int argc, _TCHAR* argv[]); // сформировать struct PARM на основе параметров функции main

@@ -43,10 +43,12 @@
         {
             var drives = DriveInfo.GetDrives();
 
-            Console.WriteLine($"Drive name\tLabel\tTotal space\tAvailable space\n");
+            Console.WriteLine($"{"Drive name",-16}{"Label",-15}{"Total space",-17}Available space\n");
+
+
             foreach (var drive in drives)
             {
-                Console.WriteLine($"{drive.Name.PadRight(10)}\t{drive.VolumeLabel.PadRight(5)}\t{ConvertBytes(drive.TotalSize).PadRight(11)}\t{ConvertBytes(drive.AvailableFreeSpace).PadRight(15)}");
+                Console.WriteLine($"{drive.Name,-16}{drive.VolumeLabel,-15}{ConvertBytes(drive.TotalSize),-17}{ConvertBytes(drive.AvailableFreeSpace)}");
             }
         }
     }

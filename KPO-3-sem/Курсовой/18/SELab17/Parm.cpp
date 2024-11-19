@@ -33,6 +33,10 @@ namespace Parm {
 		if (!in)
 			throw ERROR_THROW(100);
 
+		parm.asem = (fs::path(fs::absolute(parm.in)).parent_path() / (fs::path(parm.in).filename().string() + ".asm")).wstring();
+		parm.obj = (fs::path(fs::absolute(parm.out)).parent_path() / (fs::path(parm.in).filename().string() + ".obj")).wstring();
+		parm.exe = (fs::path(fs::absolute(parm.out)).parent_path() / (fs::path(parm.in).filename().string() + ".exe")).wstring();
+
 		if (!out)
 		{
 			parm.it = (fs::path(fs::absolute(parm.in)).parent_path() / "IT.html").wstring();

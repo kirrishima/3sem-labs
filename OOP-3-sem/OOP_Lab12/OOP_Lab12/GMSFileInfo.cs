@@ -14,5 +14,11 @@ namespace OOP_Lab12
             FileInfo fileInfo = new FileInfo(filename);
             Console.WriteLine($"Name: {fileInfo.Name}. Extension: {fileInfo.Extension}. Size: {fileInfo.Length}");
         }
+
+        public static void PrintDates(string filename)
+        {
+            FileInfo fileInfo = new FileInfo(filename);
+            Console.WriteLine($"Created: {fileInfo.CreationTime}. Last changed: {fileInfo.LastWriteTime}");
+        }
     }
 }
