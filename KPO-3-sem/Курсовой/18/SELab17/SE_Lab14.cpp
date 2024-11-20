@@ -2,60 +2,66 @@
 #include "MFST.h"
 #include "cd.h"
 #include "algorithm"
+#include <filesystem>
+#include <set>
+#include <locale>
+#include <chrono>
 
-#define NO_MFST
+#define _DISABLE_MFST__
 
 using namespace std;
 using namespace MFST;
 using namespace GRB;
+namespace fs = std::filesystem;
+
+std::set<std::u8string> get_files_in_directory(const std::wstring& path) {
+	std::set<std::u8string> files;
+	for (const auto& entry : fs::directory_iterator(path)) {
+		if (entry.is_regular_file()) {
+			files.insert(entry.path().u8string());
+		}
+	}
+	return files;
+}
+
+void create_delete_script(const std::set<std::u8string>& files, const std::wstring& script_name) {
+	std::ofstream script(script_name);
+	if (!script.is_open()) {
+		std::wcerr << L"Не удалось создать .bat файл: " << script_name << std::endl;
+		return;
+	}
+
+	std::u8string e = u8"@echo off\nchcp 65001 > nul\n";
+	script.write(reinterpret_cast<const char*>(e.c_str()), e.size());
+
+	std::u8string del = u8"del /f /q \"";
+	std::u8string end = u8"\"\n";
+
+	for (const auto& file : files) {
+		script.write(reinterpret_cast<const char*>(del.c_str()), del.size());
+		script.write(reinterpret_cast<const char*>(file.c_str()), file.size());
+		script.write(reinterpret_cast<const char*>(end.c_str()), end.size());
+	}
+
+	std::u8string endd = u8"del /f /q \"%~f0\"";
+
+	script.write(reinterpret_cast<const char*>(endd.c_str()), endd.size());
+	script.close();
+
+	std::wcout << L"Скрипт для удаления создан: " << script_name << std::endl;
+}
 
 int _tmain(int argc, _TCHAR* argv[]) {
+
+	// asasasasasa
+	// asasasasasa
+	// asasasasasa
+	// asasasasasa
+
 	setlocale(LC_ALL, "rus");
 
-#ifdef TEST
-	int x = 0;
-	auto table = LT::Create(30);
-	LT::Add(table, { 't', 1 });
-	LT::Add(table, { 'f', 1 });
-	LT::Add(table, { 'i', 1 });
-
-	LT::Add(table, { '(', 1 });
-	LT::Add(table, { 't', 1 });
-	LT::Add(table, { 'i', 1 });
-
-	LT::Add(table, { ',', 1 });
-	LT::Add(table, { 't', 1 });
-	LT::Add(table, { 'i', 1 });
-	LT::Add(table, { ')', 1 });
-
-	LT::Add(table, { '{', 1 });
-	LT::Add(table, { 'd', 1 });
-	LT::Add(table, { 't', 1 });
-	LT::Add(table, { 'i', 1 });
-	LT::Add(table, { ';', 1 });
-
-	LT::Add(table, { 'i', 1 });
-	LT::Add(table, { '=', 1 });
-	LT::Add(table, { 'i', 1 });
-	LT::Add(table, { 'v', 1 });
-
-
-	LT::Add(table, { '(', 1 });
-	LT::Add(table, { 'i', 1 });
-	LT::Add(table, { 'v', 1 });
-	LT::Add(table, { 'i', 1 });
-	LT::Add(table, { ')', 1 });
-
-
-	//LT::Add(table, { '}', 1 });
-
-	LT::Add(table, { ';', 1 });
-
-	MFST_TRACE_START
-		MFST::Mfst mfst(table, GRB::getGreibach());
-	mfst.start();
-#endif // TEST
-
+	std::wstring current_path = fs::current_path().wstring();
+	auto initial_files = get_files_in_directory(current_path);
 
 #ifndef TEST
 	try {
@@ -90,7 +96,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 		cout << '\n';
 
-#ifndef NO_MFST
+#ifndef _DISABLE_MFST__
 		MFST_TRACE_START
 			MFST::Mfst mfst(LexTable, GRB::getGreibach());
 		mfst.start();
@@ -115,11 +121,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
 				break;
 			}
 		};
-#endif // !NO_MFST
+#endif // !_DISABLE_MFST__
 
-#ifdef NO_MFST
+#ifdef _DISABLE_MFST__
 		bool hasP = true;
-#endif // NO_MFST
+#endif // _DISABLE_MFST__
 
 		Log::Close(log);
 		Out::Close(out);
@@ -138,7 +144,20 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Out::Close(out);
 	}
 
-	//system("pause");
+	auto current_files = get_files_in_directory(current_path);
+
+	std::set<std::u8string> new_files;
+	for (const auto& file : current_files) {
+		if (initial_files.find(file) == initial_files.end()) {
+			new_files.insert(file);
+		}
+	}
+
+	if (!new_files.empty()) {
+		std::wstring script_name = L"cleanup.bat";
+		create_delete_script(new_files, script_name);
+	}
+
 #endif // !TEST
 	return 0;
 }

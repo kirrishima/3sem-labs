@@ -17,7 +17,13 @@ namespace CD
 	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile);
 
 	bool isAssignment(const std::string& expr) {
-		return expr.find('+') == std::string::npos && expr.find('-') == std::string::npos;
+		constexpr char operators[] = "+-*/"; // Список операторов
+		for (char op : operators) {
+			if (expr.find(op) != std::string::npos) {
+				return false; // Найден оператор
+			}
+		}
+		return true; // Операторов нет
 	}
 
 	void gen(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, const std::wstring& OUT_FILEPATH, bool p)
@@ -45,6 +51,7 @@ namespace CD
 
 		if (p)
 		{
+			cout << "Создается код для print...\n";
 			wfile << printAsmCode;
 		}
 
@@ -62,7 +69,11 @@ namespace CD
 				i++;
 				while (i < LEX_TABLE.size && LEX_TABLE.table[i].lexema[0] != ';')
 				{
-					if (LEX_TABLE.table[i].lexema[0] == 'v')
+					if (LEX_TABLE.table[i].lexema[0] == '(' || LEX_TABLE.table[i].lexema[0] == ')')
+					{
+						expr += LEX_TABLE.table[i].lexema[0];
+					}
+					else if (LEX_TABLE.table[i].lexema[0] == 'v')
 					{
 						expr += LEX_TABLE.table[i].v;
 					}
@@ -77,17 +88,17 @@ namespace CD
 					i++;
 				}
 
-				if (!isAssignment(expr))
-				{
-					__generate_math_expressions(expr, wfile);
+				//if (!isAssignment(expr))
+				//{
+				__generate_math_expressions(expr, wfile);
 
-					wfile << "\tmov [" << var << "], eax\n";
-				}
-				else
-				{
-					wfile << "\tmov eax, " << expr << '\n';
-					wfile << "\tmov [" << var << "], " << "eax" << '\n';
-				}
+				wfile << "\tmov [" << var << "], eax\n";
+				//}
+				//else
+				//{
+				//	wfile << "\tmov eax, " << expr << '\n';
+				//	wfile << "\tmov [" << var << "], " << "eax" << '\n';
+				//}
 				wfile << '\n';
 
 				break;
@@ -99,6 +110,16 @@ namespace CD
 			//	break;
 			//}
 			case 'p':
+
+				if (IT::search(ID_TABLE, ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI]) < 0)
+				{
+					cout << "Встречен неопознанный индификатор п праметрах функции print. Имя "
+						<< ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].id
+						<< " не было найдено в таблице индификаторов.";
+
+					throw "Wrong id in print's params";
+				}
+
 				if (ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].idtype == IT::L)
 				{
 					wfile << "\tmov eax, __" << ID_TABLE.table[LEX_TABLE.table[i + 2].idxTI].id << "\n";
@@ -126,32 +147,27 @@ namespace CD
 			}
 		}
 	exit:
-		wfile << "\tpush 0\n" << "\tcall ExitProcess\n" << "main ENDP" << "\nend main";
-
-		SetConsoleOutputCP(1251);
-		SetConsoleCP(1251);
+		wfile << "\tpush 0\n" << "\tcall ExitProcess\n" << "main ENDP" << endl;
+		wfile << "END main";
+		wfile.flush();
+		wfile.close();
 
 		auto a = std::filesystem::path(OUT_FILEPATH).parent_path().wstring();
 
+		const std::wstring up = LR"("C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x86\user32.lib")";
+		const std::wstring kp = LR"("C:\Program Files (x86)\Windows Kits\10\Lib\10.0.22621.0\um\x86\kernel32.Lib")";
+
 		std::wstring mlPath = LR"("C:\Program Files\Microsoft Visual Studio\2022\Community\VC\Tools\MSVC\14.40.33807\bin\Hostx86\x86\)";
-		//std::wstring compile = (mlPath + L"ml\" /c /Fo \"" + OUT_FILEPATH + L".obj\" \"" + OUT_FILEPATH + L"\"");
-		std::wstring link = (mlPath + L"link\" /SUBSYSTEM:CONSOLE \"" + OUT_FILEPATH + L".obj\" user32.lib kernel32.lib\"");
+		std::wstring compile = (L"ml /nologo /c /Fo \"" + OUT_FILEPATH + L".obj\" \"" + OUT_FILEPATH + L"\"");
+		std::wstring link = (L"link /nologo /SUBSYSTEM:CONSOLE \"" + OUT_FILEPATH + L".obj\" " + up + L" " + kp);
 
-		std::wstring compile = L"chdir \"C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\VC\\Tools\\MSVC\\14.40.33807\\bin\\Hostx86\\x86\" && ml /c /Fo \"E:\\3 sem\\KPO-3-sem\\Курсовой\\18\\Debug\\input.txt.asm.obj\" \"E:\\3 sem\\KPO-3-sem\\Курсовой\\18\\Debug\\input.txt.asm\"";
+		//std::wstring compile = L"ml /c /Fo \"E:\\3 sem\\KPO-3-sem\\Курсовой\\18\\Debug\\input.txt.asm.obj\" \"E:\\3 sem\\KPO-3-sem\\Курсовой\\18\\Debug\\input.txt.asm\"";
 
-		cout << (wstring_to_string(compile).c_str()) << endl;
-		// Вставляем команду в system() для выполнения
-		system((wstring_to_string(compile).c_str()));
+		cout << endl;
+		system(wstring_to_string(compile).c_str());
 
-		////system(wstring_to_string(cmdPath).c_str());
-		//cout << (wstring_to_string(compile).c_str()) << endl;
-		//system((wstring_to_string(compile).c_str()));
-
-		//cout << wstring_to_string(compile) << endl;
-		//std::system(wstring_to_string(compile).c_str());
-
-		//cout << wstring_to_string(link) << endl;
-		//std::system(wstring_to_string(link).c_str());
+		cout << endl;
+		system(wstring_to_string(link).c_str());
 	}
 
 	std::string wstring_to_string(const std::wstring& wstr) {
@@ -206,46 +222,6 @@ namespace CD
 						<< "0\n";
 				}
 			}
-		}
-	}
-
-	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile)
-	{
-		outFile << "\t; original expression:  " << expr << "\n";
-
-		std::string variable;
-		char op = '+';
-		bool isFirst = true;
-
-		for (size_t i = 0; i < expr.size(); ++i) {
-			if (isalpha(expr[i]) || expr[i] == '_' || isdigit(expr[i])) {
-				// Собираем название переменной, состоящее из одного или более символов
-				variable += expr[i];
-			}
-			else if (expr[i] == '+' || expr[i] == '-') {
-				// Записываем команду для предыдущей переменной
-				if (!variable.empty()) {
-					bool isConst = variable.size() > 2 && variable[0] == '_' && variable[1] == '_';
-
-					if (isFirst) {
-						outFile << "\tmov eax, " << (isConst ? variable : "[" + variable + "]") << "\n";
-						isFirst = false;
-					}
-					else {
-						outFile << (op == '+' ? "\tadd eax, " : "\tsub eax, ")
-							<< (isConst ? variable : "[" + variable + "]") << "\n";
-					}
-					variable.clear();
-				}
-				op = expr[i];  // Сохраняем оператор для следующей итерации
-			}
-		}
-
-		// Записываем последнюю переменную
-		if (!variable.empty()) {
-			bool isConst = variable.size() > 2 && variable[0] == '_' && variable[1] == '_';
-			outFile << (op == '+' ? "\tadd eax, " : "\tsub eax, ")
-				<< (isConst ? variable : "[" + variable + "]") << "\n";
 		}
 	}
 }

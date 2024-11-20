@@ -7,6 +7,8 @@ namespace CD
 {
 	void gen(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, const std::wstring& OUT_FILEPATH, bool);
 
+	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile);
+
 	const std::string printAsmCode =
 		"; Процедура для преобразования числа в строку и записи в buffer\n"
 		"ConvertToString proc\n"

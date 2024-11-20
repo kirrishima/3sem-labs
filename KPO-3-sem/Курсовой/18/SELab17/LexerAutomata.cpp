@@ -117,6 +117,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			case LEX_LITERAL:
 			{
 				sprintf_s(IT_entry.id, "L%d", literalsCount++);
+				IT_entry.id[ID_SIZE] = '\0';
 				IT_entry.iddatatype = IT::INT;
 				IT_entry.idtype = IT::L;
 				IT_entry.idxfirstLE = currentLine;
@@ -201,10 +202,10 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					addedToITFlag = true;
 				}
 
-				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_LEFTTHESIS && // вид <идентификатор>(<тип> <идентификатор>...
-					LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID &&
-					LexTable.table[LexTable.size - 3].idxTI == ID_Table.size - 1 &&
-					ID_Table.table[ID_Table.size - 1].idtype == IT::F) //текущий идентификатор - параметр функции
+				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_LEFTTHESIS && // вид <идентификатор>(<тип> <идентификатор>...
+					LexTable.table[LexTable.size - 2].lexema[0] == LEX_FUNCTION && // TODO пофиксить этот момент
+					LexTable.table[LexTable.size - 2].idxTI == ID_Table.size - 1)  /*  &&
+					ID_Table.table[ID_Table.size - 1].idtype == IT::F) //текущий идентификатор - параметр функции */
 				{
 					IT_entry.idtype = IT::P;
 
