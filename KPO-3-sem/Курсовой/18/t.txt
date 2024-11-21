@@ -1,3 +1,4 @@
+
 #include "stdafx.h"
 #include "cd.h"
 #include <cctype>
@@ -97,41 +98,43 @@ namespace CD
 
 	string generateMASM(const vector<string>& rpn) {
 		stringstream masmCode;
-		bool printedNLafterpush = false;
 
 		for (const string& token : rpn) {
 			if (isIdentifier(token) || isLiteral(token)) {
-				if (!printedNLafterpush)
-				{
-					printedNLafterpush = true;
-					masmCode << '\n';
-				}
-				// Если токен — идентификатор или литерал, генерируем `push`
-				masmCode << "\tpush " << token << "\n";
+				// Если токен — идентификатор или литерал, генерируем `PUSH`
+				masmCode << "	PUSH " << token << "
+";
 			}
 			else if (isOperator(token[0])) {
-				printedNLafterpush = false;
 				// Если токен — оператор, извлекаем два операнда из стека
-				masmCode << "\n\tpop ebx\n"; // Второй операнд
-				masmCode << "\tpop eax\n"; // Первый операнд
+				masmCode << "	POP EBX
+"; // Второй операнд
+				masmCode << "	POP EAX
+"; // Первый операнд
 
 				// Генерируем код для операции
 				if (token == "+") {
-					masmCode << "\tadd eax, ebx\n";
+					masmCode << "	ADD EAX, EBX
+";
 				}
 				else if (token == "-") {
-					masmCode << "\tsub eax, ebx\n";
+					masmCode << "	SUB EAX, EBX
+";
 				}
 				else if (token == "*") {
-					masmCode << "\timul ebx\n";
+					masmCode << "	IMUL EBX
+";
 				}
 				else if (token == "/") {
-					masmCode << "\tcdq\n";    // Расширение eax для деления
-					masmCode << "\tidiv ebx\n";
+					masmCode << "	CDQ
+";    // Расширение EAX для деления
+					masmCode << "	IDIV EBX
+";
 				}
 
 				// Помещаем результат обратно в стек
-				masmCode << "\tpush eax\n";
+				masmCode << "	PUSH EAX
+";
 			}
 			else {
 				throw runtime_error("Неизвестный токен: " + token);
@@ -139,7 +142,8 @@ namespace CD
 		}
 
 		// Извлекаем результат из стека и сохраняем его в `RESULT`
-		masmCode << "\n\tpop eax\n";
+		masmCode << "	POP EAX
+";
 
 		return masmCode.str();
 	}
@@ -147,11 +151,6 @@ namespace CD
 	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile)
 	{
 		vector<string> result = parseExpression(expr);
-
-		//for (const auto e : result)
-		//{
-		//	cout << e << " ";
-		//}
 
 		outFile << generateMASM(result);
 	}

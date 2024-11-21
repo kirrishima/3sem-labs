@@ -40,16 +40,16 @@ namespace OOP_Lab12
 
                 var drives = DriveInfo.GetDrives().Where(d => d.Name.Equals(driveName, StringComparison.OrdinalIgnoreCase));
 
-                logger.Info($"Listing for disk {drive} requested.");
+                logger.Info($"Listing for disk '{drive}' requested.");
 
                 switch (drives.Count())
                 {
                     case 0:
-                        logger.Warning($"Disk {driveName} was not found.");
+                        logger.Warning($"Disk '{driveName}' was not found.");
                         return;
 
                     case 1:
-                        logger.Info($"Starting scan for {driveName}.");
+                        logger.Info($"Starting scan for '{driveName}'.");
 
                         if (File.Exists(outputFileName))
                         {
@@ -78,7 +78,7 @@ namespace OOP_Lab12
                                 }
                                 catch (UnauthorizedAccessException ex)
                                 {
-                                    logger.Error($"Access denied while enumerating directories on {driveName}: {ex.Message}");
+                                    logger.Error($"Access denied while enumerating directories on '{driveName}': {ex.Message}");
                                     fileStream.WriteLine($"[ERROR] Access denied while enumerating directories: {ex.Message}");
                                 }
 
@@ -92,12 +92,12 @@ namespace OOP_Lab12
                                 }
                                 catch (UnauthorizedAccessException ex)
                                 {
-                                    logger.Error($"Access denied while enumerating files on {driveName}: {ex.Message}");
+                                    logger.Error($"Access denied while enumerating files on '{driveName}': {ex.Message}");
                                     fileStream.WriteLine($"[ERROR] Access denied while enumerating files: {ex.Message}");
                                 }
                             }
 
-                            logger.Info($"Scan for {driveName} completed. Results saved in '{outputFileName}'.");
+                            logger.Info($"Scan for '{driveName}' completed. Results saved in '{outputFileName}'.");
                         }
                         catch (IOException ex)
                         {
@@ -111,15 +111,16 @@ namespace OOP_Lab12
                         break;
 
                     default:
-                        logger.Warning($"{driveName} is ambiguous: more than one disk matches the name.");
+                        logger.Warning($"'{driveName}' is ambiguous: more than one disk matches the name.");
                         break;
                 }
 
-                File.Copy(outputFileName, $"{outputFileName}.bak", true);
-                logger.Info($"{outputFileName} renamed to {outputFileName}.bak");
+                File.Copy(outputFileName, $"{outputFileName} - copy", true);
+                File.Move($"{outputFileName} - copy", $"{outputFileName}.bak");
+                logger.Info($"'{outputFileName} - copy' renamed to '{outputFileName}.bak'");
 
                 File.Delete(outputFileName);
-                logger.Info($"{outputFileName} deleted.");
+                logger.Info($"'{outputFileName}' deleted.");
             }
             catch (ArgumentException ex)
             {
@@ -128,6 +129,56 @@ namespace OOP_Lab12
             catch (Exception ex)
             {
                 logger.Error($"Unexpected error occurred: {ex.Message}");
+            }
+        }
+
+        public static void CopyDirectory(string directoryName, string ext)
+        {
+            string outputFileName = "GMSFiles";
+            logger.Info($"Starting copy process for folder {directoryName}. Will copy files with extension {ext}, to folder {outputFileName}");
+
+            try
+            {
+                EnumerationOptions enumerationOptions = new()
+                {
+                    IgnoreInaccessible = true,
+                    ReturnSpecialDirectories = false,
+                    RecurseSubdirectories = true
+                };
+
+                Directory.CreateDirectory(outputFileName);
+
+                foreach (var item in Directory.EnumerateFiles(directoryName, $"*.{ext}", enumerationOptions))
+                {
+                    try
+                    {
+                        var parentDir = Path.GetRelativePath(directoryName, item);
+                        Directory.CreateDirectory(Path.Combine(outputFileName, parentDir));
+
+
+                        var fileName = Path.GetFileName(item);
+
+                        var path = Path.Combine(outputFileName, parentDir, fileName);
+                        File.Copy(item, path, true);
+                    }
+                    catch (Exception ex)
+                    {
+                        logger.Error($"Failed to copy {item}: {ex.Message}");
+                    }
+                }
+
+                var dest = Path.Combine("GMSInspect", outputFileName);
+
+                if (!Directory.Exists(dest))
+                {
+                    Directory.Move(outputFileName, dest);
+                    logger.Info($"moved {outputFileName} to GMSInspect");
+                }
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
     }

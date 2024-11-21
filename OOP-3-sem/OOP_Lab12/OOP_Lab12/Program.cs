@@ -32,7 +32,8 @@ namespace OOP_Lab12
             DriveInfo driveInfo = new DriveInfo("c");
             Console.WriteLine(driveInfo.Name);
 
-            GMSFileManager.ListDrive("h");
+            //GMSFileManager.ListDrive("c");
+            GMSFileManager.CopyDirectory("C:\\Users\\Force\\Documents\\University\\3sem\\OOP-3-sem\\oop_lab04", "cs");
         }
     }
 }

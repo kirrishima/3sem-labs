@@ -9,7 +9,8 @@
 #include <cwchar>
 #include <TCHAR.H>
 #include <time.h>
-
+#include <stack>
+#include <vector>
 
 #include "Out.h"
 #include "Error.h"		//обработка ошибок

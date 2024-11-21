@@ -140,7 +140,7 @@
     </MASM>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <MASM Include="1.asm">
+    <MASM Include="ASM_Lab2.asm">
       <AssembledCodeListingFile Condition="'$(Configuration)|$(Platform)'=='Release|x64'">$(IntDir)</AssembledCodeListingFile>
     </MASM>
   </ItemGroup>

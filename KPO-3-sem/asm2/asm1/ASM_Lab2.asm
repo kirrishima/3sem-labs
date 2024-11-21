@@ -10,10 +10,10 @@ MessageBoxA PROTO :DWORD, :DWORD, :DWORD, :DWORD
 .CONST													
 
 .DATA				
-		a dword 1
+		a dword 6
 		b dword 3
 		str1 db "Результат сложения = < >", 0
-		str0 db "питса", 0
+		str0 db "Работаем делаем да", 0
 
 .CODE													
 
@@ -23,7 +23,7 @@ START:
 		add eax, b
 		add eax, '0'
 		
-		mov str1+offset str0, al
+		mov str1+22, al
 		
 		invoke MessageBoxA, 0, offset str1, offset str0, 0
 
