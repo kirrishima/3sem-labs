@@ -134,8 +134,8 @@ namespace OOP_Lab12
 
         public static void CopyDirectory(string directoryName, string ext)
         {
-            string outputFileName = "GMSFiles";
-            logger.Info($"Starting copy process for folder {directoryName}. Will copy files with extension {ext}, to folder {outputFileName}");
+            string targetBaseDir = "GMSFiles";
+            logger.Info($"Starting copy process for folder {directoryName}. Will copy files with extension {ext}, to folder {targetBaseDir}");
 
             try
             {
@@ -146,33 +146,32 @@ namespace OOP_Lab12
                     RecurseSubdirectories = true
                 };
 
-                Directory.CreateDirectory(outputFileName);
+                Directory.CreateDirectory(targetBaseDir);
 
-                foreach (var item in Directory.EnumerateFiles(directoryName, $"*.{ext}", enumerationOptions))
+                foreach (var file in Directory.EnumerateFiles(directoryName, $"*.{ext}", enumerationOptions))
                 {
                     try
                     {
-                        var parentDir = Path.GetRelativePath(directoryName, item);
-                        Directory.CreateDirectory(Path.Combine(outputFileName, parentDir));
+                        var parentDir = Path.GetRelativePath(directoryName, file);
+                        Directory.CreateDirectory(Path.Combine(targetBaseDir, parentDir));
 
+                        var fileName = Path.GetFileName(file);
 
-                        var fileName = Path.GetFileName(item);
-
-                        var path = Path.Combine(outputFileName, parentDir, fileName);
-                        File.Copy(item, path, true);
+                        var path = Path.Combine(targetBaseDir, parentDir, fileName);
+                        File.Copy(file, path, true);
                     }
                     catch (Exception ex)
                     {
-                        logger.Error($"Failed to copy {item}: {ex.Message}");
+                        logger.Error($"Failed to copy {file}: {ex.Message}");
                     }
                 }
 
-                var dest = Path.Combine("GMSInspect", outputFileName);
+                var dest = Path.Combine("GMSInspect", targetBaseDir);
 
                 if (!Directory.Exists(dest))
                 {
-                    Directory.Move(outputFileName, dest);
-                    logger.Info($"moved {outputFileName} to GMSInspect");
+                    Directory.Move(targetBaseDir, dest);
+                    logger.Info($"moved {targetBaseDir} to GMSInspect");
                 }
             }
             catch (Exception)
