@@ -6,6 +6,7 @@
         public int Weight;
         public int Cost;
     }
+
     static int Knapsack(int maxWeight, List<Item> items)
     {
         int n = items.Count;
@@ -35,6 +36,23 @@
 
     static void PrintTable(int[,] table, int maxWeight, List<Item> items)
     {
+        Console.Write("    ");
+        for (int w = 0; w <= maxWeight; w++)
+        {
+            Console.Write($"{w,4}");
+        }
+        Console.WriteLine();
+        Console.WriteLine(new string('-', (maxWeight + 1) * 4 + 4));
+        for (int i = 0; i < table.GetLength(0); i++)
+        {
+            Console.Write($"{i,2} |");
+            for (int j = 0; j < table.GetLength(1); j++)
+            {
+                Console.Write($"{table[i, j],4}");
+            }
+            Console.WriteLine();
+        }
+        Console.WriteLine();
         Console.WriteLine("В рюкзаке: ");
         for (int i = items.Count; i > 0; i--)
         {
@@ -48,32 +66,14 @@
 
     static void Main()
     {
-        Console.Write("Введите количество товаров: ");
-        int n = int.Parse(Console.ReadLine());
-
-        Console.Write("Введите вместительность рюкзака: ");
-        int N = int.Parse(Console.ReadLine());
-
-        var items = new List<Item>();
-
-        for (int i = 0; i < n; i++)
-        {
-            Console.WriteLine($"Введите данные для товара {i + 1}:");
-
-            Console.Write("Название: ");
-            string name = Console.ReadLine();
-
-            Console.Write("Вес: ");
-            int weight = int.Parse(Console.ReadLine());
-
-            Console.Write("Стоимость: ");
-            int cost = int.Parse(Console.ReadLine());
-
-            items.Add(new Item { Name = name, Weight = weight, Cost = cost });
-        }
-
-        Console.Clear();
-        Console.WriteLine($"Максимальная вместительность: {N}");
+        var items = new List<Item>() {
+            new Item { Name = "1", Weight = 3, Cost = 2 },
+            new Item { Name = "2", Weight = 1, Cost = 2 },
+            new Item { Name = "3", Weight = 3, Cost = 4 },
+            new Item { Name = "4", Weight = 4, Cost = 5 },
+            new Item { Name = "5", Weight = 2, Cost = 3 }
+        };
+        Console.WriteLine($"Максимальная вместительность: {7}");
         Console.WriteLine("\nСписок товаров:");
         foreach (var item in items)
         {
