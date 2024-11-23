@@ -31,7 +31,7 @@
 
         public LoggingAction LoggingAction { get { return _loggingAction; } }
 
-        public Logger(LoggingAction? loggingAction)
+        public Logger(LoggingAction loggingAction)
         {
             _loggingAction = loggingAction ?? throw new ArgumentNullException(nameof(loggingAction));
         }

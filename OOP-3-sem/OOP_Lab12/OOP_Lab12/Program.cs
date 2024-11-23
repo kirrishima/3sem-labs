@@ -7,7 +7,7 @@ namespace OOP_Lab12
     {
         static void Main(string[] args)
         {
-
+            string currentPath = Directory.GetCurrentDirectory();
             // 2 
             GMSDiskInfo.PrintFreeSpace();
 
@@ -22,18 +22,26 @@ namespace OOP_Lab12
             GMSFileInfo.PrintFullPath($"{Assembly.GetCallingAssembly().GetName().Name}.dll");
             GMSFileInfo.PrintDates($"{Assembly.GetCallingAssembly().GetName().Name}.dll");
 
+            string baseOOPfolder = "..\\..\\..\\..\\..\\";
+
             Console.WriteLine();
-            GMSDirInfo.PrintFilesCount("E:\\3 sem\\OOP-3-sem\\Лекции");
-            GMSDirInfo.PrintCreationDate("E:\\3 sem\\OOP-3-sem\\Лекции");
-            GMSDirInfo.PrintSubDirsCount("E:\\3 sem\\OOP-3-sem\\Лекции");
-            GMSDirInfo.PrintParentDirs("E:\\3 sem\\OOP-3-sem\\Лекции");
+            string lecturesPath = Path.GetFullPath(Path.Combine(currentPath, $"{baseOOPfolder}\\Лекции"));
+            GMSDirInfo.PrintFilesCount(lecturesPath);
+            GMSDirInfo.PrintCreationDate(lecturesPath);
+            GMSDirInfo.PrintSubDirsCount(lecturesPath);
+            GMSDirInfo.PrintParentDirs(lecturesPath);
 
             Console.WriteLine();
             DriveInfo driveInfo = new DriveInfo("c");
             Console.WriteLine(driveInfo.Name);
 
-            //GMSFileManager.ListDrive("c");
-            GMSFileManager.CopyDirectory("C:\\Users\\Force\\Documents\\University\\3sem\\OOP-3-sem\\oop_lab04", "cs");
+            var lab4Path = Path.GetFullPath(Path.Combine(currentPath, $"{baseOOPfolder}oop_lab04"));
+
+            GMSFileManager.ListDrive("e");
+            GMSFileManager.CopyDirectory(lab4Path, "cs");
+
+            GMSFileManager.ZipGMSFiles(Path.Combine(currentPath, "GMSFiles"), "aboba.zip");
+            GMSFileManager.LogFileSearch();
         }
     }
 }
