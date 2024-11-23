@@ -1,17 +1,39 @@
 ///////////////// Задание 1 ///////////////
 console.log('\n==== Задание 1 ====\n');
 
-let figure = {
+let Figure = {
     color: "transparent",
-    size: 0,
-    type: undefined
+    size: null
 };
 
-let triangle = {
-    lines: 0
+let Square = {
+    __proto__: Figure,
 };
 
-triangle.__proto__ = figure;
+let Circle = {
+    __proto__: Figure
+};
+
+function Triangle(lines) {
+    this.__proto__ = Figure;
+    this.lines = lines;
+}
+
+function printDiff(obj1, obj2) {
+    for (const key in obj1) {
+        if (obj1[key] != obj2[key]) {
+            console.log(`свойство ${key} отличается (${obj1[key]}, ${obj2[key]})`)
+        }
+    }
+}
+
+let triangle1 = new Triangle(1);
+let triangle2 = new Triangle(3);
+
+console.log(triangle1);
+console.log(triangle2);
+
+printDiff(triangle1,triangle2)
 
 ///////////////// Задание 2 ///////////////
 console.log('\n==== Задание 2 ====\n');

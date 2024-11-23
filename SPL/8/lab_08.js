@@ -233,6 +233,10 @@ let storeCpy = {
     }
 };
 
+for (let key in storeCpy.state.dialogsPage.dialogs) {
+    storeCpy.state.dialogsPage.dialogs[key] = storeCpy.state.dialogsPage.dialogs[key].name.toUpperCase();
+}
+console.log(storeCpy);
 ///////////////// Задание 2 ///////////////
 console.log('\n==== Задание 2 ====\n');
 
@@ -252,8 +256,6 @@ console.log(user6Cpy);
 console.log('\n==== Задание 4 ====\n');
 
 user7Cpy.studies.exams[1].professor.articles[1].pagesNumber = 3;
-
-// или можно так
 
 user7Cpy.studies.exams
     .find(exam => exam.programming)
