@@ -9,7 +9,7 @@
             Console.WriteLine($"Drive name\tTotal space\tAvailable space\n");
             foreach (var drive in drives)
             {
-                Console.WriteLine($"{drive.Name.PadRight(10)}\t{ConvertBytes(drive.TotalSize).PadRight(11)}\t{ConvertBytes(drive.AvailableFreeSpace).PadRight(15)}");
+                Console.WriteLine($"{drive.Name,-10}\t{ConvertBytes(drive.TotalSize),-11}\t{ConvertBytes(drive.AvailableFreeSpace),-15}");
             }
         }
 
@@ -35,7 +35,7 @@
             Console.WriteLine($"Drive name\tFile system\n");
             foreach (var drive in drives)
             {
-                Console.WriteLine($"{drive.Name.PadRight(10)}\t{drive.DriveFormat.PadRight(11)}");
+                Console.WriteLine($"{drive.Name,-10}\t{drive.DriveFormat,-11}");
             }
         }
 

@@ -1,6 +1,4 @@
-﻿using Microsoft.VisualBasic;
-
-namespace OOP_Lab12
+﻿namespace OOP_Lab12
 {
     internal static class GMSFileInfo
     {
