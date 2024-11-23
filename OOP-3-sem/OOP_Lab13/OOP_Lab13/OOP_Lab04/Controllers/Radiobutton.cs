@@ -1,21 +1,23 @@
-﻿namespace OOP_Lab04
+﻿using OOP_Lab13.Interfaces;
+
+namespace OOP_Lab13.OOP_Lab04.Controllers
 {
-    public sealed class Button : ElemOfManage, IManagement
+    public sealed class Radiobutton : ElemOfManage, IManagement
     {
         public void Show()
         {
-            Console.WriteLine($"Button [{PointX}, {PointY}]");
+            Console.WriteLine("Это Radiobutton");
         }
 
         public void Input()
         {
             if (Tap)
             {
-                Console.WriteLine("кнопка нажата");
+                Console.WriteLine("Radiobutton отмечен ");
             }
             else
             {
-                Console.WriteLine("кнопка не нажата");
+                Console.WriteLine("Radiobutton не отмечен ");
             }
         }
 
@@ -26,4 +28,3 @@
         }
     }
 }
-

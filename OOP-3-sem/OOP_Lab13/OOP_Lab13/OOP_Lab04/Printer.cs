@@ -1,4 +1,7 @@
-﻿namespace OOP_Lab04
+﻿using OOP_Lab13.Interfaces;
+using OOP_Lab13.OOP_Lab04.Figures;
+
+namespace OOP_Lab13.OOP_Lab04
 {
     public sealed class Printer
     {

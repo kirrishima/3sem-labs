@@ -1,30 +1,33 @@
 ﻿using System.Xml.Linq;
+using OOP_Lab13.OOP_Lab04.Controllers;
+using OOP_Lab13.OOP_Lab04.Figures;
 
-namespace OOP_Lab04
+namespace OOP_Lab13
 {
-
     class Program
     {
-
         public static void Main()
         {
-            Rectangle rectangle = new Rectangle((float)4.1, (float)4.1, (float)2, (float)7);
+            var button = new Button() { PointX = 52, PointY = 66, Tap = true };
+            Rectangle rectangle = new Rectangle(4.1, 4.1, 2, 7, button);
             CustomSerialize.SerializeToXML(rectangle);
             CustomSerialize.DeserializeFromXML();
+
             CustomSerialize.SerializeToJSON(rectangle);
             CustomSerialize.DeserializeFromJSON();
 
             Console.WriteLine("\nЗадание 2: \n");
-            Rectangle rectangle2 = new Rectangle((float)1, (float)4, (float)4, (float)5);
+
+            Rectangle rectangle2 = new Rectangle(1, 4, 4, 5, null);
 
             Rectangle[] rectangles = { rectangle, rectangle2 };
 
 
-            Task3.XPath();
+            MyXPath.XPath();
 
-            XDocument xdoc = Task4.CreateXML();
-            Task4.CoutXML(xdoc);
-            Task4.LinqXML(xdoc);
+            XDocument xdoc = LINQ_ToXML.CreateXML();
+            LINQ_ToXML.CoutXML(xdoc);
+            LINQ_ToXML.LinqXML(xdoc);
         }
     }
 }

@@ -1,5 +1,11 @@
-﻿namespace OOP_Lab04
+﻿using System.Text.Json.Serialization;
+using System.Xml.Serialization;
+using OOP_Lab13.Interfaces;
+using OOP_Lab13.OOP_Lab04.Controllers;
+
+namespace OOP_Lab13.OOP_Lab04.Figures
 {
+    [Serializable]
     public class Rectangle : Figure, IManagement
     {
         public double width;
@@ -7,20 +13,18 @@
         public Button? button;
         public Checktbox? checktbox;
 
-        Button newButton = new Button();
+        [NonSerialized]
+        [XmlIgnore]
+        public Button newButton = new Button();
 
-        public Rectangle()
-        {
+        public Rectangle() { }
 
-        }
-
-        public Rectangle(double pointX, double pointY, double width, double height, IManagement? button = null)
+        public Rectangle(double pointX, double pointY, double width, double height, IManagement? button)
         {
             this.pointX = pointX;
             this.pointY = pointY;
             this.width = width;
             this.height = height;
-
 
             this.button = button as Button;
             checktbox = button as Checktbox;
@@ -31,14 +35,12 @@
                 {
                     Console.WriteLine("Rectangle не может быть RadioButton");
                 }
-
             }
             else
             {
                 this.button.PointX = pointX;
                 this.button.PointY = pointY;
             }
-
         }
 
         public override string ToString()

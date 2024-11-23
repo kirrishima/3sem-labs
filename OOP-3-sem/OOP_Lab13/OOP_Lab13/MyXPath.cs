@@ -1,27 +1,32 @@
 ﻿using System.Xml;
+using OOP_Lab13.Models;
 
-namespace OOP_Lab04
+namespace OOP_Lab13
 {
-    public static class Task3
+    public static class MyXPath
     {
         public static void XPath()
         {
             XmlDocument xDoc = new XmlDocument();
-            xDoc.Load(Path.Combine(Directory.GetCurrentDirectory(), "pointsx.xml"));
+            xDoc.Load(Pathes.SerializedXML);
             XmlElement xRoot = xDoc.DocumentElement;
 
-            Console.WriteLine("\n\n\n\t\t\t  XPath for XML:\n");
+            Console.WriteLine("XPath for XML:\n");
             Console.WriteLine("Все дочерние элементы:");
             XmlNodeList childNodes = xRoot.SelectNodes("*");
 
             foreach (XmlNode n in childNodes)
+            {
                 Console.WriteLine(n.OuterXml);
+            }
 
-            Console.WriteLine("\n<Width>:");
-            XmlNodeList namesNodes = xRoot.SelectNodes("//Rectangle/width");
+            Console.WriteLine("\n<button>:");
+            XmlNodeList buttonNodes = xRoot.SelectNodes("//Rectangle/button");
 
-            foreach (XmlNode n in namesNodes)
+            foreach (XmlNode n in buttonNodes)
+            {
                 Console.WriteLine(n.InnerText);
+            }
         }
     }
 }

@@ -1,4 +1,4 @@
-﻿namespace OOP_Lab04
+﻿namespace OOP_Lab13.Interfaces
 {
     public interface IManagement
     {

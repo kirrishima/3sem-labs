@@ -1,5 +1,6 @@
-﻿namespace OOP_Lab04
+﻿namespace OOP_Lab13.OOP_Lab04.Figures
 {
+    [Serializable]
     public abstract class Figure
     {
         public double pointX;

@@ -1,7 +1,9 @@
 ﻿using System.Drawing;
+using System.Text.Json.Serialization;
 
-namespace OOP_Lab04
+namespace OOP_Lab13.OOP_Lab04
 {
+    [Serializable]
     public abstract class ElemOfManage
     {
         public bool Tap { get; set; }

@@ -1,6 +1,6 @@
-﻿using System;
+﻿using OOP_Lab13.Interfaces;
 
-namespace OOP_Lab04
+namespace OOP_Lab13.OOP_Lab04.Controllers
 {
     [Serializable]
     public sealed class Checktbox : ElemOfManage, IManagement
@@ -9,7 +9,6 @@ namespace OOP_Lab04
         {
             Console.WriteLine("Это ChecktBox ");
         }
-
         public void Input()
         {
             if (Tap)
@@ -18,9 +17,15 @@ namespace OOP_Lab04
             }
             else
             {
-                Console.WriteLine("ChecktBox не отмечен");
+                Console.WriteLine("ChecktBox ототмечен");
             }
 
+        }
+
+        public override void Resize(double x, double y)
+        {
+            PointX = x;
+            PointY = y;
         }
     }
 }

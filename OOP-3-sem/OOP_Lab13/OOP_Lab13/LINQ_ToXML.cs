@@ -1,8 +1,8 @@
 ﻿using System.Xml.Linq;
 
-namespace OOP_Lab04
+namespace OOP_Lab13
 {
-    class Task4
+    class LINQ_ToXML
     {
         public static XDocument CreateXML()
         {
@@ -24,12 +24,12 @@ namespace OOP_Lab04
 
         public static void CoutXML(XDocument xdoc)
         {
-            Console.WriteLine("\n\n\t\t\t   Linq to XML:");
-            foreach (XElement phoneElement in xdoc.Element("phones").Elements("phone"))
+            Console.WriteLine("Linq to XML:");
+            foreach (XElement phoneElement in xdoc?.Element("phones")?.Elements("phone") ?? throw new ArgumentNullException("xml документ не прочитан корректно."))
             {
-                XAttribute nameAttribute = phoneElement.Attribute("name");
-                XElement companyElement = phoneElement.Element("company");
-                XElement priceElement = phoneElement.Element("price");
+                XAttribute nameAttribute = phoneElement?.Attribute("name") ?? throw new ArgumentNullException("не удалось прочитать из xml");
+                XElement companyElement = phoneElement?.Element("company") ?? throw new ArgumentNullException("не удалось прочитать из xml");
+                XElement priceElement = phoneElement?.Element("price") ?? throw new ArgumentNullException("не удалось прочитать из xml");
 
                 if (nameAttribute != null && companyElement != null && priceElement != null)
                 {
@@ -43,26 +43,27 @@ namespace OOP_Lab04
 
         public static void LinqXML(XDocument xdoc)
         {
-            var items = from xe in xdoc.Element("phones").Elements("phone")
-                        where xe.Element("company").Value == "Google"
+            var items = from xe in xdoc.Element("phones")?.Elements("phone")
+                        where xe.Element("company")?.Value == "Google"
                         select new Phone
                         {
-                            Name = xe.Attribute("name").Value,
-                            Price = xe.Element("price").Value
+                            Name = xe.Attribute("name")?.Value,
+                            Price = xe.Element("price")?.Value
                         };
-
+            Console.WriteLine();
             foreach (var item in items)
             {
                 Console.WriteLine($"{item.Name} - {item.Price}");
             }
 
-            var items1 = from xe in xdoc.Element("phones").Elements("phone")
-                         where xe.Element("price").Value.Contains('4')
+            var items1 = from xe in xdoc.Element("phones")?.Elements("phone")
+                         where xe.Element("price")?.Value.Contains('4') ?? false
                          select new Phone
                          {
-                             Name = xe.Attribute("name").Value,
-                             Price = xe.Element("price").Value
+                             Name = xe.Attribute("name")?.Value,
+                             Price = xe.Element("price")?.Value
                          };
+            Console.WriteLine();
 
             foreach (var item in items1)
             {
@@ -73,8 +74,8 @@ namespace OOP_Lab04
 
     public class Phone
     {
-        public string Name { get; set; }
-        public string Price { get; set; }
+        public string? Name { get; set; }
+        public string? Price { get; set; }
     }
 }
 
