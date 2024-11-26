@@ -23,7 +23,7 @@ void ParseBinaryAndGenerateAssembly(const char* binaryFilename, const char* outp
 		std::cout << std::endl;
 		std::cout << "Data read from output.bin successfully." << std::endl;
 
-		ofstream file("test.asm");
+		ofstream file(outputFilename);
 
 		file << ".586\n";
 		file << ".model flat, stdcall\n";

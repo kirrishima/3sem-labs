@@ -8,7 +8,7 @@ void writeToBinaryFile(const std::string& filename, const Data& data) {
 	}
 
 	for (int number : data.integers) {
-		uint8_t typeFlag = TypeFlags::INTEGER;
+		uint8_t typeFlag = TypeFlags::INT;
 		outFile.write(reinterpret_cast<char*>(&typeFlag), sizeof(typeFlag));
 		outFile.write(reinterpret_cast<char*>(&number), sizeof(number));
 	}
@@ -40,7 +40,7 @@ Data readFromBinaryFile(const std::string& filename) {
 			break;
 		}
 
-		if (typeFlag == TypeFlags::INTEGER) {
+		if (typeFlag == TypeFlags::INT) {
 			int number;
 			inFile.read(reinterpret_cast<char*>(&number), sizeof(number));
 			data.integers.push_back(number);

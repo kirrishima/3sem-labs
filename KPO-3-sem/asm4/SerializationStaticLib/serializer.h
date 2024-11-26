@@ -3,7 +3,7 @@
 #include <vector>
 
 enum TypeFlags {
-	INTEGER = 1,
+	INT = 1,
 	STR = 2
 };
 

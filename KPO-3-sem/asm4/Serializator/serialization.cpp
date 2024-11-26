@@ -4,38 +4,22 @@
 #include <stdexcept>
 #include <string>
 #include <vector>
+#include "parse_file.h"
+
+using namespace std;
 
 int main() {
-	std::vector<int> intVector;
-	std::vector<std::string> stringVector;
+	setlocale(LC_ALL, "ru");
 
-	int n;
+	std::vector<std::string> tokens;
 
-	std::cout << "Enter the number of elements for the integer vector: ";
-	std::cin >> n;
+	Data myData = parse_dec_file("input.txt");
 
-	std::cout << "Enter " << n << " integers:\n";
-	for (int i = 0; i < n; ++i) {
-		int value;
-		std::cin >> value;
-		intVector.push_back(value);
+	if (myData.integers.empty() && myData.strings.empty())
+	{
+		return 1;
 	}
-
-	std::cout << "Enter the number of elements for the string vector: ";
-	std::cin >> n;
-
-	std::cout << "Enter " << n << " strings:\n";
-	std::cin.ignore();
-	for (int i = 0; i < n; ++i) {
-		std::string value;
-		std::getline(std::cin, value);
-		stringVector.push_back(value);
-	}
-
-	Data myData;
-
-	myData.integers = intVector;
-	myData.strings = stringVector;
+	cout << '\n';
 
 	try {
 		writeToBinaryFile("output.bin", myData);
