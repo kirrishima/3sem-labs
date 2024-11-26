@@ -5,6 +5,17 @@
 
 using namespace std;
 
+string tab(4, ' ');
+
+void add_var_inspection(vector <std::string>& vars, std::string var, int num)
+{
+	std::string formattedVar = var + to_string(num) + "\n";
+	vars.push_back("\tmov eax, type        " + formattedVar);
+	vars.push_back("\tmov eax, lengthof    " + formattedVar);
+	vars.push_back("\tmov eax, sizeof      " + formattedVar);
+	vars.push_back("\n");
+}
+
 void ParseBinaryAndGenerateAssembly(const char* binaryFilename, const char* outputFilename)
 {
 	try
@@ -20,8 +31,7 @@ void ParseBinaryAndGenerateAssembly(const char* binaryFilename, const char* outp
 		for (const auto& str : readData.strings) {
 			std::cout << "\"" << str << "\" ";
 		}
-		std::cout << std::endl;
-		std::cout << "Data read from output.bin successfully." << std::endl;
+		std::cout << std::endl << std::endl;
 
 		ofstream file(outputFilename);
 
@@ -33,16 +43,18 @@ void ParseBinaryAndGenerateAssembly(const char* binaryFilename, const char* outp
 		file << ".data\n";
 		int countVar = 0;
 
-		string tab(4, ' ');
+		vector <std::string> vars;
 
 		if (readData.integers.size() > 0)
 		{
 			file << ";Parsed ints: \n";
 			for (const int number : readData.integers)
 			{
-				file << "_SDW" << countVar++ << tab << "sdword" << tab;
+				file << "_SDW" << countVar << tab << "sdword" << tab;
 				file << number;
 				file << '\n';
+
+				add_var_inspection(vars, "_SDW", countVar++);
 			}
 		}
 
@@ -52,18 +64,25 @@ void ParseBinaryAndGenerateAssembly(const char* binaryFilename, const char* outp
 			file << "\n;Parsed strings: \n";
 			for (const string str : readData.strings)
 			{
-				file << "_ByteArray" << countVar++ << tab << "byte" << tab;
+				file << "_ByteArray" << countVar << tab << "byte" << tab;
 				for (int i = 0; i < str.size(); i++)
 				{
 					file << '\'' << str[i] << '\'';
 					file << ", ";
 				}
 				file << "'\\0'\n";
+				add_var_inspection(vars, "_ByteArray", countVar++);
 			}
 		}
 
 		file << "\n\n.CODE\nmain PROC\nSTART:\n";
-		file << "\tpush 0\n\tcall ExitProcess\n\n\t;Some code...\n\nmain ENDP\nend  main";
+
+		for (const std::string str : vars)
+		{
+			file << str;
+		}
+
+		file << "\tpush 0\n\tcall ExitProcess\n\nmain ENDP\nend  main";
 	}
 	catch (const char* e)
 	{

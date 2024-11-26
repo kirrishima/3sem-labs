@@ -9,6 +9,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SerializationStaticLib", "S
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Serialize", "Serializator\asm4.vcxproj", "{BFC9E59C-CEA5-4AC9-BCC7-6851E8EE9ADF}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "asmCodeRunner", "asmCodeRunner\asmCodeRunner.vcxproj", "{DC972AA9-1B6C-462B-9E98-22C39808B482}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -41,6 +43,14 @@ Global
 		{BFC9E59C-CEA5-4AC9-BCC7-6851E8EE9ADF}.Release|x64.Build.0 = Release|x64
 		{BFC9E59C-CEA5-4AC9-BCC7-6851E8EE9ADF}.Release|x86.ActiveCfg = Release|Win32
 		{BFC9E59C-CEA5-4AC9-BCC7-6851E8EE9ADF}.Release|x86.Build.0 = Release|Win32
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Debug|x64.ActiveCfg = Debug|x64
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Debug|x64.Build.0 = Debug|x64
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Debug|x86.ActiveCfg = Debug|Win32
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Debug|x86.Build.0 = Debug|Win32
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Release|x64.ActiveCfg = Release|x64
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Release|x64.Build.0 = Release|x64
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Release|x86.ActiveCfg = Release|Win32
+		{DC972AA9-1B6C-462B-9E98-22C39808B482}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
