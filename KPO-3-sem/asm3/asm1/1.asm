@@ -12,7 +12,7 @@ MessageBoxA PROTO :DWORD, :DWORD, :DWORD, :DWORD
 .DATA				
     a dword 1
     b dword 3
-    myWords DWORD 1,2,3,4,6,6,7
+    myWords DWORD 1,2,3,4,6,6,0
 
 .CODE													
 
@@ -22,7 +22,7 @@ START:
     mov ax,  [esi + 4]
     mov bx,  [esi + 2]
 
-    mov ecx, 7                   	     ; Количество элементов массива
+    mov ecx, LENGTHOF myWords      	     ; Количество элементов массива
     lea esi, myWords                     ; Адрес массива в регистр ESI
     xor eax, eax                         ; Обнулить EAX (для суммы)
     mov ebx, 1                           ; Изначально EBX = 1 (нет нулевых элементов)
@@ -45,8 +45,8 @@ skip_zero:
     mov ebx, 0                           ; Если равен 0, ставим EBX = 0
 
 end_loop:
-push 0
-call ExitProcess
+    push 0
+    call ExitProcess
 
 main ENDP
 end  main
