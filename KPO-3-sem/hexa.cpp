@@ -47,9 +47,17 @@ bool is_valid_hex(const std::string &str)
 
 int main(int argc, char **argv)
 {
+	if (argc == 2 && (strcmp(argv[1], "/h") == 0 || strcmp(argv[1], "/?") == 0))
+	{
+		cout << "Usage: " << argv[0] << " < -d | -h > <value>" << endl;
+		cout << "If '-d' is specified, value must be a integer number.\n"
+				"If '-h' is specified, value must be a valid hex value with leading '0x'.";
+		return 0;
+	}
+	cout << "aa";
 	if (argc != 3)
 	{
-		cerr << "Usage: " << argv[0] << " < -d | -h > <value>" << endl;
+		cout << "Usage: " << argv[0] << " < -d | -h > <value>" << endl;
 		return 1;
 	}
 
