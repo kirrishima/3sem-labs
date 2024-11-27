@@ -1,36 +1,26 @@
 using OOP_Lab15;
 using System.Diagnostics;
 
-class Program
+namespace OOP_Lab15
 {
-    static void Main(string[] args)
+    class Program
     {
-        // 1-2
-        //CancableTask.Task();
+        static async Task Main(string[] args)
+        {
+            // 1-2
+            //CancableTask.Task();
 
-        //3
-        //ContinuationTasks.Tasks();
+            //3-4
+            //ContinuationTasks.Tasks();
 
-        List<int> ints1 = new List<int>();
-        List<int> ints2 = new List<int>();
+            //5
+            //ParralelVsSequential.Compare();
 
+            //6
+            //ParallelInvoke.Test();
 
-        int c = 0;
-        Stopwatch stopwatch = new Stopwatch();
-        stopwatch.Start();
-
-        for (int i = 0; i < 100000; i++) ints1.Add(i);
-
-        stopwatch.Stop();
-
-        Console.WriteLine($"{stopwatch.ElapsedMilliseconds}ms");
-        Console.WriteLine();
-
-        stopwatch = new Stopwatch();
-
-        stopwatch.Start();
-        Parallel.For(0, 100000, ints2.Add);
-        stopwatch.Stop();
-        Console.WriteLine($"{stopwatch.ElapsedMilliseconds}ms");
+            Warehouse warehouse = new Warehouse();
+            await warehouse.Start();
+        }
     }
 }

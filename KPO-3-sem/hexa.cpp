@@ -54,7 +54,7 @@ int main(int argc, char **argv)
 				"If '-h' is specified, value must be a valid hex value with leading '0x'.";
 		return 0;
 	}
-	cout << "aa";
+
 	if (argc != 3)
 	{
 		cout << "Usage: " << argv[0] << " < -d | -h > <value>" << endl;
