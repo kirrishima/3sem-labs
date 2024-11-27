@@ -24,8 +24,7 @@ std::string decimal_to_hex_with_spaces(unsigned long long num)
 std::string decimal_to_hex(unsigned long long num)
 {
 	std::stringstream stream;
-	stream << std::hex << std::setfill('0') << std::uppercase;
-	cout << "0x";
+	stream << "0x" << std::hex << std::setfill('0') << std::uppercase;
 	for (int i = 7; i >= 0; --i)
 	{
 		stream << std::setw(2) << ((num >> (i * 8)) & 0xFF);
@@ -50,7 +49,7 @@ int main(int argc, char **argv)
 {
 	if (argc != 3)
 	{
-		cerr << "Usage: " << argv[0] << " <-d|-h> <value>" << endl;
+		cerr << "Usage: " << argv[0] << " < -d | -h > <value>" << endl;
 		return 1;
 	}
 
