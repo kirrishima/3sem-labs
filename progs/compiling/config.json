@@ -1,0 +1,7 @@
+{
+  "input_directory": "../src",
+  "output_directory": "../",
+  "cache_directory": "cached",
+  "default_compiler_flags": "/O2 /GL /arch:AVX /MD",
+  "devcmd_path": "C:\\Program Files\\Microsoft Visual Studio\\2022\\Community\\Common7\\Tools\\VsDevCmd.bat"
+}

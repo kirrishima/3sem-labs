@@ -1,0 +1,4 @@
+{
+    "cpp_standard": 20,
+    "compile_flags": "/O2 /GL /arch:AVX /MD"
+}

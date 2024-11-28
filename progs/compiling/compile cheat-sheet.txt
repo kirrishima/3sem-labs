@@ -1,0 +1,5 @@
+x64
+cl /O2 /GL /arch:AVX /MD
+
+x86
+cl /O2 /GL /arch:SSE2 /MD 

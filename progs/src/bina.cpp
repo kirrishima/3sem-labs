@@ -52,7 +52,7 @@ void processArguments(int argc, char *argv[])
     if (argc < 4)
     {
         throw invalid_argument("Insufficient arguments. Format:\n"
-                               "<mode: tb | fb | td | fd > <signed|unsigned> <value>");
+                               "<mode: -tb | -td> <signed | unsigned> <value>");
     }
 
     string mode = argv[1];
@@ -62,7 +62,7 @@ void processArguments(int argc, char *argv[])
     bool isSigned = (type == "signed") || (type == "s");
     long long value = stoll(valueStr); // Additional validation for unsigned will follow
 
-    if (mode == "tb" || mode == "to-binary")
+    if (mode == "-tb" || mode == "to-binary")
     {
         // Convert decimal to binary
         size_t size = 0;
@@ -96,7 +96,7 @@ void processArguments(int argc, char *argv[])
         cout << "Binary representation, " << size << " bits:\n";
         printBits(bits);
     }
-    else if (mode == "fb" || mode == "from-binary")
+    else if (mode == "-td" || mode == "to-decimal")
     {
         // Convert binary to decimal
         vector<bool> bits;
@@ -147,12 +147,11 @@ void processArguments(int argc, char *argv[])
 
 int main(int argc, char *argv[])
 {
-    SetConsoleOutputCP(1251); // For proper console output
     if (argc == 1)
     {
-        cout << "Usage: <mode: tb | fb | td | fd > <signed|unsigned> <value>\n\n"
-                " tb - converts from decimal to binary\n"
-                " fb - converts from binary to decimal\n";
+        cout << "Usage: <mode: -tb | -td> <signed | unsigned> <value>\n\n"
+                " -tb - converts from decimal to binary\n"
+                " -fb - converts from binary to decimal\n";
         return 1;
     }
     try
