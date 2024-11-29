@@ -89,13 +89,15 @@ int main(int argc, char **argv)
 		try
 		{
 			unsigned long long unsigned_val = stoull(value, nullptr, 16);
-			long long signed_val = stoll(value, nullptr, 16);
+			long long signed_val;
+			memcpy(&signed_val, &unsigned_val, sizeof(long long));
+
 			cout << "Signed:   " << signed_val << endl;
 			cout << "Unsigned: " << unsigned_val << endl;
 		}
 		catch (exception &e)
 		{
-			cerr << "Error parsing hex value: " << value << endl;
+			cerr << "Error parsing hex value '" << value << "': " << e.what() << endl;
 			return 1;
 		}
 	}
