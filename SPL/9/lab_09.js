@@ -6,14 +6,16 @@ let Figure = {
     size: null
 };
 
-function Square(size) {
+function Square(size, isBig = false) {
     this.__proto__ = Figure;
     this.size = size;
+    this.big = isBig
 };
 
-function Circle(color) {
+function Circle(color, radius) {
     this.__proto__ = Figure;
     this.color = color;
+    this.radius = radius;
 };
 
 function Triangle(lines) {
@@ -37,19 +39,20 @@ function printDiff(obj1, obj2) {
 let triangle1 = new Triangle(1);
 let triangle2 = new Triangle(3);
 
-printDiff(triangle1, triangle2)
+printDiff(triangle1, Figure)
 console.log('\n');
 
-let circle1 = new Circle("none");
-let circle2 = new Circle("green");
+let circle1 = new Circle("none", 10);
+let circle2 = new Circle("green", 10);
 
 printDiff(circle1, circle2)
 console.log('\n');
 
-let square1 = new Square(10);
+let square1 = new Square(10, true);
 let square2 = new Square(2);
 
 printDiff(square1, square2)
+
 
 ///////////////// Задание 2 ///////////////
 console.log('\n==== Задание 2 ====\n');
@@ -178,11 +181,11 @@ class Faculty {
 }
 
 // Пример использования:
-const student = new Student('Анна', 'Петрова', 2002, 'г. Новосибирск', 'ДЭВИ', 3, 'П-302', '73201301');
+const student = new Student('Анна', 'Петрова', 2002, 'г. Новосибирск', 'ДЭВИ', 3, '6', '73201301');
 const faculty = new Faculty('ФИТ', 10, 0);
 
 faculty.addStudent(student);
-faculty.addStudent(new Student('Иван', 'Сидоров', 2001, 'г. Москва', 'ФИТ', 4, 'П-302', '71301302'));
+faculty.addStudent(new Student('Иван', 'Сидоров', 2001, 'г. Москва', 'ФИТ', 4, '6', '71301302'));
 
 console.log(faculty.getDev()); // Выводит количество студентов специальности ДЭВИ
-console.log(faculty.getGroup('П-302')); // Выводит список студентов группы 'П-302'
+console.log(faculty.getGroup('6')); // Выводит список студентов группы 'П-302'

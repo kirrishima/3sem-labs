@@ -8,20 +8,21 @@ using System.Text.RegularExpressions;
 
 class Program
 {
-    private static readonly HttpClient HttpClient = new();
+    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(2) };
     private static SemaphoreSlim ApiSemaphore;
     private static readonly object LockObject = new();
     private static ConcurrentDictionary<string, bool> VisitedUsers = new();
     private static List<string> Tokens;
     private static int CurrentTokenIndex = 0;
     private static readonly string VisistedFilPath = "VisitedUsers.json";
+    private static SemaphoreSlim ThreadLimiter;
 
     private static int WritedRows = 0;
 
     static async Task Main(string[] args)
     {
         ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-        var startUser = "okivlinas";
+        var startUser = "darlitaa";
         var outputExcel = "github_analysis_results.xlsx";
         Tokens = new List<string>
         {
@@ -30,17 +31,23 @@ class Program
             "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",
             "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",
             "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",
-            "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"
+            "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",
+            "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", // Коля +реп
+            "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", // Игорь +реп
+            "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",
         };
 
-        ApiSemaphore = new SemaphoreSlim(10, 10); // Max 10 concurrent requests
+        ThreadLimiter = new SemaphoreSlim(6, 6); // Ограничение на 6 одновременно работающих потоков
+
+        ApiSemaphore = new SemaphoreSlim(12, 12); // Max 10 concurrent requests
 
         if (File.Exists(VisistedFilPath))
         {
             VisitedUsers = await DeserializeConcurrentDictionaryAsync<string, bool>(VisistedFilPath);
         }
 
-        await AnalyzeUserAsync(startUser, outputExcel, recursionLimit: 1, maxThreads: 12);
+        await AnalyzeUsersWithQueueAsync(startUser, outputExcel, recursionLimit: 10, maxThreads: Environment.ProcessorCount * 4);
+        //await AnalyzeUserAsync(startUser, outputExcel, recursionLimit: 10, maxThreads: 6);
 
         await SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilPath);
     }
@@ -64,8 +71,117 @@ class Program
         return dictionary ?? new ConcurrentDictionary<TK, TV>();
     }
 
+    private static async Task AnalyzeUsersWithQueueAsync(string startUser, string outputFile, int recursionLimit, int maxThreads)
+    {
+        using var package = new ExcelPackage();
+        var sheet = package.Workbook.Worksheets.Add("GitHub Analysis");
+        sheet.Cells[1, 1].Value = "User";
+        sheet.Cells[1, 2].Value = "Repository Name";
+        sheet.Cells[1, 3].Value = "Repository URL";
 
-    private static async Task AnalyzeUserAsync(string username, string outputFile, int recursionLimit, int maxThreads)
+        // Применяем стиль к первой строке
+        using (var range = sheet.Cells[1, 1, 1, 3])
+        {
+            range.Style.Font.Bold = true;
+            range.Style.Font.Size = 12;
+            range.Style.Font.Color.SetColor(Color.White);
+            range.Style.Fill.PatternType = ExcelFillStyle.Solid;
+            range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
+            range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center;
+            range.Style.VerticalAlignment = ExcelVerticalAlignment.Center;
+        }
+
+        Console.CancelKeyPress += (sender, eventArgs) =>
+        {
+            Console.WriteLine("Termination signal received.");
+            Console.WriteLine("Saving table...");
+            SaveWorkbook(package, outputFile);
+            SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilPath).Wait();
+            Environment.Exit(0);
+        };
+
+        Console.WriteLine($"Started parsing from start point {startUser}.");
+        Console.WriteLine($"Using up to {maxThreads} threads.\n");
+
+        var queue = new Queue<(string Username, int Depth)>();
+        queue.Enqueue((startUser, 0));
+
+        var runningTasks = new List<Task>();
+
+        try
+        {
+            while (queue.Count > 0 || runningTasks.Count > 0)
+            {
+                // Удаляем завершившиеся задачи
+                runningTasks.RemoveAll(task => task.IsCompleted);
+
+                // Если есть свободное место для новых задач
+                while (queue.Count > 0 && runningTasks.Count < maxThreads)
+                {
+                    var (username, depth) = queue.Dequeue();
+
+                    if (depth > recursionLimit || VisitedUsers.ContainsKey(username))
+                        continue;
+
+                    VisitedUsers.TryAdd(username, true);
+
+                    var task = Task.Run(async () =>
+                    {
+                        Console.WriteLine($"Parsing user {username}. [Thread {Task.CurrentId}]");
+
+                        var repos = await FetchReposAsync(username);
+
+                        var yearRepos = repos
+                            .Where(repo => MatchesYearRepoPattern(repo.Name))
+                            .Select(repo => new { repo.Name, repo.HtmlUrl })
+                            .ToList();
+
+                        if (yearRepos?.Count > 0)
+                        {
+                            lock (LockObject)
+                            {
+                                foreach (var repo in yearRepos)
+                                {
+                                    WritedRows++;
+                                    int currentRow = sheet.Dimension?.End.Row + 1 ?? 2;
+                                    sheet.Cells[currentRow, 1].Value = username;
+                                    sheet.Cells[currentRow, 2].Value = repo.Name;
+                                    sheet.Cells[currentRow, 3].Value = repo.HtmlUrl;
+                                }
+                            }
+                        }
+
+                        var following = await FetchFollowingAsync(username);
+
+                        if (following is not null)
+                        {
+                            lock (queue)
+                            {
+                                foreach (var user in following)
+                                {
+                                    if (!VisitedUsers.ContainsKey(user.Login))
+                                    {
+                                        queue.Enqueue((user.Login, depth + 1));
+                                    }
+                                }
+                            }
+                        }
+                    });
+
+                    runningTasks.Add(task);
+                }
+
+                // Ждем завершения хотя бы одной задачи
+                await Task.WhenAny(runningTasks);
+            }
+        }
+        finally
+        {
+            SaveWorkbook(package, outputFile);
+        }
+    }
+
+    /*private static async Task AnalyzeUserAsync(string username, string outputFile, int recursionLimit, int maxThreads)
     {
         using var package = new ExcelPackage();
         var sheet = package.Workbook.Worksheets.Add("GitHub Analysis");
@@ -96,51 +212,63 @@ class Program
 
         Console.WriteLine($"Started parsing from start point {username}. Wait...");
 
-        await AnalyzeRecursiveAsync(username, sheet, recursionLimit, maxThreads, 0, true);
+        await AnalyzeRecursiveAsync(username, sheet, recursionLimit, 0, true);
 
         SaveWorkbook(package, outputFile);
     }
+*/
 
-    private static async Task AnalyzeRecursiveAsync(string username, ExcelWorksheet sheet, int recursionLimit, int maxThreads, int depth = 0, bool firstEntry = false)
+    private static async Task AnalyzeRecursiveAsync(string username, ExcelWorksheet sheet, int recursionLimit, int depth = 0, bool firstEntry = false)
     {
         if (depth > recursionLimit || (VisitedUsers.ContainsKey(username) && !firstEntry))
             return;
 
-        VisitedUsers.TryAdd(username, true);
+        await ThreadLimiter.WaitAsync(); // Ждем разрешения на выполнение новой задачи
 
-        // var profile = await FetchProfileAsync(username);
-        Console.WriteLine($"Parsing user {username}");
-
-        if (!firstEntry)
+        try
         {
-            var repos = await FetchReposAsync(username);
-            var yearRepos = repos
-                .Where(repo => MatchesYearRepoPattern(repo.Name))
-                .Select(repo => new { repo.Name, repo.HtmlUrl })
-                .ToList();
+            VisitedUsers.TryAdd(username, true);
+            Console.WriteLine($"Parsing user {username}");
 
-            if (yearRepos.Count > 0)
+            if (!firstEntry)
             {
-                lock (LockObject)
+                var repos = await FetchReposAsync(username);
+                var yearRepos = repos
+                    .Where(repo => MatchesYearRepoPattern(repo.Name))
+                    .Select(repo => new { repo.Name, repo.HtmlUrl })
+                    .ToList();
+
+                if (yearRepos.Count > 0)
                 {
-                    foreach (var repo in yearRepos)
+                    lock (LockObject)
                     {
-                        WritedRows++;
-                        sheet.Cells[sheet.Dimension.End.Row + 1, 1].Value = username;
-                        sheet.Cells[sheet.Dimension.End.Row, 2].Value = repo.Name;
-                        sheet.Cells[sheet.Dimension.End.Row, 3].Value = repo.HtmlUrl;
+                        foreach (var repo in yearRepos)
+                        {
+                            WritedRows++;
+                            sheet.Cells[sheet.Dimension.End.Row + 1, 1].Value = username;
+                            sheet.Cells[sheet.Dimension.End.Row, 2].Value = repo.Name;
+                            sheet.Cells[sheet.Dimension.End.Row, 3].Value = repo.HtmlUrl;
+                        }
                     }
                 }
             }
+
+            var following = await FetchFollowingAsync(username);
+
+            // Запускаем анализ с ограничением числа потоков
+            var tasks = following
+                .Where(f => f.Login != null && !VisitedUsers.ContainsKey(f.Login))
+                .Select(f => AnalyzeRecursiveAsync(f.Login, sheet, recursionLimit, depth + 1));
+
+            await Task.WhenAll(tasks);
         }
-
-        var following = await FetchFollowingAsync(username);
-        var tasks = following
-            .Where(f => f.Login != null && !VisitedUsers.ContainsKey(f.Login))
-            .Select(f => AnalyzeRecursiveAsync(f.Login, sheet, recursionLimit, maxThreads, depth + 1));
-
-        await Task.WhenAll(tasks);
+        finally
+        {
+            ThreadLimiter.Release(); // Освобождаем разрешение
+        }
     }
+
+
 
     private static async Task<List<Repository>> FetchReposAsync(string username)
     {
@@ -211,6 +339,8 @@ class Program
         lock (LockObject)
         {
             CurrentTokenIndex = (CurrentTokenIndex + 1) % Tokens.Count;
+            Task.Delay(TimeSpan.FromMinutes(0)).Wait();
+
             if (CurrentTokenIndex == 0)
                 throw new Exception("All tokens have reached the rate limit.");
         }
