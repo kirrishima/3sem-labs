@@ -6,8 +6,7 @@
 #include <set>
 #include <locale>
 #include <chrono>
-
-#define _DISABLE_MFST__
+#include "SVV.h"
 
 using namespace std;
 using namespace MFST;
@@ -60,8 +59,17 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 	setlocale(LC_ALL, "rus");
 
-	std::wstring current_path = fs::current_path().wstring();
-	auto initial_files = get_files_in_directory(current_path);
+	//const char* str = "!=";
+
+	//FST::FST* elseFST(SVV::CreateCompareFST(str));
+
+	//cout << FST::execute(*elseFST) << endl;
+
+
+	//return 0;
+
+	//std::wstring current_path = fs::current_path().wstring();
+	//auto initial_files = get_files_in_directory(current_path);
 
 #ifndef TEST
 	try {
@@ -77,12 +85,17 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		cout << "строка " << e.inext.line << " позиция " << e.inext.col << endl << endl;
 	};
 
+#ifndef __DISABLE_LOGS
 	Log::LOG log = Log::INIT_LOG;
-	Parm::PARM parm = Parm::getparm(argc, argv);
 	Out::OUT out = Out::INIT_OUT;
+#endif // !__DISABLE_LOGS
+
+
+	Parm::PARM parm = Parm::getparm(argc, argv);
 	In::IN in = In::getin(parm.in);
 	cout << '\n';
 	try {
+#ifndef __DISABLE_LOGS
 		out = Out::getout(parm.out);
 		log = Log::getlog(parm.log);
 
@@ -90,6 +103,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Log::WriteParm(log, parm);
 		Out::WriteOut(out, in);
 		Log::WriteIn(log, in);
+#endif // !__DISABLE_LOGS
+
 		cout << '\n';
 
 		auto [LexTable, IdTable] = LexAn::lexAnalize(parm, in);
@@ -127,36 +142,54 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		bool hasP = true;
 #endif // _DISABLE_MFST__
 
+#ifndef __DISABLE_LOGS
+
 		Log::Close(log);
 		Out::Close(out);
+#endif // !__DISABLE_LOGS
+
 
 		cout << "\n";
 
-		CD::gen(LexTable, IdTable, parm.asem, hasP);
+		CD::CodeGeneration cd(IdTable, LexTable, parm.asem);
+
+		cd.gen(parm.asem, hasP);
+	}
+	catch (const char* e)
+	{
+		cout << "Произошла ошибка: " << e;
+	}
+	catch (std::string& e)
+	{
+		cout << "Произошла ошибка: " << e;
 	}
 	catch (Error::ERROR e)
 	{
 		cout << "Ошибка" << e.id << ':' << e.message << endl << endl;
-		if (e.inext.line)
+		if (e.inext.line) {
+#ifndef __DISABLE_LOGS
 			Log::WriteError(log, e);
-		Out::WriteError(out, e);
-		Log::Close(log);
-		Out::Close(out);
-	}
+			Out::WriteError(out, e);
+			Log::Close(log);
+			Out::Close(out);
+#endif // !__DISABLE_LOGS
 
-	auto current_files = get_files_in_directory(current_path);
-
-	std::set<std::u8string> new_files;
-	for (const auto& file : current_files) {
-		if (initial_files.find(file) == initial_files.end()) {
-			new_files.insert(file);
 		}
 	}
 
-	if (!new_files.empty()) {
-		std::wstring script_name = L"cleanup.bat";
-		create_delete_script(new_files, script_name);
-	}
+	//auto current_files = get_files_in_directory(current_path);
+
+	//std::set<std::u8string> new_files;
+	//for (const auto& file : current_files) {
+	//	if (initial_files.find(file) == initial_files.end()) {
+	//		new_files.insert(file);
+	//	}
+	//}
+
+	//if (!new_files.empty()) {
+	//	std::wstring script_name = L"cleanup.bat";
+	//	create_delete_script(new_files, script_name);
+	//}
 
 #endif // !TEST
 	return 0;

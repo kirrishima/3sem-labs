@@ -43,6 +43,39 @@ namespace SVV
 		);
 	}
 
+	FST::FST* CreateIfFST(const char* str)
+	{
+		return new FST::FST(str,
+			3,
+			FST::NODE(1, FST::RELATION('i', 1)),
+			FST::NODE(1, FST::RELATION('f', 2)),
+			FST::NODE()
+		);
+	}
+
+	FST::FST* CreateCompareFST(const char* str)
+	{
+		return new FST::FST(str,
+			3,
+			FST::NODE(6, FST::RELATION('>', 2), FST::RELATION('<', 2), FST::RELATION('>', 1), FST::RELATION('<', 1),
+				FST::RELATION('=', 1), FST::RELATION('!', 1)),
+			FST::NODE(1, FST::RELATION('=', 2)),
+			FST::NODE()
+		);
+	}
+
+	FST::FST* CreateElseFST(const char* str)
+	{
+		return new FST::FST(str,
+			5,
+			FST::NODE(1, FST::RELATION('e', 1)),
+			FST::NODE(1, FST::RELATION('l', 2)),
+			FST::NODE(1, FST::RELATION('s', 3)),
+			FST::NODE(1, FST::RELATION('e', 4)),
+			FST::NODE()
+		);
+	}
+
 	constexpr int NUM_LETTERS = 26;
 
 #define relationsForState(state) FST::RELATION('a', state), FST::RELATION('b', state), FST::RELATION('c', state),\

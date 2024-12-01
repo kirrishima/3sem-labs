@@ -1,4 +1,5 @@
 using OfficeOpenXml;
+using OfficeOpenXml.Packaging.Ionic.Zip;
 using OfficeOpenXml.Style;
 using System.Collections.Concurrent;
 using System.Drawing;
@@ -6,59 +7,98 @@ using System.Text.Json;
 using System.Text.Json.Serialization;
 using System.Text.RegularExpressions;
 
-class Program
+internal class Program
 {
-    private static readonly HttpClient HttpClient = new() { Timeout = TimeSpan.FromSeconds(2) };
+    private static readonly HttpClient HttpClient;
     private static SemaphoreSlim ApiSemaphore;
-    private static readonly object LockObject = new();
-    private static ConcurrentDictionary<string, bool> VisitedUsers = new();
     private static List<string> Tokens;
     private static int CurrentTokenIndex = 0;
-    private static readonly string VisistedFilPath = "VisitedUsers.json";
+    private static ConcurrentDictionary<string, bool> VisitedUsers;
+    private static readonly string VisistedFilepath = "VisitedUsers.json";
+    private static readonly string UsersBlacklistFilepath = "UsersBlacklist.json";
+    private static ConcurrentDictionary<string, bool> UsersBlacklist;
     private static SemaphoreSlim ThreadLimiter;
-
+    private static int MaxThreads;
     private static int WritedRows = 0;
+    private static int Scanned = 0;
+    private static readonly object excelLock = new();
+    private static object queueLock = new();
+    private static object SwitchTokenLock = new();
+    private static bool Exited = false;
+    private static ConcurrentQueue<(string Username, int Depth)> queue;
+    private static ConcurrentQueue<(string username, int depth)> intermediateQueue = new();
+    private static Task? backgroundTask;
+    private static CancellationTokenSource cancellationTokenSource = new();
 
-    static async Task Main(string[] args)
+    static Program()
     {
-        ExcelPackage.LicenseContext = OfficeOpenXml.LicenseContext.NonCommercial;
-        var startUser = "darlitaa";
-        var outputExcel = "github_analysis_results.xlsx";
-        Tokens = new List<string>
+        if (File.Exists("tokens.json"))
         {
-            "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",
-            "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",
-            "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",
-            "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",
-            "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",
-            "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",
-            "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", // Коля +реп
-            "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", // Игорь +реп
-            "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",
-        };
-
-        ThreadLimiter = new SemaphoreSlim(6, 6); // Ограничение на 6 одновременно работающих потоков
-
-        ApiSemaphore = new SemaphoreSlim(12, 12); // Max 10 concurrent requests
-
-        if (File.Exists(VisistedFilPath))
+            var jsonString = File.ReadAllText("tokens.json");
+            var tokens = JsonSerializer.Deserialize<ApiTokens>(jsonString);
+            Tokens = tokens?.Tokens ?? [];
+        }
+        else
         {
-            VisitedUsers = await DeserializeConcurrentDictionaryAsync<string, bool>(VisistedFilPath);
+            throw new Exception("Could not find tokens.json");
         }
 
-        await AnalyzeUsersWithQueueAsync(startUser, outputExcel, recursionLimit: 10, maxThreads: Environment.ProcessorCount * 4);
-        //await AnalyzeUserAsync(startUser, outputExcel, recursionLimit: 10, maxThreads: 6);
+        HttpClient = new()
+        {
+            Timeout = TimeSpan.FromSeconds(5)
+        };
 
-        await SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilPath);
+        if (File.Exists(VisistedFilepath))
+        {
+            VisitedUsers = DeserializeConcurrentDictionaryAsync<string, bool>(VisistedFilepath).Result;
+        }
+        else
+        {
+            VisitedUsers = new();
+        }
+
+        if (File.Exists(UsersBlacklistFilepath))
+        {
+            UsersBlacklist = DeserializeConcurrentDictionaryAsync<string, bool>(UsersBlacklistFilepath).Result;
+        }
+        else
+        {
+            UsersBlacklist = new();
+        }
+
+        MaxThreads = Environment.ProcessorCount * 2;
+
+        ThreadLimiter = new SemaphoreSlim(MaxThreads, MaxThreads); // Ограничение на 6 одновременно работающих потоков
+
+        ApiSemaphore = new SemaphoreSlim(Math.Min(10, MaxThreads), Math.Min(10, MaxThreads)); // Max 10 concurrent requests
+
+        queue = new();
     }
 
-    private static async Task SerializeConcurrentDictionaryAsync<TK, TV>(ConcurrentDictionary<TK, TV> dictionary, string filePath)
+    private static async Task Main(string[] args)
+    {
+        ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
+        string[] startUsers = ["knvzzi", "Vikvillka", "miwuzo", "darlitaa", "mashassnvts", "mashassnvts", "vivsii"];
+        var outputExcel = $"github_analysis_results_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.xlsx";
+
+        await AnalyzeUsersWithQueueAsync(startUsers, outputExcel, recursionLimit: 10, maxThreads: 12);
+        //await AnalyzeUserAsync(startUsers, outputExcel, recursionLimit: 10, maxThreads: 6);
+
+        await SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilepath);
+
+
+        /*        List<Repository> list = [new Repository() { Name = "AISD2sem" }, new Repository() { Name = "KSIS2sem" }];
+
+                Console.WriteLine(IsStudent(list));*/
+    }
+
+    private static async Task SerializeConcurrentDictionaryAsync<TK, TV>(ConcurrentDictionary<TK, TV> dictionary, string filePath) where TK : notnull
     {
         var serializedData = JsonSerializer.Serialize(dictionary);
         await File.WriteAllTextAsync(filePath, serializedData);
     }
 
-    private static async Task<ConcurrentDictionary<TK, TV>> DeserializeConcurrentDictionaryAsync<TK, TV>(string filePath)
+    private static async Task<ConcurrentDictionary<TK, TV>> DeserializeConcurrentDictionaryAsync<TK, TV>(string filePath) where TK : notnull
     {
         if (!File.Exists(filePath))
         {
@@ -71,7 +111,7 @@ class Program
         return dictionary ?? new ConcurrentDictionary<TK, TV>();
     }
 
-    private static async Task AnalyzeUsersWithQueueAsync(string startUser, string outputFile, int recursionLimit, int maxThreads)
+    private static async Task AnalyzeUsersWithQueueAsync(string[] startUsers, string outputFile, int recursionLimit, int maxThreads)
     {
         using var package = new ExcelPackage();
         var sheet = package.Workbook.Worksheets.Add("GitHub Analysis");
@@ -83,7 +123,7 @@ class Program
         using (var range = sheet.Cells[1, 1, 1, 3])
         {
             range.Style.Font.Bold = true;
-            range.Style.Font.Size = 12;
+            range.Style.Font.Size = 14;
             range.Style.Font.Color.SetColor(Color.White);
             range.Style.Fill.PatternType = ExcelFillStyle.Solid;
             range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue);
@@ -93,253 +133,252 @@ class Program
 
         Console.CancelKeyPress += (sender, eventArgs) =>
         {
-            Console.WriteLine("Termination signal received.");
-            Console.WriteLine("Saving table...");
-            SaveWorkbook(package, outputFile);
-            SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilPath).Wait();
-            Environment.Exit(0);
+            if (!Exited)
+            {
+                Environment.Exit(0);
+                /*                Console.WriteLine("\n\nTermination signal received.");
+                                Console.WriteLine("Saving table...");
+                                SaveWorkbook(package, outputFile);
+                                Console.WriteLine("Serializing visited users...");
+                                SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilepath).Wait();
+                                SerializeConcurrentDictionaryAsync(UsersBlacklist, UsersBlacklistFilepath).Wait();*/
+            }
         };
 
-        Console.WriteLine($"Started parsing from start point {startUser}.");
-        Console.WriteLine($"Using up to {maxThreads} threads.\n");
-
-        var queue = new Queue<(string Username, int Depth)>();
-        queue.Enqueue((startUser, 0));
-
-        var runningTasks = new List<Task>();
+        AppDomain.CurrentDomain.ProcessExit += (sender, eventArgs) =>
+        {
+            if (!Exited)
+            {
+                Exited = true;
+                Console.WriteLine("\n\nDomain process exiting entercepted.");
+                Console.WriteLine("Saving table...");
+                SaveWorkbook(package, outputFile);
+                Console.WriteLine("Serializing visited users...");
+                SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilepath).Wait();
+                SerializeConcurrentDictionaryAsync(UsersBlacklist, UsersBlacklistFilepath).Wait();
+            }
+        };
 
         try
         {
-            while (queue.Count > 0 || runningTasks.Count > 0)
+            // Подготовка очереди задач
+            foreach (var user in startUsers)
             {
-                // Удаляем завершившиеся задачи
-                runningTasks.RemoveAll(task => task.IsCompleted);
+                queue.Enqueue((user, 0));
+            }
 
-                // Если есть свободное место для новых задач
-                while (queue.Count > 0 && runningTasks.Count < maxThreads)
+            // Распределение токенов между потоками
+            var tokenBuckets = DistributeTokens(Tokens, maxThreads);
+
+            Console.WriteLine($"Using up to {tokenBuckets.Count} threads.\n");
+
+            StartBackgroundTask(); // Запуск фоновой проверки
+
+            var tasks = new List<Task>();
+            for (int i = 0; i < tokenBuckets.Count; i++)
+            {
+                var threadTokens = tokenBuckets[i];
+                tasks.Add(Task.Run(() => ProcessQueue(threadTokens, recursionLimit, sheet)));
+            }
+
+            Console.WriteLine($"Starting {tasks.Count} threads...");
+
+            await Task.WhenAll(tasks);
+        }
+        catch { }
+
+        finally
+        {
+            Exited = true;
+            SaveWorkbook(package, outputFile);
+        }
+    }
+
+    private static List<List<string>> DistributeTokens(List<string> tokens, int maxThreads)
+    {
+        var tokenBuckets = new List<List<string>>();
+
+        int bucketCount = Math.Min(maxThreads, tokens.Count);
+        int tokensPerBucket = tokens.Count / bucketCount;
+        int extraTokens = tokens.Count % bucketCount;
+
+        int index = 0;
+        for (int i = 0; i < bucketCount; i++)
+        {
+            int bucketSize = tokensPerBucket + (extraTokens-- > 0 ? 1 : 0);
+            var bucket = tokens.Skip(index).Take(bucketSize).ToList();
+            tokenBuckets.Add(bucket);
+            index += bucketSize;
+        }
+
+        return tokenBuckets;
+    }
+
+    // Запуск фоновой задачи
+    private static void StartBackgroundTask()
+    {
+        backgroundTask = Task.Run(async () =>
+        {
+            while (!cancellationTokenSource.Token.IsCancellationRequested)
+            {
+                if (intermediateQueue.TryDequeue(out var item))
                 {
-                    var (username, depth) = queue.Dequeue();
-
-                    if (depth > recursionLimit || VisitedUsers.ContainsKey(username))
-                        continue;
-
-                    VisitedUsers.TryAdd(username, true);
-
-                    var task = Task.Run(async () =>
+                    var (username, depth) = item;
+                    if (!VisitedUsers.ContainsKey(username))
                     {
-                        Console.WriteLine($"Parsing user {username}. [Thread {Task.CurrentId}]");
+                        queue.Enqueue(item);
+                    }
+                }
+            }
+        });
+    }
 
-                        var repos = await FetchReposAsync(username);
+    private static async Task ProcessQueue(List<string> tokens, int recursionLimit, ExcelWorksheet sheet)
+    {
+        int? ID = Task.CurrentId;
 
-                        var yearRepos = repos
-                            .Where(repo => MatchesYearRepoPattern(repo.Name))
-                            .Select(repo => new { repo.Name, repo.HtmlUrl })
-                            .ToList();
+        int currentTokenIndex = 0;
 
-                        if (yearRepos?.Count > 0)
+        while (true)
+        {
+            while (queue.TryDequeue(out var item))
+            {
+                var (username, depth) = item;
+
+                if (depth > recursionLimit || VisitedUsers.ContainsKey(username) || UsersBlacklist.ContainsKey(username))
+                {
+                    Console.WriteLine($"[Thread {ID}]: skip {username}");
+                    continue;
+                }
+
+                VisitedUsers.TryAdd(username, true);
+                var token = tokens[currentTokenIndex];
+
+                try
+                {
+                    Scanned++;
+                    if (!UsersBlacklist.ContainsKey(username))
+                    {
+                        Console.WriteLine($"[Thread {ID}]: Analyzing user {username}.");
+                        var repos = await FetchReposAsync(username, token);
+
+                        if (!IsStudent(repos))
                         {
-                            lock (LockObject)
-                            {
-                                foreach (var repo in yearRepos)
-                                {
-                                    WritedRows++;
-                                    int currentRow = sheet.Dimension?.End.Row + 1 ?? 2;
-                                    sheet.Cells[currentRow, 1].Value = username;
-                                    sheet.Cells[currentRow, 2].Value = repo.Name;
-                                    sheet.Cells[currentRow, 3].Value = repo.HtmlUrl;
-                                }
-                            }
+                            Console.WriteLine($"[Thread {ID}]: not a student: {username}");
+                            UsersBlacklist.TryAdd(username, true);
                         }
-
-                        var following = await FetchFollowingAsync(username);
-
-                        if (following is not null)
+                        else
                         {
-                            lock (queue)
+                            var yearRepos = repos?
+                               .Where(repo => MatchesYearRepoPattern(repo?.Name))
+                               .Select(repo => new { repo?.Name, repo?.HtmlUrl })
+                               .ToList();
+
+                            if (yearRepos != null && yearRepos.Any())
                             {
-                                foreach (var user in following)
+                                lock (excelLock)
                                 {
-                                    if (!VisitedUsers.ContainsKey(user.Login))
+                                    foreach (var repo in yearRepos)
                                     {
-                                        queue.Enqueue((user.Login, depth + 1));
+                                        var row = (sheet.Dimension?.End.Row ?? 1) + 1;
+                                        sheet.Cells[row, 1].Value = username;
+                                        sheet.Cells[row, 2].Value = repo.Name;
+                                        sheet.Cells[row, 3].Hyperlink = new Uri(repo.HtmlUrl);
+                                        sheet.Cells[row, 3].Value = repo.HtmlUrl;
+                                        WritedRows++;
                                     }
                                 }
                             }
                         }
-                    });
+                        var followers = await FetchFollowersAsync(username, token);
+                        var following = await FetchFollowingAsync(username, token);
 
-                    runningTasks.Add(task);
-                }
+                        var newUsers = (followers ?? Enumerable.Empty<UserProfile>())
+                            .Concat(following ?? Enumerable.Empty<UserProfile>()) // Объединяем списки
+                            .Where(u => u.Login != null && !VisitedUsers.ContainsKey(u.Login)) // Фильтруем по условию
+                            .Select(u => u.Login!) // Берем логины
+                            .Distinct() // Убираем дубликаты логинов
+                            .Select(login => (login, depth + 1)); // Преобразуем в результат
 
-                // Ждем завершения хотя бы одной задачи
-                await Task.WhenAny(runningTasks);
-            }
-        }
-        finally
-        {
-            SaveWorkbook(package, outputFile);
-        }
-    }
+                        /*                      lock (queueLock)
+                                              {
+                                                  foreach (var user in newUsers)
+                                                  {
+                                                      if (!VisitedUsers.ContainsKey(user.login))
+                                                      {
+                                                          queue.Enqueue(user);
+                                                      }
+                                                  }
+                                              }*/
 
-    /*private static async Task AnalyzeUserAsync(string username, string outputFile, int recursionLimit, int maxThreads)
-    {
-        using var package = new ExcelPackage();
-        var sheet = package.Workbook.Worksheets.Add("GitHub Analysis");
-        sheet.Cells[1, 1].Value = "User";
-        sheet.Cells[1, 2].Value = "Repository Name";
-        sheet.Cells[1, 3].Value = "Repository URL";
-
-        // Применяем стиль к первой строке
-        using (var range = sheet.Cells[1, 1, 1, 3]) // Диапазон первой строки (с 1-го столбца по 3-й)
-        {
-            range.Style.Font.Bold = true; // Жирный шрифт
-            range.Style.Font.Size = 12;  // Размер шрифта
-            range.Style.Font.Color.SetColor(Color.White); // Белый цвет текста
-            range.Style.Fill.PatternType = ExcelFillStyle.Solid; // Заливка ячеек
-            range.Style.Fill.BackgroundColor.SetColor(Color.DarkBlue); // Синий фон
-            range.Style.HorizontalAlignment = ExcelHorizontalAlignment.Center; // Центрирование текста по горизонтали
-            range.Style.VerticalAlignment = ExcelVerticalAlignment.Center; // Центрирование текста по вертикали
-        }
-
-        Console.CancelKeyPress += (sender, eventArgs) =>
-        {
-            Console.WriteLine("Termination signal received.");
-            Console.WriteLine("Saving table...");
-            SaveWorkbook(package, outputFile);
-            SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilPath).Wait();
-            Environment.Exit(0);
-        };
-
-        Console.WriteLine($"Started parsing from start point {username}. Wait...");
-
-        await AnalyzeRecursiveAsync(username, sheet, recursionLimit, 0, true);
-
-        SaveWorkbook(package, outputFile);
-    }
-*/
-
-    private static async Task AnalyzeRecursiveAsync(string username, ExcelWorksheet sheet, int recursionLimit, int depth = 0, bool firstEntry = false)
-    {
-        if (depth > recursionLimit || (VisitedUsers.ContainsKey(username) && !firstEntry))
-            return;
-
-        await ThreadLimiter.WaitAsync(); // Ждем разрешения на выполнение новой задачи
-
-        try
-        {
-            VisitedUsers.TryAdd(username, true);
-            Console.WriteLine($"Parsing user {username}");
-
-            if (!firstEntry)
-            {
-                var repos = await FetchReposAsync(username);
-                var yearRepos = repos
-                    .Where(repo => MatchesYearRepoPattern(repo.Name))
-                    .Select(repo => new { repo.Name, repo.HtmlUrl })
-                    .ToList();
-
-                if (yearRepos.Count > 0)
-                {
-                    lock (LockObject)
-                    {
-                        foreach (var repo in yearRepos)
+                        foreach (var user in newUsers)
                         {
-                            WritedRows++;
-                            sheet.Cells[sheet.Dimension.End.Row + 1, 1].Value = username;
-                            sheet.Cells[sheet.Dimension.End.Row, 2].Value = repo.Name;
-                            sheet.Cells[sheet.Dimension.End.Row, 3].Value = repo.HtmlUrl;
+                            intermediateQueue.Enqueue(user); // Отправляем в промежуточную очередь
                         }
                     }
+
+                }
+                catch (Exception ex)
+                {
+                    currentTokenIndex = (currentTokenIndex + 1) % tokens.Count;
+                    if (currentTokenIndex == 0)
+                    {
+                        Console.WriteLine($"[Thread {ID}]: Api Tokens ended. Exiting thread...");
+                        return;
+                    }
+                    intermediateQueue.Enqueue((username, depth));
+                    Console.WriteLine($"Error processing {username}: {ex.Message}");
                 }
             }
 
-            var following = await FetchFollowingAsync(username);
+            Console.WriteLine($"[Thread {ID}]: Queue is empty, waiting for 10s...");
+            await Task.Delay(TimeSpan.FromSeconds(10));
 
-            // Запускаем анализ с ограничением числа потоков
-            var tasks = following
-                .Where(f => f.Login != null && !VisitedUsers.ContainsKey(f.Login))
-                .Select(f => AnalyzeRecursiveAsync(f.Login, sheet, recursionLimit, depth + 1));
-
-            await Task.WhenAll(tasks);
-        }
-        finally
-        {
-            ThreadLimiter.Release(); // Освобождаем разрешение
+            if (queue.Count == 0)
+            {
+                return;
+            }
         }
     }
 
-
-
-    private static async Task<List<Repository>> FetchReposAsync(string username)
+    private static async Task<List<Repository?>?> FetchReposAsync(string username, string token)
     {
         var url = $"https://api.github.com/users/{username}/repos";
-        return await FetchFromGitHubAsync<List<Repository>>(url);
+        return await FetchFromGitHubAsync<List<Repository?>?>(url, token);
     }
 
-    private static async Task<UserProfile> FetchProfileAsync(string username)
+    private static async Task<List<UserProfile?>?> FetchFollowersAsync(string username, string token)
     {
-        var url = $"https://api.github.com/users/{username}";
-        return await FetchFromGitHubAsync<UserProfile>(url);
+        var url = $"https://api.github.com/users/{username}/followers";
+        return await FetchFromGitHubAsync<List<UserProfile?>?>(url, token);
     }
 
-    private static async Task<List<UserProfile>> FetchFollowingAsync(string username)
+    private static async Task<List<UserProfile?>?> FetchFollowingAsync(string username, string token)
     {
         var url = $"https://api.github.com/users/{username}/following";
-        return await FetchFromGitHubAsync<List<UserProfile>>(url);
+        return await FetchFromGitHubAsync<List<UserProfile?>?>(url, token);
     }
 
-    private static async Task<T> FetchFromGitHubAsync<T>(string url)
+    private static async Task<T?> FetchFromGitHubAsync<T>(string url, string token)
     {
-        while (true)
-        {
-            await ApiSemaphore.WaitAsync();
-            try
-            {
-                using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        using var request = new HttpRequestMessage(HttpMethod.Get, url);
+        request.Headers.Add("User-Agent", "GitHubAnalyzer/1.0");
+        request.Headers.Add("Authorization", $"token {token}");
 
-                // Добавление заголовков
-                request.Headers.Add("User-Agent", "GitHubAnalyzer/1.0");
-                request.Headers.Add("Authorization", $"token {Tokens[CurrentTokenIndex]}");
+        var response = await HttpClient.SendAsync(request);
 
-                var response = await HttpClient.SendAsync(request);
+        response.EnsureSuccessStatusCode();
 
-                if (response.IsSuccessStatusCode)
-                {
-                    var content = await response.Content.ReadAsStringAsync();
-                    return System.Text.Json.JsonSerializer.Deserialize<T>(content);
-                }
-
-                // Если превышен лимит, переключаем токен
-                if (response.StatusCode == System.Net.HttpStatusCode.Forbidden)
-                {
-                    Console.WriteLine("Rate limit exceeded or unauthorized. Switching token...");
-                    SwitchToken();
-                }
-                else
-                {
-                    // Логирование ошибки для других статусов
-                    Console.WriteLine($"Request to {url} failed with status {response.StatusCode}: {await response.Content.ReadAsStringAsync()}");
-                    return default;
-                }
-            }
-            catch (Exception ex)
-            {
-                Console.WriteLine($"Error fetching data from {url}: {ex.Message}");
-                return default;
-            }
-            finally
-            {
-                ApiSemaphore.Release();
-            }
-        }
+        var content = await response.Content.ReadAsStringAsync();
+        return JsonSerializer.Deserialize<T>(content);
     }
 
     private static void SwitchToken()
     {
-        lock (LockObject)
+        lock (excelLock)
         {
             CurrentTokenIndex = (CurrentTokenIndex + 1) % Tokens.Count;
-            Task.Delay(TimeSpan.FromMinutes(0)).Wait();
+            Task.Delay(TimeSpan.FromSeconds(2)).Wait();
 
             if (CurrentTokenIndex == 0)
                 throw new Exception("All tokens have reached the rate limit.");
@@ -359,6 +398,7 @@ class Program
     {
         try
         {
+            Console.WriteLine($"Scanned users: {Scanned}");
             var sheet = package.Workbook.Worksheets["GitHub Analysis"];
             AdjustColumnWidths(sheet);
         }
@@ -390,22 +430,61 @@ class Program
         }
     }
 
-    private static bool MatchesYearRepoPattern(string repoName)
+    private static bool IsStudent(List<Repository?>? repositories)
     {
-        return Regex.IsMatch(repoName, @"^[a-zA-Z]{3}-\d{4}$") && !repoName.ToLower().StartsWith("aoc-", StringComparison.OrdinalIgnoreCase);
+        if (repositories == null || repositories.Count == 0)
+            return false;
+
+        // Список ключевых подстрок, характерных для студенческих репозиториев
+        var studentKeywords = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+        {
+            "lab", "labs", "sem", "kpo", "oop", "term", "bstu", "exam",
+            "tvims", "ksis", "trpi", "tpo", "aisd", "course", "student"
+        };
+
+        // Проверяем каждое название репозитория
+        foreach (var repo in repositories)
+        {
+            if (repo?.Name == null)
+                continue;
+
+            // Проверяем, содержит ли название какую-либо из подстрок
+            foreach (var keyword in studentKeywords)
+            {
+                if (repo.Name.Contains(keyword, StringComparison.OrdinalIgnoreCase))
+                    return true;
+            }
+        }
+
+        return false;
+    }
+
+    private static bool MatchesYearRepoPattern(string? repoName)
+    {
+        if (repoName == null)
+            return false;
+
+        return Regex.IsMatch(repoName, @"^[a-zA-Z]{3}-\d{4}$") && !repoName.StartsWith("aoc-", StringComparison.OrdinalIgnoreCase);
     }
 
     public class UserProfile
     {
         [JsonPropertyName("login")]
-        public string Login { get; set; }
+        public string? Login { get; set; }
     }
 
     public class Repository
     {
         [JsonPropertyName("name")]
-        public string Name { get; set; }
+        public string? Name { get; set; }
+
         [JsonPropertyName("html_url")]
-        public string HtmlUrl { get; set; }
+        public string? HtmlUrl { get; set; }
+    }
+
+    public class ApiTokens
+    {
+        [JsonPropertyName("tokens")]
+        public List<string>? Tokens { get; set; }
     }
 }

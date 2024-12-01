@@ -1,28 +1,55 @@
 ﻿#pragma once
 
-#define LEXEMA_FIXSIZE 1
-#define	LT_MAXSIZE 4096
-#define LT_TI_NULLIDX 0XFFFFFFFF
-#define LEX_INTEGER 't'
-#define LEX_STRING 't'
-#define LEX_ID 'i'
-#define LEX_LITERAL 'l'
-#define LEX_FUNCTION 'f'
-#define LEX_DECLARE 'd'
-#define LEX_RETURN 'r'
-#define LEX_PRINT 'p'
-#define LEX_MAIN 'm'
-#define LEX_SEMICOLON ';'
-#define LEX_COMMA ','
-#define LEX_LEFTBRACE '{'
-#define LEX_BRACELET '}'
-#define LEX_LEFTTHESIS '('
-#define LEX_RIGHTTHESIS ')'
-#define LEX_PLUS 'v'
-#define LEX_MINUS 'v'
-#define LEX_STAR 'v'
-#define LEX_DIRSLASH 'v'
-#define LEX_EQUAL '='
+#define LEXEMA_FIXSIZE 1          // Фиксированный размер лексемы.
+#define LT_MAXSIZE 4096           // Максимальный размер таблицы лексем.
+#define LT_TI_NULLIDX 0XFFFFFFFF  // Указатель на отсутствующий индекс в таблице.
+
+// Лексемы для типов данных.
+#define LEX_INTEGER 't'           // Целое число.
+#define LEX_STRING 't'            // Строка.
+
+// Лексемы для идентификаторов и литералов.
+#define LEX_ID 'i'                // Идентификатор.
+#define LEX_LITERAL 'l'           // Литерал.
+
+// Лексемы для ключевых слов.
+#define LEX_FUNCTION 'f'          // Ключевое слово: функция.
+#define LEX_DECLARE 'd'           // Ключевое слово: объявление переменной.
+#define LEX_RETURN 'r'            // Ключевое слово: возврат.
+#define LEX_PRINT 'p'             // Ключевое слово: печать.
+#define LEX_MAIN 'm'              // Ключевое слово: главная функция.
+
+// Лексемы для разделителей.
+#define LEX_SEMICOLON ';'         // Символ: точка с запятой.
+#define LEX_COMMA ','             // Символ: запятая.
+#define LEX_LEFTBRACE '{'         // Символ: левая фигурная скобка.
+#define LEX_BRACELET '}'          // Символ: правая фигурная скобка.
+#define LEX_LEFTTHESIS '('        // Символ: левая круглая скобка.
+#define LEX_RIGHTTHESIS ')'       // Символ: правая круглая скобка.
+
+// Лексемы для арифметических операций.
+#define LEX_PLUS 'v'              // Операция: плюс.
+#define LEX_MINUS 'v'             // Операция: минус.
+#define LEX_STAR 'v'              // Операция: умножение.
+#define LEX_DIRSLASH 'v'          // Операция: деление.
+
+// Лексема для присваивания.
+#define LEX_EQUAL '='             // Операция: присваивание.
+
+// Лексемы для операций сравнения.
+#define LEX_COMPARE 'c'
+
+#define LEX_COMPARE_EQUAL			LEX_COMPARE		  // Операция: равно.
+#define LEX_COMPARE_GREATER			LEX_COMPARE       // Операция: больше.
+#define LEX_COMPARE_LESS			LEX_COMPARE		  // Операция: меньше.
+#define LEX_COMPARE_NOT_EQUAL		LEX_COMPARE     // Операция: не равно.
+#define LEX_COMPARE_LESS_EQUAL		LEX_COMPARE    // Операция: меньше или равно.
+#define LEX_COMPARE_GREATER_EQUAL	LEX_COMPARE // Операция: больше или равно.
+
+// Лексема для условного оператора.
+#define LEX_IF '?'               // Условный оператор: if.
+#define LEX_ELSE ':'             // Условный оператор: else.
+
 
 namespace LT              // таблица лексем
 {
@@ -32,6 +59,7 @@ namespace LT              // таблица лексем
 		int sn;                       // номер строки в исходном тексте
 		int idxTI;                    // индекс в таблице идентификаторов или LT_TI_NULLIDX
 		char v;
+		std::string c;
 	};
 
 	struct LexTable        // экземпляр таблицы лексем

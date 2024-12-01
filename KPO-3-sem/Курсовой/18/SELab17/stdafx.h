@@ -1,7 +1,12 @@
 ﻿#ifndef STDAFX_H
 #define STDAFX_H
+
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define _CRT_SECURE_NO_WARNINGS
+
+#define _DISABLE_MFST__
+#define __DISABLE_LOGS
+//#define __DISABLE_IT_LT_TABLES_SAVE
 
 #include <iostream>
 #include <string>
@@ -11,6 +16,8 @@
 #include <time.h>
 #include <stack>
 #include <vector>
+#include <unordered_map>
+#include <sstream>
 
 #include "Out.h"
 #include "Error.h"		//обработка ошибок

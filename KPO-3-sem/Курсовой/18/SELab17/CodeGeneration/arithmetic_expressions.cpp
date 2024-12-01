@@ -55,7 +55,7 @@ namespace CD
 					}
 					else
 					{
-						output.push_back(format("[{}]", token));
+						output.push_back(token);
 					}
 					// Добавляем идентификатор или литерал
 					token.clear();
@@ -98,6 +98,12 @@ namespace CD
 	string generateMASM(const vector<string>& rpn) {
 		stringstream masmCode;
 		bool printedNLafterpush = false;
+
+		if (rpn.size() == 1)
+		{
+			masmCode << "\tpush " << rpn[0] << '\n';
+			return masmCode.str();
+		}
 
 		for (const string& token : rpn) {
 			if (isIdentifier(token) || isLiteral(token)) {
@@ -144,7 +150,7 @@ namespace CD
 		return masmCode.str();
 	}
 
-	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile)
+	void CD::CodeGeneration::__generate_math_expressions(const std::string& expr)
 	{
 		vector<string> result = parseExpression(expr);
 
@@ -153,6 +159,6 @@ namespace CD
 		//	cout << e << " ";
 		//}
 
-		outFile << generateMASM(result);
+		OUT_ASM_FILE << generateMASM(result);
 	}
 }

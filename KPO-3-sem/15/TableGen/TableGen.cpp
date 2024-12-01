@@ -28,9 +28,8 @@ int _tmain(int argc, _TCHAR* argv[])
 
 	vector<string> table(tableSize, forbiddenCharTemplate);
 
-	table[static_cast<int>(static_cast<uchar>('\n'))] = allowedCharTemplate; // Разрешить \n
-	table[static_cast<int>(static_cast<uchar>('А'))] = replacementCharTemplate; // Заменить киррилическую 'А' на '-'
-	table[static_cast<int>(static_cast<uchar>('X'))] = ignoredCharTemplate; // Игнорить латинскую 'X'
+	table[static_cast<int>(static_cast<uchar>('>'))] = "Compare"; // Разрешить \n
+	table[static_cast<int>(static_cast<uchar>('<'))] = "Compare"; // Разрешить \n
 
 	for (const auto code : codes)
 	{

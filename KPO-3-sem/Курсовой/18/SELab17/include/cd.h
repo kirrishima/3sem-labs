@@ -2,14 +2,70 @@
 #include <string>
 #include "LT.h"
 #include "IT.h"
+#include <fstream>
+#include <format>
+#include <stack>
+
+using namespace std;
 
 namespace CD
 {
-	void gen(const LT::LexTable& LEX_TABLE, const IT::ID_Table& ID_TABLE, const std::wstring& OUT_FILEPATH, bool);
+	struct CodeGeneration {
+		std::string tab = "    ";
 
-	void __generate_math_expressions(const std::string& expr, std::ofstream& outFile);
+		IT::ID_Table ID_TABLE;
+		LT::LexTable LEX_TABLE;
+		std::ofstream OUT_ASM_FILE;
 
-	const std::string printAsmCode =
+		static std::string __getIDnameInDataSegment(const IT::Entry& entry);
+
+		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const std::wstring& OUT_FILEPATH)
+			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE)/*, IfEpxressionsParser(*this)*/
+		{
+			this->OUT_ASM_FILE.open(OUT_FILEPATH);
+		}
+
+		void __generate_math_expressions(const std::string& expr);
+		void __s_const();
+		void __s_data();
+
+		//struct IfElseGeneration {
+		//	CodeGeneration& parent; // Ссылка на внешнюю структуру
+
+			//int if_LabelsCount = 0;
+			//int else_LabelsCount = 0;
+
+		int labelCounter = 0;
+
+		std::stack<std::string> if_stack;
+		void GenerateCondition(const std::vector<std::string>&, const string&, const string&, const string&);
+		void StartIf(const std::vector<std::string>&, const string&);
+		void StartElse();
+		void EndIfOrElse();
+		void EndExpression();
+		/*IfElseGeneration(CodeGeneration& parent) : parent(parent) {}*/
+
+		void generateIfStatement(int& i);
+
+		//std::string generateUniqIfLabel() { return "IF_" + std::to_string(if_LabelsCount++); }
+		//std::string generateUniqElseLabel() { return "ELSE_" + std::to_string(else_LabelsCount++); }
+
+		string GenerateLabel(const string& prefix, int n) {
+			return prefix + "_" + to_string(n);
+		}
+		/*} IfEpxressionsParser;*/
+
+
+
+		void gen(const std::wstring& OUT_FILEPATH, bool);
+	};
+
+
+
+
+
+
+	const std::string printProcAsmCode =
 		"; Процедура для преобразования числа в строку и записи в buffer\n"
 		"ConvertToString proc\n"
 		"    mov ecx, 10                     ; Основание системы счисления (десятичная система)\n"

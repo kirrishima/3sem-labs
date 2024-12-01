@@ -1,8 +1,0 @@
-   id  datatype    idtype      Line     value     Scope
-    z       INT         V         1         0
-   fs       STR         F         2
-    a       STR         P         2         fs
-    b       STR         P         2         fs
-    p       STR         P         5         fs
-   L0       INT         L         7         1         fs
-   L1       INT         L         7         3         fs

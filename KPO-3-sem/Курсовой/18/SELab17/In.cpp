@@ -81,7 +81,10 @@ namespace In
 				case IN::Semicolon:
 				case IN::Slash:
 				case IN::Comma:
+				case IN::Compare:
 				{
+					int tmpPos = position;
+
 					if (position + 1 <= p.second && tmp[position + 1] == SPACE)
 					{
 						while (position + 1 <= p.second && tmp[position + 1] == SPACE) {
@@ -97,6 +100,11 @@ namespace In
 					else
 					{
 						in.text[in.size++] = ch;
+					}
+
+					if (true)
+					{
+
 					}
 
 					break;

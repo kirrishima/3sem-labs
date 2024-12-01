@@ -10,7 +10,7 @@
 	IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::Newline, IN::T, IN::T, IN::T, IN::T, IN::T, \
 	IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, \
 	IN::Space, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::Mark, IN::LeftParen, IN::RightParen, IN::Asterisk, IN::Plus, IN::Comma, IN::Minus, IN::T, IN::Slash, \
-	IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::Semicolon, IN::T, IN::Equal, IN::T, IN::T, \
+	IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::Semicolon, IN::T, IN::Equal, IN::Compare, IN::Compare, \
 	IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, \
 	IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, \
 	IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, IN::T, \
@@ -46,6 +46,7 @@ namespace In
 			Newline,   // '\n'
 			Comma,     // ','
 			Mark,      // "'"
+			Compare,
 			T = 1024,
 			F = 2048,
 			I = 4096

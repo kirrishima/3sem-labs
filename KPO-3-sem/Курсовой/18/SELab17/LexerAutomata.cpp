@@ -24,6 +24,9 @@ FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* PrintFST(CreatePrintFST(str));
 FST::FST* INTLiteralFST(CreateINTLiteralFST(str));
 FST::FST* IdentifierFST(CreateIdentifierFST(str));
+FST::FST* ifFST(CreateIfFST(str));
+FST::FST* elseFST(CreateElseFST(str));
+//FST::FST* compareFST(SVV::CreateCompareFST(str));
 
 // \0 in case of mismatch of everything
 char LexAn::determineLexeme()
@@ -42,6 +45,21 @@ char LexAn::determineLexeme()
 	{
 		return LEX_LITERAL;
 	}
+
+	if (execute(*ifFST))
+	{
+		return LEX_IF;
+	}
+
+	if (execute(*elseFST))
+	{
+		return LEX_ELSE;
+	}
+
+	//if (execute(*compareFST))
+	//{
+	//	return LEX_COMPARE_EQUAL;
+	//}
 
 	if (execute(*IdentifierFST))
 	{
@@ -122,7 +140,13 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				IT_entry.idtype = IT::L;
 				IT_entry.idxfirstLE = currentLine;
 				IT_entry.value.vint = atoi(str);
-				IT_entry.scope = scope.top();
+
+				IT_entry.scope = NULL;
+				if (!scope.empty())
+				{
+					IT_entry.scope = scope.top();
+				}
+
 				LT_entry.idxTI = ID_Table.size;
 				IT::Add(ID_Table, IT_entry);
 
@@ -136,7 +160,28 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				}
 				break;
 			}
+			case LEX_IF:
+				LT_entry.lexema[0] = LEX_IF;
 
+				/*			LT_entry.sn = currentLine;
+							LT::Add(LexTable, LT_entry);
+							LT_entry.lexema[0] = NULL;*/
+				break;
+			case LEX_ELSE:
+				LT_entry.lexema[0] = LEX_ELSE;
+				//LT_entry.sn = currentLine;
+				//LT::Add(LexTable, LT_entry);
+				//LT_entry.lexema[0] = NULL;
+				break;
+				//case LEX_COMPARE_EQUAL:
+				//{
+				//	LT_entry.lexema[0] = LEX_COMPARE_LESS;
+				//	LT_entry.sn = currentLine;
+				//	LT_entry.c = str;
+				//	LT::Add(LexTable, LT_entry);
+				//	LT_entry.lexema[0] = NULL;
+				//	break;
+				//}
 			case LEX_ID:
 			{
 				if (scope.empty())
@@ -280,6 +325,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
 		}
+
 		switch (in.text[i])
 		{
 		case SEMICOLON: // для поддерживаемых лексем в виде текущего символа
@@ -306,7 +352,40 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT_entry.lexema[0] = LEX_DIRSLASH;
 			goto add_LT_entry;
 			break;
+		case '<':
+		case '>':
+			if (i + 1 < in.size && in.text[i + 1] != '=')
+			{
+				LT_entry.lexema[0] = LEX_COMPARE_LESS;
+				LT_entry.sn = currentLine;
+				LT_entry.c = in.text[i];
+				LT::Add(LexTable, LT_entry);
+				LT_entry.lexema[0] = NULL;
+			}
+
+			break;
 		case EQUAL:
+			if (i + 1 < in.size && in.text[i + 1] == '=')
+			{
+				LT_entry.lexema[0] = LEX_COMPARE_LESS;
+				LT_entry.c = "=";
+				LT_entry.sn = currentLine;
+				LT::Add(LexTable, LT_entry);
+				LT_entry.lexema[0] = NULL;
+				i += 2;
+				break;
+			}
+			if (in.text[i - 1] == '>' || in.text[i - 1] == '<' || in.text[i - 1] == '!')
+			{
+				LT_entry.lexema[0] = LEX_COMPARE_LESS;
+				LT_entry.c = "01";
+				LT_entry.c[1] = '=';
+				LT_entry.c[0] = in.text[i - 1];
+				LT_entry.sn = currentLine;
+				LT::Add(LexTable, LT_entry);
+				LT_entry.lexema[0] = NULL;
+				break;
+			}
 			LT_entry.lexema[0] = LEX_EQUAL;
 
 		add_LT_entry: // goto я не гей
@@ -445,12 +524,17 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 	try
 	{
+#ifndef __DISABLE_IT_LT_TABLES_SAVE
 		printToFile(ID_Table, param.it, LexTable, param.lt, in);
+#endif // !__DISABLE_IT_LT_TABLES_SAVE
+
 	}
 	catch (...) {}
 
 	delete[] str;
 
+	delete elseFST;
+	delete ifFST;
 	delete IntegerFST;
 	delete PrintFST;
 	delete INTLiteralFST;
