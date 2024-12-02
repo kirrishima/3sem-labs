@@ -25,7 +25,7 @@ namespace CD
 			this->OUT_ASM_FILE.open(OUT_FILEPATH);
 		}
 
-		void __generate_math_expressions(const std::string& expr);
+		std::vector<std::string> __generate_math_expressions(const std::string& expr);
 		void __s_const();
 		void __s_data();
 
@@ -55,7 +55,52 @@ namespace CD
 		}
 		/*} IfEpxressionsParser;*/
 
+		/*static const unordered_map<char, std::string> lts = {
+			{LEX_PRINT, "print"},
+			{lex}
+		}*/
 
+		std::string lexem_to_source(LT::Entry& entry)
+		{
+			switch (entry.lexema[0]) {
+			case 'p':
+				return "print";
+
+			case 'l':
+				if (ID_TABLE.table[entry.idxTI].iddatatype == IT::IDDATATYPE::INT)
+				{
+					return to_string(ID_TABLE.table[entry.idxTI].value.vint);
+				}
+				throw "Литерал неизвестного типа данных";
+
+			case 'i':
+				return ID_TABLE.table[entry.idxTI].id;
+
+			case 'c':
+				return entry.c;
+
+			case 'v':
+			{
+				std::string result = " ";
+				result[0] = entry.v;
+				return result;
+			}
+
+			case LEX_INTEGER:
+				if (ID_TABLE.table[entry.idxTI].iddatatype == IT::IDDATATYPE::INT)
+				{
+					return "int";
+				}
+				throw "Идентификатор неизвестного типа данных";
+			default: {
+				std::string result = " ";
+				result[0] = entry.lexema[0];
+				return result;
+			}
+			}
+		}
+
+		std::vector<std::string> parse_expression(int& index_in_lex_table);
 
 		void gen(const std::wstring& OUT_FILEPATH, bool);
 	};

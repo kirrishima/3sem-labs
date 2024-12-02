@@ -8,6 +8,9 @@ using namespace std;
 
 namespace CD
 {
+
+	std::vector<std::string> operations;
+
 	// Определение приоритетов операций
 	int getPrecedence(char op) {
 		if (op == '+' || op == '-') return 1;
@@ -95,14 +98,13 @@ namespace CD
 		return output;
 	}
 
-	string generateMASM(const vector<string>& rpn) {
-		stringstream masmCode;
+	void generateMASM(const vector<string>& rpn) {
 		bool printedNLafterpush = false;
 
 		if (rpn.size() == 1)
 		{
-			masmCode << "\tpush " << rpn[0] << '\n';
-			return masmCode.str();
+			operations.push_back("push " + rpn[0]);
+			return;
 		}
 
 		for (const string& token : rpn) {
@@ -110,34 +112,33 @@ namespace CD
 				if (!printedNLafterpush)
 				{
 					printedNLafterpush = true;
-					masmCode << '\n';
 				}
 				// Если токен — идентификатор или литерал, генерируем `push`
-				masmCode << "\tpush " << token << "\n";
+				operations.push_back("push " + token);
 			}
 			else if (isOperator(token[0])) {
 				printedNLafterpush = false;
 				// Если токен — оператор, извлекаем два операнда из стека
-				masmCode << "\n\tpop ebx\n"; // Второй операнд
-				masmCode << "\tpop eax\n"; // Первый операнд
+				operations.push_back("pop ebx"); // Второй операнд
+				operations.push_back("pop eax"); // Первый операнд
 
 				// Генерируем код для операции
 				if (token == "+") {
-					masmCode << "\tadd eax, ebx\n";
+					operations.push_back("add eax, ebx");
 				}
 				else if (token == "-") {
-					masmCode << "\tsub eax, ebx\n";
+					operations.push_back("sub eax, ebx");
 				}
 				else if (token == "*") {
-					masmCode << "\timul ebx\n";
+					operations.push_back("imul ebx");
 				}
 				else if (token == "/") {
-					masmCode << "\tcdq\n";    // Расширение eax для деления
-					masmCode << "\tidiv ebx\n";
+					operations.push_back("cdq");    // Расширение eax для деления
+					operations.push_back("idiv ebx");
 				}
 
 				// Помещаем результат обратно в стек
-				masmCode << "\tpush eax\n";
+				operations.push_back("push eax");
 			}
 			else {
 				throw runtime_error("Неизвестный токен: " + token);
@@ -145,20 +146,20 @@ namespace CD
 		}
 
 		// Извлекаем результат из стека и сохраняем его в `RESULT`
-		masmCode << "\n\tpop eax\n";
-
-		return masmCode.str();
+		operations.push_back("pop eax");
 	}
 
-	void CD::CodeGeneration::__generate_math_expressions(const std::string& expr)
+	std::vector<std::string> CD::CodeGeneration::__generate_math_expressions(const std::string& expr)
 	{
+		operations.clear();
 		vector<string> result = parseExpression(expr);
 
+		generateMASM(result);
 		//for (const auto e : result)
 		//{
 		//	cout << e << " ";
 		//}
 
-		OUT_ASM_FILE << generateMASM(result);
+		return operations;
 	}
 }

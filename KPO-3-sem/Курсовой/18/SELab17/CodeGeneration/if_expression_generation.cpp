@@ -96,7 +96,7 @@ void CD::CodeGeneration::StartElse() {
 		}
 
 	}
-	//instructions.push_back();
+	instructions.push_back(tab * (nestingLevel - 1) + elseLabel + ':');
 }
 
 // «авершение `if` или `else`
@@ -132,11 +132,14 @@ void CD::CodeGeneration::EndExpression() {
 //		+ to_string(LEX_TABLE.table[i + 1].lexema[0]);
 //}
 
+bool wasLastInstructionElse = false;
+
 void CD::CodeGeneration::/*IfElseGeneration::*/generateIfStatement(int& i)
 {
 	while (true) {
 		if (LEX_TABLE.table[i].lexema[0] == '?')
 		{
+			wasLastInstructionElse = false;
 			i += 2; // пропускаем '(' и переходим к первому символу услови€
 			std::vector<std::string> operands(2, "");
 			std::string operation;
@@ -170,56 +173,128 @@ void CD::CodeGeneration::/*IfElseGeneration::*/generateIfStatement(int& i)
 				i++;
 			} // while
 
+			auto math_instructions = __generate_math_expressions(operands[1]);
+
+			for (const std::string& instr : math_instructions)
+			{
+				instructions.push_back(tab * (nestingLevel + 1) + instr);
+			}
+
+			math_instructions = __generate_math_expressions(operands[0]);
+
+			for (const std::string& instr : math_instructions)
+			{
+				instructions.push_back(tab * (nestingLevel + 1) + instr);
+			}
+
 			// √енераци€ вложенного `if`
 			StartIf(operands, operation);
 		}
 
-		std::string expression = "";
+		//std::string expression = "";
 
-		i++; // skip '{'
+		//i++; // skip '{'
+
 		while (i < LEX_TABLE.size && LEX_TABLE.table[i].lexema[0] != '}')
 		{
 			switch (LEX_TABLE.table[i].lexema[0]) {
-			case 'v':
-				expression += LEX_TABLE.table[i].v;
-				break;
+
 			case '?':
-				if (!expression.empty())
-				{
-					OUT_ASM_FILE << tab * nestingLevel << ';' << expression;
-					expression.clear();
-				}
+				//if (!expression.empty())
+				//{
+				//	instructions.push_back(tab * nestingLevel + ';' + expression);
+				//	expression.clear();
+				//}
 				generateIfStatement(i);
+				//if (LEX_TABLE.table[i].lexema[0] == '}')
+				//{
+				//	i--;
+				//}
 				break;
-			case 'i':
-			case 'l':
-				expression += __getIDnameInDataSegment(ID_TABLE.table[LEX_TABLE.table[i].idxTI]);
+			case '=':
+			case 'p':
+			{
+				auto res = parse_expression(i);
+				for (const std::string& s : res)
+				{
+					instructions.push_back(tab * nestingLevel + s);
+				}
 				break;
+			}
 			default:
-				expression += LEX_TABLE.table[i].lexema[0];
+				//expression += lexem_to_source(LEX_TABLE.table[i]);
+				//expression += ' ';
+				break;
 			}
 			i++;
 		}
-		if (!expression.empty())
-		{
-			instructions.push_back(tab * nestingLevel + "; code в виде лексем:");
-			instructions.push_back(tab * nestingLevel + ";:: " + expression);
-			expression.clear();
-		}
+		//if (!expression.empty())
+		//{
+		//	instructions.push_back(tab * nestingLevel + "; code в виде лексем:");
+		//	instructions.push_back(tab * nestingLevel + ";:: " + expression);
+		//	expression.clear();
+		//}
 		EndIfOrElse();
-		i++;
+
+		while (i < LEX_TABLE.size && LEX_TABLE.table[i].lexema[0] == '}') i++;
+
+		//if (LEX_TABLE.table[i + nestingLevel - 1].lexema[0] == ':')
+		//{
+		//	//if (if_stack.size() > 1)
+		//	//{
+		//	//	EndExpression();
+		//	//}
+		//	i += nestingLevel - 1;
+		//}
 		if (LEX_TABLE.table[i].lexema[0] == ':')
 		{
+
+			wasLastInstructionElse = true;
 			i++;
 			StartElse();
-			continue;
+			while (i < LEX_TABLE.size && LEX_TABLE.table[i].lexema[0] != '}')
+			{
+				switch (LEX_TABLE.table[i].lexema[0]) {
+
+				case '?':
+					//if (!expression.empty())
+					//{
+					//	instructions.push_back(tab * nestingLevel + ';' + expression);
+					//	expression.clear();
+					//}
+					generateIfStatement(i);
+					//if (LEX_TABLE.table[i].lexema[0] == '}')
+					//{
+					//	i--;
+					//}
+					break;
+				case '=':
+				case 'p':
+				{
+					auto res = parse_expression(i);
+					for (const std::string& s : res)
+					{
+						instructions.push_back(tab * nestingLevel + s);
+					}
+					break;
+				}
+				default:
+					//expression += lexem_to_source(LEX_TABLE.table[i]);
+					//expression += ' ';
+					break;
+				}
+				i++;
+			}
 		}
 		break;
 	}
+	EndIfOrElse();
 	EndExpression();
+
 
 	for (const std::string& str : instructions)
 	{
 		OUT_ASM_FILE << str << '\n';
 	}
+	instructions.clear();
 }

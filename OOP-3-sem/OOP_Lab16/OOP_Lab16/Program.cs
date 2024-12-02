@@ -70,7 +70,7 @@ internal class Program
 
         ThreadLimiter = new SemaphoreSlim(MaxThreads, MaxThreads); // Ограничение на 6 одновременно работающих потоков
 
-        ApiSemaphore = new SemaphoreSlim(Math.Min(10, MaxThreads), Math.Min(10, MaxThreads)); // Max 10 concurrent requests
+        ApiSemaphore = new SemaphoreSlim(Math.Min(6, MaxThreads), Math.Min(6, MaxThreads)); // Max 10 concurrent requests
 
         queue = new();
     }
@@ -78,10 +78,10 @@ internal class Program
     private static async Task Main(string[] args)
     {
         ExcelPackage.LicenseContext = LicenseContext.NonCommercial;
-        string[] startUsers = ["knvzzi", "Vikvillka", "miwuzo", "darlitaa", "mashassnvts", "mashassnvts", "vivsii"];
+        string[] startUsers = ["Vikvillka", "miwuzo", "darlitaa", "mashassnvts", "mashassnvts", "vivsii"];
         var outputExcel = $"github_analysis_results_{DateTime.Now:yyyy-MM-dd_HH-mm-ss}.xlsx";
 
-        await AnalyzeUsersWithQueueAsync(startUsers, outputExcel, recursionLimit: 10, maxThreads: 12);
+        await AnalyzeUsersWithQueueAsync(startUsers, outputExcel, recursionLimit: 5, maxThreads: 12);
         //await AnalyzeUserAsync(startUsers, outputExcel, recursionLimit: 10, maxThreads: 6);
 
         await SerializeConcurrentDictionaryAsync(VisitedUsers, VisistedFilepath);
