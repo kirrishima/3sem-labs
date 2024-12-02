@@ -11,6 +11,7 @@ __PrintNumber PROTO : SDWORD
 	__L2 SDWORD 12
 	__L3 SDWORD 1
 	__L4 SDWORD 8
+	__L5 SDWORD 122
 
 .data
 	___a SDWORD 0
@@ -79,6 +80,18 @@ ELSE_0:
 IF_END_0:
 
 ; закончились условки
+	push ___a
+	push __L5
+	pop ebx
+	pop eax
+	imul ebx
+	push eax
+	pop eax
+	mov ___a, eax
+	
+
+	push ___a
+	call __PrintNumber  ; ¬ыводим число в консоль
 	push 0
 	call ExitProcess
 main ENDP

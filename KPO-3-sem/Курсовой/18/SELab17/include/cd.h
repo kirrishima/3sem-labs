@@ -20,7 +20,7 @@ namespace CD
 		static std::string __getIDnameInDataSegment(const IT::Entry& entry);
 
 		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const std::wstring& OUT_FILEPATH)
-			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE)/*, IfEpxressionsParser(*this)*/
+			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), ifElseGeneration(*this)
 		{
 			this->OUT_ASM_FILE.open(OUT_FILEPATH);
 		}
@@ -28,47 +28,6 @@ namespace CD
 		std::vector<std::string> __generate_math_expressions(const std::string& expr);
 		void __s_const();
 		void __s_data();
-
-		//struct IfElseGeneration {
-		//	CodeGeneration& parent; // Ссылка на внешнюю структуру
-
-			//int if_LabelsCount = 0;
-			//int else_LabelsCount = 0;
-
-		int labelCounter = 0;
-
-		std::stack<std::string> if_stack;
-
-		void GenerateCondition(
-			const std::vector<std::string>& operands, // два операнда - левый и правый 
-			const std::string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
-			const std::string& trueLabel, // имя метки если условие выполняется
-			const std::string& falseLabel, // если не выполняется
-			std::vector<std::string>& instructions // текущие инструкции
-		);
-		void StartIf(const std::vector<std::string>&, //2 операнда: левый и правый
-			const string&,  // операция (>, <, ==, !=, >=, <=)
-			std::vector<std::string>& // вектор с инструкциями, в которые будет добавлен сгенерированные новые
-		);
-		void StartElse(std::vector<std::string>& instructions);
-		void EndIfOrElse(std::vector<std::string>& instructions);
-		void EndExpression(std::vector<std::string>& instructions);
-		/*IfElseGeneration(CodeGeneration& parent) : parent(parent) {}*/
-
-		std::vector<std::string> generateIfStatement(int& i);
-
-		//std::string generateUniqIfLabel() { return "IF_" + std::to_string(if_LabelsCount++); }
-		//std::string generateUniqElseLabel() { return "ELSE_" + std::to_string(else_LabelsCount++); }
-
-		string GenerateLabel(const string& prefix, int n) {
-			return prefix + "_" + to_string(n);
-		}
-		/*} IfEpxressionsParser;*/
-
-		/*static const unordered_map<char, std::string> lts = {
-			{LEX_PRINT, "print"},
-			{lex}
-		}*/
 
 		std::string lexem_to_source(LT::Entry& entry)
 		{
@@ -113,9 +72,38 @@ namespace CD
 		std::vector<std::string> parse_expression(int& index_in_lex_table);
 
 		void gen(const std::wstring& OUT_FILEPATH, bool);
+
+		struct IfElseGeneration {
+			CodeGeneration& parent; // Ссылка на внешнюю структуру
+
+			IfElseGeneration(CodeGeneration& p) : parent(p) {}
+
+			int labelCounter = 0;
+
+			std::stack<std::string> if_stack;
+
+			void GenerateCondition(
+				const std::vector<std::string>& operands, // два операнда - левый и правый 
+				const std::string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
+				const std::string& trueLabel, // имя метки если условие выполняется
+				const std::string& falseLabel, // если не выполняется
+				std::vector<std::string>& instructions // текущие инструкции
+			);
+			void StartIf(const std::vector<std::string>&, //2 операнда: левый и правый
+				const string&,  // операция (>, <, ==, !=, >=, <=)
+				std::vector<std::string>& // вектор с инструкциями, в которые будет добавлен сгенерированные новые
+			);
+			void StartElse(std::vector<std::string>& instructions);
+			void EndIfOrElse(std::vector<std::string>& instructions);
+			void EndExpression(std::vector<std::string>& instructions);
+
+			std::vector<std::string> generateIfStatement(int& i);
+
+			string GenerateLabel(const string& prefix, int n) {
+				return prefix + "_" + to_string(n);
+			}
+		} ifElseGeneration;
 	};
-
-
 
 
 

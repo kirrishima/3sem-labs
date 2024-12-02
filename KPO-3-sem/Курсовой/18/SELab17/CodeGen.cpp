@@ -141,7 +141,7 @@ namespace CD
 			case '}':
 				break;
 			case '?':
-				for (const std::string& str : generateIfStatement(i))
+				for (const std::string& str : ifElseGeneration.generateIfStatement(i))
 				{
 					OUT_ASM_FILE << str << '\n';
 				}

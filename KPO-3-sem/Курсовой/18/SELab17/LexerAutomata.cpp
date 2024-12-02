@@ -316,7 +316,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			}
 
 			bufferIndex = 0;
-			std::memset(str, NULL, bufferIndex + 1); // отчищаем также буфер str, в который считавается текст из in.text
+			std::memset(str, NULL, 50); // отчищаем также буфер str, в который считавается текст из in.text
 		}
 
 		if (LT_entry.lexema[0] != NULL) // если лексема была распознана - сохраняем ее
@@ -372,7 +372,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				LT_entry.sn = currentLine;
 				LT::Add(LexTable, LT_entry);
 				LT_entry.lexema[0] = NULL;
-				i += 2;
+				i += 1;
 				break;
 			}
 			if (in.text[i - 1] == '>' || in.text[i - 1] == '<' || in.text[i - 1] == '!')
