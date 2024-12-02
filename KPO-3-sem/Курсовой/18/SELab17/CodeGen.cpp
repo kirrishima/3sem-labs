@@ -78,10 +78,9 @@ namespace CD
 
 				throw "Wrong id in print's params";
 			}
-			instructions_set.push_back("mov eax, " + __getIDnameInDataSegment(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 2].idxTI]));
+			instructions_set.push_back("push " + __getIDnameInDataSegment(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 2].idxTI]));
 
-			instructions_set.push_back("call ConvertToString            ; Преобразуем число в строку");
-			instructions_set.push_back("call PrintToConsole             ; Выводим строку в консоль");
+			instructions_set.push_back("call __PrintNumber  ; Выводим число в консоль");
 			break;
 		default:
 			break;
@@ -100,11 +99,8 @@ namespace CD
 
 		OUT_ASM_FILE << ".586\n";
 		OUT_ASM_FILE << ".model flat, stdcall\n";
-		OUT_ASM_FILE << "includelib kernel32.lib\n";
 		OUT_ASM_FILE << "ExitProcess PROTO : DWORD\n";
-		OUT_ASM_FILE << "WriteConsoleA PROTO :DWORD, :DWORD, :DWORD, :DWORD, :DWORD\n";
-		OUT_ASM_FILE << "GetStdHandle PROTO :DWORD\n";
-		OUT_ASM_FILE << "\nSTD_OUTPUT_HANDLE EQU -11  ; Дескриптор для стандартного вывода консоли\n";
+		OUT_ASM_FILE << "__PrintNumber PROTO : SDWORD\n";
 		OUT_ASM_FILE << "\n.stack 4096\n\n";
 
 		__s_const();
@@ -112,11 +108,14 @@ namespace CD
 		__s_data();
 		OUT_ASM_FILE << "\n\n.code\n";
 
+#ifdef _LEGACY_CODE
 		if (p)
 		{
 			cout << "Создается код для print...\n";
 			OUT_ASM_FILE << printProcAsmCode;
 		}
+#endif // _LEGACY_CODE
+
 
 		OUT_ASM_FILE << "\nmain proc\nstart:\n";
 		for (int i = 0; i < LEX_TABLE.size; i++)
@@ -142,7 +141,10 @@ namespace CD
 			case '}':
 				break;
 			case '?':
-				generateIfStatement(i);
+				for (const std::string& str : generateIfStatement(i))
+				{
+					OUT_ASM_FILE << str << '\n';
+				}
 				OUT_ASM_FILE << "\n; закончились условки\n";
 				break;
 			default:

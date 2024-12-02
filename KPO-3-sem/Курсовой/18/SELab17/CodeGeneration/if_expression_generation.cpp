@@ -30,10 +30,14 @@ std::string operator*(const std::string& str, int times) {
 
 int nestingLevel = 0;
 
-std::vector<std::string> instructions;
-
 // Генерация условия
-void CD::CodeGeneration::GenerateCondition(const vector<string>& operands, const string& comparison, const string& trueLabel, const string& falseLabel) {
+void CD::CodeGeneration::GenerateCondition(
+	const vector<string>& operands, // два операнда - левый и правый 
+	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
+	const string& trueLabel, // имя метки если условие выполняется
+	const string& falseLabel, // если не выполняется
+	std::vector<std::string>& instructions // текущие инструкции
+) {
 
 	instructions.push_back(tab * nestingLevel + "; Условие: " +
 		operands[0] + " " + comparison + operands[1]);
@@ -61,10 +65,28 @@ void CD::CodeGeneration::GenerateCondition(const vector<string>& operands, const
 }
 
 // Начало `if`
-void CD::CodeGeneration::StartIf(const vector<string>& operands, const string& comparison) {
+void CD::CodeGeneration::StartIf(
+	const vector<string>& operands, // два операнда - левый и правый 
+	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
+	std::vector<std::string>& instructions // текущие инструкции
+) {
 	string trueLabel = GenerateLabel("IF_TRUE", nestingLevel);
 	string endLabel = GenerateLabel("IF_END", nestingLevel);
 	if_stack.push(endLabel);
+
+	auto math_instructions = __generate_math_expressions(operands[1]);
+
+	for (const std::string& instr : math_instructions)
+	{
+		instructions.push_back(tab * (nestingLevel + 1) + instr);
+	}
+
+	math_instructions = __generate_math_expressions(operands[0]);
+
+	for (const std::string& instr : math_instructions)
+	{
+		instructions.push_back(tab * (nestingLevel + 1) + instr);
+	}
 
 	nestingLevel++;
 	instructions.push_back(tab * nestingLevel + "; Начало if");
@@ -75,12 +97,12 @@ void CD::CodeGeneration::StartIf(const vector<string>& operands, const string& c
 	instructions.push_back(tab * nestingLevel + "pop ebx");
 
 	// Генерация условия
-	GenerateCondition(operands, comparison, trueLabel, endLabel);
+	GenerateCondition(operands, comparison, trueLabel, endLabel, instructions);
 	instructions.push_back(tab * (nestingLevel - 1) + trueLabel + ':');
 }
 
 // Генерация блока `else`
-void CD::CodeGeneration::StartElse() {
+void CD::CodeGeneration::StartElse(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -100,7 +122,7 @@ void CD::CodeGeneration::StartElse() {
 }
 
 // Завершение `if` или `else`
-void CD::CodeGeneration::EndIfOrElse() {
+void CD::CodeGeneration::EndIfOrElse(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -111,7 +133,7 @@ void CD::CodeGeneration::EndIfOrElse() {
 }
 
 // Завершение `if` или `else`
-void CD::CodeGeneration::EndExpression() {
+void CD::CodeGeneration::EndExpression(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -134,8 +156,9 @@ void CD::CodeGeneration::EndExpression() {
 
 bool wasLastInstructionElse = false;
 
-void CD::CodeGeneration::/*IfElseGeneration::*/generateIfStatement(int& i)
+std::vector<std::string> CD::CodeGeneration::generateIfStatement(int& i)
 {
+	std::vector<std::string> instructions;
 	while (true) {
 		if (LEX_TABLE.table[i].lexema[0] == '?')
 		{
@@ -173,22 +196,8 @@ void CD::CodeGeneration::/*IfElseGeneration::*/generateIfStatement(int& i)
 				i++;
 			} // while
 
-			auto math_instructions = __generate_math_expressions(operands[1]);
-
-			for (const std::string& instr : math_instructions)
-			{
-				instructions.push_back(tab * (nestingLevel + 1) + instr);
-			}
-
-			math_instructions = __generate_math_expressions(operands[0]);
-
-			for (const std::string& instr : math_instructions)
-			{
-				instructions.push_back(tab * (nestingLevel + 1) + instr);
-			}
-
 			// Генерация вложенного `if`
-			StartIf(operands, operation);
+			StartIf(operands, operation, instructions);
 		}
 
 		//std::string expression = "";
@@ -205,7 +214,10 @@ void CD::CodeGeneration::/*IfElseGeneration::*/generateIfStatement(int& i)
 				//	instructions.push_back(tab * nestingLevel + ';' + expression);
 				//	expression.clear();
 				//}
-				generateIfStatement(i);
+				for (const std::string& str : generateIfStatement(i))
+				{
+					instructions.push_back(str);
+				}
 				//if (LEX_TABLE.table[i].lexema[0] == '}')
 				//{
 				//	i--;
@@ -234,9 +246,9 @@ void CD::CodeGeneration::/*IfElseGeneration::*/generateIfStatement(int& i)
 		//	instructions.push_back(tab * nestingLevel + ";:: " + expression);
 		//	expression.clear();
 		//}
-		EndIfOrElse();
+		EndIfOrElse(instructions);
 
-		while (i < LEX_TABLE.size && LEX_TABLE.table[i].lexema[0] == '}') i++;
+		/*while (i < LEX_TABLE.size && LEX_TABLE.table[i].lexema[0] == '}')*/ 
 
 		//if (LEX_TABLE.table[i + nestingLevel - 1].lexema[0] == ':')
 		//{
@@ -246,55 +258,15 @@ void CD::CodeGeneration::/*IfElseGeneration::*/generateIfStatement(int& i)
 		//	//}
 		//	i += nestingLevel - 1;
 		//}
-		if (LEX_TABLE.table[i].lexema[0] == ':')
+		if (LEX_TABLE.table[i+1].lexema[0] == ':')
 		{
-
-			wasLastInstructionElse = true;
-			i++;
-			StartElse();
-			while (i < LEX_TABLE.size && LEX_TABLE.table[i].lexema[0] != '}')
-			{
-				switch (LEX_TABLE.table[i].lexema[0]) {
-
-				case '?':
-					//if (!expression.empty())
-					//{
-					//	instructions.push_back(tab * nestingLevel + ';' + expression);
-					//	expression.clear();
-					//}
-					generateIfStatement(i);
-					//if (LEX_TABLE.table[i].lexema[0] == '}')
-					//{
-					//	i--;
-					//}
-					break;
-				case '=':
-				case 'p':
-				{
-					auto res = parse_expression(i);
-					for (const std::string& s : res)
-					{
-						instructions.push_back(tab * nestingLevel + s);
-					}
-					break;
-				}
-				default:
-					//expression += lexem_to_source(LEX_TABLE.table[i]);
-					//expression += ' ';
-					break;
-				}
-				i++;
-			}
+			i+=3;
+			StartElse(instructions);
+			continue;
 		}
 		break;
 	}
-	EndIfOrElse();
-	EndExpression();
+	EndExpression(instructions);
 
-
-	for (const std::string& str : instructions)
-	{
-		OUT_ASM_FILE << str << '\n';
-	}
-	instructions.clear();
+	return instructions;
 }

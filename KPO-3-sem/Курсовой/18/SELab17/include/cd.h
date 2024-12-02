@@ -38,14 +38,24 @@ namespace CD
 		int labelCounter = 0;
 
 		std::stack<std::string> if_stack;
-		void GenerateCondition(const std::vector<std::string>&, const string&, const string&, const string&);
-		void StartIf(const std::vector<std::string>&, const string&);
-		void StartElse();
-		void EndIfOrElse();
-		void EndExpression();
+
+		void GenerateCondition(
+			const std::vector<std::string>& operands, // два операнда - левый и правый 
+			const std::string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
+			const std::string& trueLabel, // имя метки если условие выполняется
+			const std::string& falseLabel, // если не выполняется
+			std::vector<std::string>& instructions // текущие инструкции
+		);
+		void StartIf(const std::vector<std::string>&, //2 операнда: левый и правый
+			const string&,  // операция (>, <, ==, !=, >=, <=)
+			std::vector<std::string>& // вектор с инструкциями, в которые будет добавлен сгенерированные новые
+		);
+		void StartElse(std::vector<std::string>& instructions);
+		void EndIfOrElse(std::vector<std::string>& instructions);
+		void EndExpression(std::vector<std::string>& instructions);
 		/*IfElseGeneration(CodeGeneration& parent) : parent(parent) {}*/
 
-		void generateIfStatement(int& i);
+		std::vector<std::string> generateIfStatement(int& i);
 
 		//std::string generateUniqIfLabel() { return "IF_" + std::to_string(if_LabelsCount++); }
 		//std::string generateUniqElseLabel() { return "ELSE_" + std::to_string(else_LabelsCount++); }

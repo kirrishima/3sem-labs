@@ -12,7 +12,7 @@ void CD::CodeGeneration::__s_const()
 		{
 			if (ID_TABLE.table[i].iddatatype == IT::INT)
 			{
-				OUT_ASM_FILE << __getIDnameInDataSegment(ID_TABLE.table[i]) << " SDWORD " << ID_TABLE.table[i].value.vint << '\n';
+				OUT_ASM_FILE << '\t' << __getIDnameInDataSegment(ID_TABLE.table[i]) << " SDWORD " << ID_TABLE.table[i].value.vint << '\n';
 			}
 		}
 	}
@@ -20,9 +20,7 @@ void CD::CodeGeneration::__s_const()
 
 void CD::CodeGeneration::__s_data()
 {
-	OUT_ASM_FILE << ".data\n"
-		<< "\tbuffer db \"result: \", 10 DUP(0)  ; Буфер для сообщения с результатом, включая место для числа\n"
-		<< "\tbytesWritten DWORD 0               ; Переменная для записи количества байт\n";
+	OUT_ASM_FILE << ".data\n";
 
 	for (size_t i = 0; i < ID_TABLE.size; i++)
 	{
