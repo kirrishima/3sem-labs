@@ -75,6 +75,9 @@
     <ClCompile Include="CodeGeneration\if_expression_generation.cpp">
       <Filter>Source Files\Code Generation</Filter>
     </ClCompile>
+    <ClCompile Include="CodeGeneration\parse_expression.cpp">
+      <Filter>Source Files\Code Generation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Error.h">

@@ -14,6 +14,18 @@ namespace SVV
 			FST::NODE()
 		);
 	}
+
+	FST::FST* CreateStringFST(const char* str)
+	{
+		return new FST::FST(str,
+			4,
+			FST::NODE(1, FST::RELATION('s', 1)),
+			FST::NODE(1, FST::RELATION('t', 2)),
+			FST::NODE(1, FST::RELATION('r', 3)),
+			FST::NODE()
+		);
+	}
+
 	FST::FST* CreatePrintFST(const char* str)
 	{
 		return new FST::FST(str,

@@ -8,7 +8,6 @@ using namespace std;
 
 namespace CD
 {
-
 	std::vector<std::string> operations;
 
 	// Определение приоритетов операций

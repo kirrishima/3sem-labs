@@ -10,9 +10,13 @@ void CD::CodeGeneration::__s_const()
 	{
 		if (ID_TABLE.table[i].idtype == IT::L)
 		{
-			if (ID_TABLE.table[i].iddatatype == IT::INT)
+			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::INT)
 			{
 				OUT_ASM_FILE << '\t' << __getIDnameInDataSegment(ID_TABLE.table[i]) << " SDWORD " << ID_TABLE.table[i].value.vint << '\n';
+			}
+			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::STR)
+			{
+				OUT_ASM_FILE << '\t' << __getIDnameInDataSegment(ID_TABLE.table[i]) << " db \"" << ID_TABLE.table[i].value.vstr->str << "\", 0\n";
 			}
 		}
 	}
@@ -32,6 +36,20 @@ void CD::CodeGeneration::__s_data()
 				OUT_ASM_FILE << "\t" << __getIDnameInDataSegment(*entry)
 					<< " SDWORD "
 					<< "0\n";
+			}
+			if (entry->iddatatype == IT::STR)
+			{
+				OUT_ASM_FILE << "\t" << __getIDnameInDataSegment(*entry);
+				if (entry->value.vstr->len > 0)
+				{
+					OUT_ASM_FILE << " db ";
+
+					OUT_ASM_FILE << '"' << entry->value.vstr->str << "\" , 0\n";
+				}
+				else
+				{
+					OUT_ASM_FILE << " dword ?\n";
+				}
 			}
 		}
 	}

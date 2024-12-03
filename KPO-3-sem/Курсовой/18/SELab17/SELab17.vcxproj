@@ -150,6 +150,7 @@
     <ClCompile Include="CodeGeneration\arithmetic_expressions.cpp" />
     <ClCompile Include="CodeGeneration\data_const_segments.cpp" />
     <ClCompile Include="CodeGeneration\if_expression_generation.cpp" />
+    <ClCompile Include="CodeGeneration\parse_expression.cpp" />
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="FST.cpp" />
     <ClCompile Include="GRB.cpp" />

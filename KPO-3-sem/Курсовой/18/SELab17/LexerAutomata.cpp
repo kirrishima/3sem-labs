@@ -21,6 +21,7 @@ IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
 char* str = new char[MAX_LEX_SIZE];
 
 FST::FST* IntegerFST(CreateIntegerFST(str));
+FST::FST* StringFST(CreateStringFST(str));
 FST::FST* PrintFST(CreatePrintFST(str));
 FST::FST* INTLiteralFST(CreateINTLiteralFST(str));
 FST::FST* IdentifierFST(CreateIdentifierFST(str));
@@ -34,6 +35,10 @@ char LexAn::determineLexeme()
 	if (execute(*IntegerFST))
 	{
 		return LEX_INTEGER;
+	}
+	if (execute(*StringFST))
+	{
+		return LEX_STRING;
 	}
 
 	if (execute(*PrintFST))
@@ -408,17 +413,23 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 			index--; // цикл находит индекс символа за ковычкой
 
-			if (str[0] == '\'' && ID_Table.size > 0 // если это строковой литерал инициализирует переменную
-				&& ID_Table.table[ID_Table.size - 1].idtype == IT::V
-				&& ID_Table.table[ID_Table.size - 1].iddatatype == IT::STR)
+			if (str[0] == '\'' && ID_Table.size > 1 // если это строковой литерал инициализирует переменную
+				&& ID_Table.table[ID_Table.size - 1].idtype == IT::V)
 			{
-				if (in.text[index] == MARK) // если была найдена вторая кавычка
+				ID_Table.table[ID_Table.size - 1].iddatatype = IT::STR;
+				if (in.text[index] == MARK && LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL) // если была найдена вторая кавычка
 				{
-					sprintf(ID_Table.table[ID_Table.size - 1].value.vstr->str, "L%d\0", literalsCount); // сохраняем не значение, а номер литерала. e.g L3 или L0
+					//sprintf(ID_Table.table[ID_Table.size - 1].value.vstr->str, "L%d\0", literalsCount); // сохраняем не значение, а номер литерала. e.g L3 или L0
 					// чтобы сохранить значение 
 					// strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i + 1);
+					strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i + 1), index - i - 1);
+					ID_Table.table[ID_Table.size - 1].value.vstr->str[index - i - 1] = '\0';
 					int len = strlen(ID_Table.table[ID_Table.size - 1].value.vstr->str);
 					ID_Table.table[ID_Table.size - 1].value.vstr->len = len;
+
+					i = index;
+
+					break;
 				}
 			}
 			// и добавляем сам литерал (в любом случае)
@@ -433,11 +444,10 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			IT_entry.idtype = IT::L;
 			IT_entry.idxfirstLE = currentLine;
 
-			int x = 0;
 			// копирует значение литерала (включая кавычки)
-			strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i + 1);
+			strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(in.text + i + 1), index - i - 1);
 
-			IT_entry.value.vstr->str[index - i + 1] = '\0';
+			IT_entry.value.vstr->str[index - i - 1] = '\0';
 			IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
 			LT_entry.sn = currentLine;
 			IT_entry.scope = scope.top();
