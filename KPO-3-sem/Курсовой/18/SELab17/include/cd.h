@@ -73,12 +73,16 @@ namespace CD
 
 		void gen(const std::wstring& OUT_FILEPATH, bool);
 
+		/// <summary>
+		/// Генератор условных операторов
+		/// </summary>
 		struct IfElseGeneration {
 			CodeGeneration& parent; // Ссылка на внешнюю структуру
 
 			IfElseGeneration(CodeGeneration& p) : parent(p) {}
 
-			int labelCounter = 0;
+			int labelCounter = 0; // счетчик меток, используется дли уникального именования if-else меток
+			int nestingLevel = 0; // уровень вложенности, используется для отступов
 
 			std::stack<std::string> if_stack;
 

@@ -3,6 +3,7 @@
 
 #include "pch.h"
 #include "framework.h"
+#include <Windows.h>
 
 // TODO: This is an example of a library function
 extern "C" void __stdcall __PrintNumber(int n)
@@ -10,13 +11,13 @@ extern "C" void __stdcall __PrintNumber(int n)
 	std::cout << "number: " << n << std::endl;
 }
 
-
 extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 {
+	SetConsoleOutputCP(1251);
 	void* ptr;
 	if (type == 1)
 	{
-		std::cout << "char: ";
+		std::cout << "char[]: ";
 		for (int i = 0; i < n; i++)
 		{
 			std::cout << *(reinterpret_cast<const char*>(arr) + i);
@@ -24,7 +25,7 @@ extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 	}
 	if (type == 2)
 	{
-		std::cout << "short: ";
+		std::cout << "short[]: ";
 		for (int i = 0; i < n; i++)
 		{
 			std::cout << *(reinterpret_cast<const short*>(arr) + i) << " ";
@@ -33,7 +34,7 @@ extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 
 	if (type == 4)
 	{
-		std::cout << "int: ";
+		std::cout << "int[]: ";
 		for (int i = 0; i < n; i++)
 		{
 			std::cout << *(reinterpret_cast<const int*>(arr) + i) << " ";

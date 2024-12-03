@@ -24,6 +24,14 @@ namespace CD
 		OUT_ASM_FILE << "__PrintArray PROTO :SDWORD, :SDWORD, :SDWORD\n";
 		OUT_ASM_FILE << "\n.stack 4096\n\n";
 
+		OUT_ASM_FILE << R"(PrintArrayMACRO MACRO arrName
+    LOCAL arrType, arrLength, arrOffset
+    push type arrName     ; Тип элементов массива
+    push lengthof arrName ; Длина массива
+    push offset arrName   ; Смещение массива
+    call __PrintArray     ; Вызов процедуры __PrintArray
+ENDM)" << "\n\n";
+
 		__s_const();
 		OUT_ASM_FILE << '\n';
 		__s_data();
@@ -78,6 +86,16 @@ namespace CD
 		OUT_ASM_FILE.flush();
 		OUT_ASM_FILE.close();
 
-		//system("compile.bat");
+		cout << "Compiling: \n\n";
+
+#ifdef _DEBUG
+		system("compile_debug.bat");
+#endif // _DEBUG
+
+#ifdef _RELEASE
+		system("compile_release.bat");
+#endif // _RELEASE
+
+
 	}
 }

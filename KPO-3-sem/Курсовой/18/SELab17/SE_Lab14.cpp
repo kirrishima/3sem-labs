@@ -59,6 +59,17 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 	setlocale(LC_ALL, "rus");
 
+
+#ifdef _DEBUG
+	if (argc == 1)
+	{
+		argc++;
+		argv = new _TCHAR * [2];
+		argv[1] = const_cast<_TCHAR*>(L"-in:input.txt");
+
+	}
+#endif // _DEBUG
+
 	//const char* str = "!=";
 
 	//FST::FST* elseFST(SVV::CreateCompareFST(str));
@@ -175,6 +186,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif // !__DISABLE_LOGS
 
 		}
+	}
+	catch (std::runtime_error& e)
+	{
+		cout << "Ошибка: " << e.what() << endl;
 	}
 
 	//auto current_files = get_files_in_directory(current_path);

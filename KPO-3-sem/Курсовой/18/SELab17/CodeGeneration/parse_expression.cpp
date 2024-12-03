@@ -23,8 +23,37 @@ std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_
 	case '=':
 	{
 		if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].iddatatype == IT::IDDATATYPE::STR
-			&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].value.vstr->len > 0)
+			/*&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].value.vstr->len > 0*/)
 		{
+			if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::V)
+			{
+				if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].iddatatype == IT::IDDATATYPE::STR)
+				{
+					ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].idxfirstLE =
+						ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idxfirstLE;
+				}
+				else
+				{
+					throw "Присвоение неверного типа данных: " + ("dest: " + to_string(IT::IDDATATYPE::STR) + ", src: " +
+						to_string(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].iddatatype));
+				}
+			}
+			else if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::L)
+			{
+				ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].idxfirstLE = index_in_lex_table + 1;
+			}
+			else
+			{
+				throw "Присвоение неверного типа данных: " + ("dest: " + to_string(IT::IDDATATYPE::STR) + ", src: " +
+					to_string(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].iddatatype));
+			}
+			//char* destIdValue = ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].value.vstr->str;
+			//char* srcIdValue = ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].value.vstr->str;
+
+			//if (strcmp(destIdValue, srcIdValue) != 0)
+			//{
+			//	strcpy(destIdValue, srcIdValue);
+			//}
 			break;
 		}
 		std::string var = __getIDnameInDataSegment(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table].idxTI]);
@@ -78,42 +107,35 @@ std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_
 
 			throw "Wrong id in print's params";
 		}
-		auto id = ID_TABLE.table[idxIT];
+		IT::Entry* id = &ID_TABLE.table[idxIT];
 
-		if (id.idtype == IT::IDTYPE::L)
-		{
-			if (id.iddatatype == IT::IDDATATYPE::INT)
-			{
-				instructions_set.push_back("push " + __getIDnameInDataSegment(ID_TABLE.table[idxIT]));
-				instructions_set.push_back("call __PrintNumber  ; Выводим число в консоль");
-			}
-			else if (id.iddatatype == IT::IDDATATYPE::STR)
-			{
-				std::string idName = __getIDnameInDataSegment(ID_TABLE.table[idxIT]);
-				instructions_set.push_back("push type " + idName);
-				instructions_set.push_back("push lengthof " + idName);
-				instructions_set.push_back("push offset " + idName);
-				instructions_set.push_back("call __PrintArray");
-			}
-			else
-			{
-				throw "Неожиданный тип литерала " + to_string(id.iddatatype);
-			}
-		}
-		else if (id.idtype == IT::IDTYPE::V && id.iddatatype == IT::IDDATATYPE::STR)
-		{
-			std::string idName = __getIDnameInDataSegment(ID_TABLE.table[idxIT]);
-			instructions_set.push_back("push 1 ");
-			instructions_set.push_back("push lengthof " + idName);
-			instructions_set.push_back("push offset " + idName);
-			instructions_set.push_back("call __PrintArray");
-		}
-		else
+		//if (id->idtype == IT::IDTYPE::L)
+		//{
+		if (id->iddatatype == IT::IDDATATYPE::INT)
 		{
 			instructions_set.push_back("push " + __getIDnameInDataSegment(ID_TABLE.table[idxIT]));
 			instructions_set.push_back("call __PrintNumber  ; Выводим число в консоль");
 		}
+		else if (id->iddatatype == IT::IDDATATYPE::STR)
+		{
+			std::string idName;
+			if (id->idtype == IT::IDTYPE::L)
+			{
+				idName = __getIDnameInDataSegment(ID_TABLE.table[idxIT]);
+			}
+			else
+			{
+				idName = __getIDnameInDataSegment(ID_TABLE.table[LEX_TABLE.table[id->idxfirstLE].idxTI]);
+			}
+			instructions_set.push_back("PrintArrayMACRO " + idName);
+		}
+		else
+		{
+			throw "Неожиданный тип литерала: " + to_string(id->iddatatype);
+		}
+
 	}
+
 	break;
 	default:
 		break;

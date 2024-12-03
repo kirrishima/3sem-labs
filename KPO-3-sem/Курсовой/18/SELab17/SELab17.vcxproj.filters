@@ -125,7 +125,7 @@
     <ClInclude Include="include\Rule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="cd.h">
+    <ClInclude Include="include\cd.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

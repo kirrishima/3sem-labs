@@ -70,7 +70,7 @@ internal class Program
 
         ThreadLimiter = new SemaphoreSlim(MaxThreads, MaxThreads); // Ограничение на 6 одновременно работающих потоков
 
-        ApiSemaphore = new SemaphoreSlim(Math.Min(6, MaxThreads), Math.Min(6, MaxThreads)); // Max 10 concurrent requests
+        ApiSemaphore = new SemaphoreSlim(Math.Min(4, MaxThreads), Math.Min(4, MaxThreads)); // Max 10 concurrent requests
 
         queue = new();
     }
@@ -168,7 +168,7 @@ internal class Program
             }
 
             // Распределение токенов между потоками
-            var tokenBuckets = DistributeTokens(Tokens, maxThreads);
+            var tokenBuckets = DistributeTokens(maxThreads);
 
             Console.WriteLine($"Using up to {tokenBuckets.Count} threads.\n");
 
@@ -194,21 +194,22 @@ internal class Program
         }
     }
 
-    private static List<List<string>> DistributeTokens(List<string> tokens, int maxThreads)
+    private static List<List<string>> DistributeTokens(int maxThreads)
     {
-        var tokenBuckets = new List<List<string>>();
+        int bucketCount = Math.Min(maxThreads, Tokens.Count);
 
-        int bucketCount = Math.Min(maxThreads, tokens.Count);
-        int tokensPerBucket = tokens.Count / bucketCount;
-        int extraTokens = tokens.Count % bucketCount;
+        var tokenBuckets = new List<List<string>>(bucketCount);
+        int bucket = 0;
 
-        int index = 0;
         for (int i = 0; i < bucketCount; i++)
         {
-            int bucketSize = tokensPerBucket + (extraTokens-- > 0 ? 1 : 0);
-            var bucket = tokens.Skip(index).Take(bucketSize).ToList();
-            tokenBuckets.Add(bucket);
-            index += bucketSize;
+            tokenBuckets.Add(new List<string>());
+        }
+
+        for (int i = 0; i < Tokens.Count; i++)
+        {
+            tokenBuckets[bucket].Add(Tokens[i]);
+            bucket = (bucket + 1) % tokenBuckets.Count;
         }
 
         return tokenBuckets;

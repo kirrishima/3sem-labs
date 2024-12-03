@@ -40,16 +40,16 @@ void CD::CodeGeneration::__s_data()
 			if (entry->iddatatype == IT::STR)
 			{
 				OUT_ASM_FILE << "\t" << __getIDnameInDataSegment(*entry);
-				if (entry->value.vstr->len > 0)
-				{
-					OUT_ASM_FILE << " db ";
+				//if (entry->value.vstr->len > 0)
+				//{
+				//	OUT_ASM_FILE << " db ";
 
-					OUT_ASM_FILE << '"' << entry->value.vstr->str << "\" , 0\n";
-				}
-				else
-				{
-					OUT_ASM_FILE << " dword ?\n";
-				}
+				//	OUT_ASM_FILE << '"' << entry->value.vstr->str << "\" , 0\n";
+				//}
+			//else
+			//{
+				OUT_ASM_FILE << " dword ?\n";
+				/*}*/
 			}
 		}
 	}
