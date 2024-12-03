@@ -72,7 +72,7 @@ namespace CD
 
 			if (IT::search(ID_TABLE, ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 2].idxTI]) < 0)
 			{
-				cout << "Встречен неопознанный индификатор п праметрах функции print. Имя "
+				cout << "Встречен неопознанный индификатор в праметрах функции print. Имя "
 					<< ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 2].idxTI].id
 					<< " не было найдено в таблице индификаторов.";
 

@@ -37,17 +37,34 @@ namespace IT
 	{
 		for (int i = 0; i <= idtable.size; i++)
 		{
+			if (entry.idtype == IT::IDTYPE::L)
+			{
+				if (idtable.table[i].idtype == IT::IDTYPE::L) {
+					if (entry.iddatatype == IT::IDDATATYPE::INT && idtable.table[i].iddatatype == IT::IDDATATYPE::INT
+						&& idtable.table[i].value.vint == entry.value.vint)
+					{
+						return i;
+					}
+					if (entry.iddatatype == IT::IDDATATYPE::STR && idtable.table[i].iddatatype == IT::IDDATATYPE::STR
+						&& strcmp(idtable.table[i].value.vstr->str, entry.value.vstr->str) == 0)
+					{
+						return i;
+					}
+				}
+				continue;
+			}
 			if (strcmp(entry.id, idtable.table[i].id) == 0 && entry.scope == idtable.table[i].scope)
 			{
 				return i;
 			}
-			else if (strcmp(entry.id, idtable.table[i].id) == 0 && idtable.table[i].idtype == IT::F)
+			if (strcmp(entry.id, idtable.table[i].id) == 0 && idtable.table[i].idtype == IT::F)
 			{
 				return i;
 			}
 		}
 		return -1;
 	}
+
 
 	int IsId(ID_Table& idtable, char id[ID_MAXSIZE])
 	{

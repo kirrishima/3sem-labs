@@ -134,18 +134,24 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 			case LEX_LITERAL:
 			{
-				sprintf_s(IT_entry.id, "L%d", literalsCount++);
-				IT_entry.id[ID_SIZE] = '\0';
-				IT_entry.iddatatype = IT::INT;
-				IT_entry.idtype = IT::L;
-				IT_entry.idxfirstLE = currentLine;
+				IT_entry.iddatatype = IT::IDDATATYPE::INT;
+				IT_entry.idtype = IT::IDTYPE::L;
 				IT_entry.value.vint = atoi(str);
 
-				IT_entry.scope = NULL;
-				if (!scope.empty())
+				int pos = IT::search(ID_Table, IT_entry);
+				if (pos >= 0)
 				{
-					IT_entry.scope = scope.top();
+					IT_entry = ID_Table.table[pos];
+					LT_entry.idxTI = pos;
+					break;
 				}
+
+
+				sprintf_s(IT_entry.id, "L%d", literalsCount++);
+				IT_entry.id[ID_SIZE] = '\0';
+
+				IT_entry.idxfirstLE = currentLine;
+				IT_entry.scope = NULL;
 
 				LT_entry.idxTI = ID_Table.size;
 				IT::Add(ID_Table, IT_entry);
