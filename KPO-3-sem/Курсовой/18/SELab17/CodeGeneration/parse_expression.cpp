@@ -22,6 +22,11 @@ std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_
 	{
 	case '=':
 	{
+		if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].iddatatype == IT::IDDATATYPE::STR
+			&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].value.vstr->len > 0)
+		{
+			break;
+		}
 		std::string var = __getIDnameInDataSegment(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table].idxTI]);
 		std::string token = "";
 		std::string expr = "";
@@ -94,6 +99,14 @@ std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_
 			{
 				throw "Неожиданный тип литерала " + to_string(id.iddatatype);
 			}
+		}
+		else if (id.idtype == IT::IDTYPE::V && id.iddatatype == IT::IDDATATYPE::STR)
+		{
+			std::string idName = __getIDnameInDataSegment(ID_TABLE.table[idxIT]);
+			instructions_set.push_back("push 1 ");
+			instructions_set.push_back("push lengthof " + idName);
+			instructions_set.push_back("push offset " + idName);
+			instructions_set.push_back("call __PrintArray");
 		}
 		else
 		{
