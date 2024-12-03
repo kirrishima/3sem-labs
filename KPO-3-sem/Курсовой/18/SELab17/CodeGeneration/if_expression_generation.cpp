@@ -71,8 +71,8 @@ void CD::CodeGeneration::IfElseGeneration::StartIf(
 	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
 	std::vector<std::string>& instructions // текущие инструкции
 ) {
-	string trueLabel = GenerateLabel("IF_TRUE", labelCounter);
-	string endLabel = GenerateLabel("IF_END", labelCounter++);
+	string trueLabel = GenerateLabel("IF_TRUE", nestingLevel);
+	string endLabel = GenerateLabel("IF_END", nestingLevel);
 	if_stack.push(endLabel);
 
 	auto math_instructionsRight = parent.__generate_math_expressions(operands[1]);
@@ -115,7 +115,7 @@ void CD::CodeGeneration::IfElseGeneration::StartElse(std::vector<std::string>& i
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
 	string endLabel = if_stack.top();
-	string elseLabel = GenerateLabel("ELSE", labelCounter - 1); // -1 так как уже счетчик перешел к следующим, 
+	string elseLabel = GenerateLabel("ELSE", nestingLevel - 1); // -1 так как уже счетчик перешел к следующим, 
 	//еще не созданным if, а else на 1 меньше
 
 	for (int i = 0; i < instructions.size(); i++)
