@@ -1,4 +1,62 @@
 {
-int a = 12 + 132;
-print(a);
+    int x = 10;
+    int y = 20;
+    int z = -5;
+    str status = 'OK';
+
+    print('“ест начинаетс€...');
+
+    if (x > y) // комментарий
+    {
+        print('x больше y');
+    }
+    else
+    {
+        print('x не больше y');
+    }
+
+    if (x + y > 30)
+    {
+        print('x + y больше 30');
+    }
+    else if (x * 2 == y)
+    {
+        print('x * 2 равно y');
+    }
+    else if (z < 0)
+    {
+        print('z отрицательное');
+    }
+    else
+    {
+        print('Ќи одно условие не выполнено');
+    }
+
+    if (status == 'OK')
+    {
+        print('status равен OK');
+        if (x > 5)
+        {
+            print('x больше 5');
+        }
+        else
+        {
+            print('x меньше или равно 5');
+        }
+    }
+    else
+    {
+        print('status не равен OK');
+    }
+
+    if (x > 0)
+    {
+        print('x и y положительные или z отрицательное');
+    }
+    else
+    {
+        print('x и y не положительные и z не отрицательное');
+    }
+
+    print('“ест завершЄн.');
 }
