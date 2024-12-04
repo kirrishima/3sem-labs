@@ -85,14 +85,14 @@ namespace In
 				{
 					int tmpPos = position;
 
-					if (position + 1 <= p.second && tmp[position + 1] == SPACE)
+					if (!insideString && position + 1 <= p.second && tmp[position + 1] == SPACE)
 					{
 						while (position + 1 <= p.second && tmp[position + 1] == SPACE) {
 							position++;
 							in.ignore++;
 						}
 					}
-					if (in.size > 0 && in.text[in.size - 1] == SPACE)
+					if (!insideString && in.size > 0 && in.text[in.size - 1] == SPACE)
 					{
 						in.text[in.size - 1] = ch;
 						in.ignore++;
@@ -100,11 +100,6 @@ namespace In
 					else
 					{
 						in.text[in.size++] = ch;
-					}
-
-					if (true)
-					{
-
 					}
 
 					break;

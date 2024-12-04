@@ -38,8 +38,8 @@ void CD::CodeGeneration::IfElseGeneration::GenerateCondition(
 	std::vector<std::string>& instructions // текущие инструкции
 ) {
 
-	instructions.push_back(parent.tab * nestingLevel + "cmp eax, ebx" + parent.tab * nestingLevel + "; Условие: " +
-		operands[0] + " " + comparison + operands[1]);
+	instructions.push_back(parent.tab * nestingLevel + "cmp eax, ebx" + parent.tab + "; Условие: " +
+		operands[0] + comparison + operands[1]);
 
 	if (comparison == ">") {
 		instructions.push_back(parent.tab * nestingLevel + "jg " + trueLabel);
@@ -71,8 +71,9 @@ void CD::CodeGeneration::IfElseGeneration::StartIf(
 	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
 	std::vector<std::string>& instructions // текущие инструкции
 ) {
-	string trueLabel = GenerateLabel("IF_TRUE", nestingLevel);
-	string endLabel = GenerateLabel("IF_END", nestingLevel);
+	string trueLabel = GenerateLabel("IF_TRUE", IFLabelsCount);
+	string endLabel = GenerateLabel("IF_END", IFLabelsCount);
+	currentElseLabel = IFLabelsCount++; // увеличиваем номер else
 	if_stack.push(endLabel);
 
 	auto math_instructionsRight = parent.__generate_math_expressions(operands[1]);
@@ -80,10 +81,13 @@ void CD::CodeGeneration::IfElseGeneration::StartIf(
 
 	nestingLevel++;
 
+	instructions.push_back(parent.tab * nestingLevel + "; Начало if " + to_string(currentElseLabel));
+
 	if (math_instructionsRight.size() == 1 && math_instructionsLeft.size() == 1)
 	{
-		instructions.push_back(parent.tab * nestingLevel + "mov eax, " + operands[0]);
-		instructions.push_back(parent.tab * nestingLevel + "mov ebx, " + operands[1]);
+		instructions.push_back(parent.tab * nestingLevel + "mov eax, " + operands[0] + parent.tab + "; lefthand операнд");
+		instructions.push_back(parent.tab * nestingLevel + "mov ebx, " + operands[1] + parent.tab + "; righthand операнд");
+		instructions.push_back("");
 	}
 	else
 	{
@@ -92,18 +96,28 @@ void CD::CodeGeneration::IfElseGeneration::StartIf(
 		{
 			instructions.push_back(parent.tab * nestingLevel + instr);
 		}
-		instructions.push_back(parent.tab * nestingLevel + "; Вычисляем lefthand операнд:");
-		for (const std::string& instr : math_instructionsLeft)
+		if (instructions.back() != parent.tab * nestingLevel + "push eax" && math_instructionsRight.size() != 1)
 		{
-			instructions.push_back(parent.tab * nestingLevel + instr);
+			instructions.push_back(parent.tab * nestingLevel + "push eax");
 		}
 
-		// Генерация кода для вычисления операндов
-		instructions.push_back(parent.tab * nestingLevel + "pop eax");
-		instructions.push_back(parent.tab * nestingLevel + "pop ebx");
+		if (math_instructionsLeft.size() != 1)
+		{
+			instructions.push_back(parent.tab * nestingLevel + "; Вычисляем lefthand операнд:");
+			for (const std::string& instr : math_instructionsLeft)
+			{
+				instructions.push_back(parent.tab * nestingLevel + instr);
+			}
+			instructions.push_back(parent.tab * nestingLevel + "; значение lefhand уже в eax");
+		}
+		else
+		{
+			instructions.push_back("\n" + parent.tab * nestingLevel + "mov eax, " + operands[0] + parent.tab + "; lefthand операнд");
+		}
+
+		instructions.push_back(parent.tab * nestingLevel + "pop ebx ; загружаем значение righthand операнда");
 	}
 
-	instructions.push_back(parent.tab * nestingLevel + "; Начало if");
 	// Генерация условия
 	GenerateCondition(operands, comparison, trueLabel, endLabel, instructions);
 	instructions.push_back(parent.tab * (nestingLevel - 1) + trueLabel + ':');
@@ -115,7 +129,7 @@ void CD::CodeGeneration::IfElseGeneration::StartElse(std::vector<std::string>& i
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
 	string endLabel = if_stack.top();
-	string elseLabel = GenerateLabel("ELSE", nestingLevel - 1); // -1 так как уже счетчик перешел к следующим, 
+	string elseLabel = GenerateLabel("ELSE", currentElseLabel); // -1 так как уже счетчик перешел к следующим, 
 	//еще не созданным if, а else на 1 меньше
 
 	for (int i = 0; i < instructions.size(); i++)
@@ -137,8 +151,8 @@ void CD::CodeGeneration::IfElseGeneration::EndIfOrElse(std::vector<std::string>&
 	}
 
 	string endLabel = if_stack.top();
-	instructions.push_back(parent.tab * nestingLevel + "; Переход к выходу из этого if-else блока");
-	instructions.push_back(parent.tab * nestingLevel + "jmp " + endLabel);
+	instructions.push_back(parent.tab * nestingLevel + "jmp " + endLabel +
+		"   ; Переход к выходу из " + to_string(currentElseLabel) + " if-else");
 }
 
 // Завершение `if` или `else`
@@ -146,6 +160,8 @@ void CD::CodeGeneration::IfElseGeneration::EndExpression(std::vector<std::string
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
+
+	currentElseLabel--;
 
 	string endLabel = if_stack.top();
 	if_stack.pop();
@@ -173,7 +189,9 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generateIfStateme
 				case 'l':
 					operands[currentOperand] += parent.__getIDnameInDataSegment(parent.ID_TABLE.table[parent.LEX_TABLE.table[i].idxTI]);
 					break;
-
+				case 'v':
+					operands[currentOperand] += parent.LEX_TABLE.table[i].v;
+					break;
 				case 'c':
 					operation = parent.LEX_TABLE.table[i].c;
 					currentOperand++;

@@ -81,7 +81,9 @@ namespace CD
 
 			IfElseGeneration(CodeGeneration& p) : parent(p) {}
 
-			int labelCounter = 0; // счетчик меток, используется дли уникального именования if-else меток
+			int IFLabelsCount = 0; // счетчик меток, используется дли уникального именования if-else меток
+			int currentElseLabel = 0; // счетчик меток else, для хранения текущей метки else
+
 			int nestingLevel = 0; // уровень вложенности, используется для отступов
 
 			std::stack<std::string> if_stack;

@@ -8,7 +8,7 @@ using namespace std;
 
 namespace CD
 {
-	std::vector<std::string> operations;
+	std::vector<std::string> masmCode;
 
 	// Определение приоритетов операций
 	int getPrecedence(char op) {
@@ -97,12 +97,45 @@ namespace CD
 		return output;
 	}
 
+	void generateOperation(const std::string& operation)
+	{
+		if (operation == "+") {
+			masmCode.push_back("add eax, ebx");
+		}
+		else if (operation == "-") {
+			masmCode.push_back("sub eax, ebx");
+		}
+		else if (operation == "*") {
+			masmCode.push_back("imul ebx");
+		}
+		else if (operation == "/") {
+			masmCode.push_back("cdq");    // Расширение eax для деления
+			masmCode.push_back("idiv ebx");
+		}
+		else {
+			throw runtime_error("Неизвестный оператор: " + operation);
+		}
+	}
+
 	void generateMASM(const vector<string>& rpn) {
 		bool printedNLafterpush = false;
 
 		if (rpn.size() == 1)
 		{
-			operations.push_back("push " + rpn[0]);
+			masmCode.push_back("push " + rpn[0]);
+			return;
+		}
+
+		if (rpn.size() == 3 &&
+			(isIdentifier(rpn[0]) || isLiteral(rpn[0])) &&
+			(isIdentifier(rpn[1]) || isLiteral(rpn[1])) &&
+			isOperator(rpn[2][0]))
+		{
+			masmCode.push_back("mov eax, " + rpn[0]); // Первый операнд в eax
+			masmCode.push_back("mov ebx, " + rpn[1]); // Второй операнд в ebx
+
+			generateOperation(rpn[2]);
+			// Результат остается в eax, добавлять в стек не требуется, если это не нужно
 			return;
 		}
 
@@ -113,44 +146,33 @@ namespace CD
 					printedNLafterpush = true;
 				}
 				// Если токен — идентификатор или литерал, генерируем `push`
-				operations.push_back("push " + token);
+				masmCode.push_back("push " + token);
 			}
 			else if (isOperator(token[0])) {
 				printedNLafterpush = false;
 				// Если токен — оператор, извлекаем два операнда из стека
-				operations.push_back("pop ebx"); // Второй операнд
-				operations.push_back("pop eax"); // Первый операнд
+				masmCode.push_back("pop ebx"); // Второй операнд
+				masmCode.push_back("pop eax"); // Первый операнд
 
-				// Генерируем код для операции
-				if (token == "+") {
-					operations.push_back("add eax, ebx");
-				}
-				else if (token == "-") {
-					operations.push_back("sub eax, ebx");
-				}
-				else if (token == "*") {
-					operations.push_back("imul ebx");
-				}
-				else if (token == "/") {
-					operations.push_back("cdq");    // Расширение eax для деления
-					operations.push_back("idiv ebx");
-				}
+				generateOperation(token);
 
 				// Помещаем результат обратно в стек
-				operations.push_back("push eax");
+				masmCode.push_back("push eax");
 			}
 			else {
 				throw runtime_error("Неизвестный токен: " + token);
 			}
 		}
 
-		// Извлекаем результат из стека и сохраняем его в `RESULT`
-		operations.push_back("pop eax");
+		if (masmCode.back() == "push eax")
+		{
+			masmCode.pop_back(); // оставляем результат в eax, в стек не помещаем
+		}
 	}
 
 	std::vector<std::string> CD::CodeGeneration::__generate_math_expressions(const std::string& expr)
 	{
-		operations.clear();
+		masmCode.clear();
 		vector<string> result = parseExpression(expr);
 
 		generateMASM(result);
@@ -159,6 +181,6 @@ namespace CD
 		//	cout << e << " ";
 		//}
 
-		return operations;
+		return masmCode;
 	}
 }

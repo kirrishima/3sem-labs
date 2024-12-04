@@ -89,7 +89,7 @@ std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_
 		}
 		else
 		{
-			instructions_set.push_back("mov eax," + expr);
+			instructions_set.push_back("mov eax, " + expr);
 			instructions_set.push_back("mov " + var + ", eax");
 		}
 		instructions_set.push_back("\n");
