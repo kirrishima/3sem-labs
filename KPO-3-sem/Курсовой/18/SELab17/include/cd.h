@@ -70,6 +70,8 @@ namespace CD
 		}
 
 		std::vector<std::string> parse_expression(int& index_in_lex_table);
+		std::string __get_string_value(const int lex_id);
+		std::string __lexemVectorIDStoString(const vector<int>& ids);
 
 		void gen(const std::wstring& OUT_FILEPATH, bool);
 
@@ -93,9 +95,13 @@ namespace CD
 				const std::string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
 				const std::string& trueLabel, // имя метки если условие выполняется
 				const std::string& falseLabel, // если не выполняется
-				std::vector<std::string>& instructions // текущие инструкции
+				std::vector<std::string>& instructions, bool isStringCmp = false
 			);
-			void StartIf(const std::vector<std::string>&, //2 операнда: левый и правый
+
+			void CompareInts(std::vector<std::string>& instructions, const vector<string>& operands);
+			void CompareStrings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name);
+
+			void StartIf(const vector<vector<int>>& operands, //2 операнда: левый и правый
 				const string&,  // операция (>, <, ==, !=, >=, <=)
 				std::vector<std::string>& // вектор с инструкциями, в которые будет добавлен сгенерированные новые
 			);

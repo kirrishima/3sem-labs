@@ -1,53 +1,42 @@
-.386
+.586
 .model flat, stdcall
-option casemap:none
+ExitProcess PROTO : DWORD
 
-extern HeapAlloc@12:PROC
-extern HeapFree@12:PROC
-extern GetProcessHeap@0:PROC
-ExitProcess PROTO :dword
+.stack 4096
+
+
+.const
+	__L0 SDWORD 0
+	__L1 SDWORD 1
+	__L2 db "st", 0
+	__L3 db "str", 0
+	__L4 db "строки равны", 0
 
 .data
-    buffer_size dd 64                     ; Размер буфера
-    heap_handle dd 0                      ; Дескриптор кучи
-    string_ptr dd 0                       ; Указатель на выделенную память
-    message db "Dynamic memory allocation example", 0
+	___a SDWORD 0
+	___s dword ?
+	___ss dword ?
+
 
 .code
+
 main proc
 start:
-    ; Получение дескриптора кучи
-    call GetProcessHeap@0
-    mov heap_handle, eax                  ; Сохраняем дескриптор кучи
-
-    ; Выделение памяти
-    mov eax, heap_handle
-    mov ecx, buffer_size
-    push 0                                ; Параметры флагов (0 - стандартное поведение)
-    push ecx                              ; Размер памяти
-    push eax                              ; Дескриптор кучи
-    call HeapAlloc@12                     ; Вызов HeapAlloc
-    mov string_ptr, eax                   ; Сохраняем указатель на выделенную память
-
-    ; Копирование строки в выделенную память
-    lea esi, message                      ; Адрес строки
-    mov edi, string_ptr                   ; Адрес выделенной памяти
-copy_loop:
-    lodsb                                 ; Загрузка байта из [ESI] в AL
-    stosb                                 ; Запись байта из AL в [EDI]
-    test al, al                           ; Проверка конца строки
-    jnz copy_loop
-
-    ; Освобождение памяти
-    mov eax, heap_handle
-    mov ecx, string_ptr
-    push 0                                ; Флаги (0 - стандартное поведение)
-    push ecx                              ; Адрес памяти для освобождения
-    push eax                              ; Дескриптор кучи
-    call HeapFree@12                      ; Вызов HeapFree
-
-    ; Завершение программы
-    push 0
-    call ExitProcess
+	mov eax, __L0
+	mov ebx, __L1
+	sub eax, ebx
+	mov ___a, eax
+	
+	mov eax, -1
+    cmp eax, 0    ; Сравнение знаковое
+    jl IF_TRUE_0  ; Переход, если меньше нуля
+    jmp IF_END_0
+IF_TRUE_0:
+    jmp IF_END_0    ; Переход к выходу из 0 if-else
+IF_END_0:
+    push eax
+; закончились условки
+	push 0
+	call ExitProcess
 main ENDP
 END main

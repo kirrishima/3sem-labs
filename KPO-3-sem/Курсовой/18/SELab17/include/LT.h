@@ -28,10 +28,11 @@
 #define LEX_RIGHTTHESIS ')'       // Символ: правая круглая скобка.
 
 // Лексемы для арифметических операций.
-#define LEX_PLUS 'v'              // Операция: плюс.
-#define LEX_MINUS 'v'             // Операция: минус.
-#define LEX_STAR 'v'              // Операция: умножение.
-#define LEX_DIRSLASH 'v'          // Операция: деление.
+#define LEX_MATH 'v'
+#define LEX_PLUS		LEX_MATH          // Операция: плюс.
+#define LEX_MINUS		LEX_MATH          // Операция: минус.
+#define LEX_STAR		LEX_MATH          // Операция: умножение.
+#define LEX_DIRSLASH	LEX_MATH          // Операция: деление.
 
 // Лексема для присваивания.
 #define LEX_EQUAL '='             // Операция: присваивание.
@@ -39,12 +40,12 @@
 // Лексемы для операций сравнения.
 #define LEX_COMPARE 'c'
 
-#define LEX_COMPARE_EQUAL			LEX_COMPARE		  // Операция: равно.
-#define LEX_COMPARE_GREATER			LEX_COMPARE       // Операция: больше.
-#define LEX_COMPARE_LESS			LEX_COMPARE		  // Операция: меньше.
+#define LEX_COMPARE_EQUAL			LEX_COMPARE		// Операция: равно.
+#define LEX_COMPARE_GREATER			LEX_COMPARE     // Операция: больше.
+#define LEX_COMPARE_LESS			LEX_COMPARE		// Операция: меньше.
 #define LEX_COMPARE_NOT_EQUAL		LEX_COMPARE     // Операция: не равно.
-#define LEX_COMPARE_LESS_EQUAL		LEX_COMPARE    // Операция: меньше или равно.
-#define LEX_COMPARE_GREATER_EQUAL	LEX_COMPARE // Операция: больше или равно.
+#define LEX_COMPARE_LESS_EQUAL		LEX_COMPARE     // Операция: меньше или равно.
+#define LEX_COMPARE_GREATER_EQUAL	LEX_COMPARE		// Операция: больше или равно.
 
 // Лексема для условного оператора.
 #define LEX_IF '?'               // Условный оператор: if.

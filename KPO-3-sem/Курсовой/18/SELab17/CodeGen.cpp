@@ -21,7 +21,8 @@ namespace CD
 		OUT_ASM_FILE << ".model flat, stdcall\n";
 		OUT_ASM_FILE << "ExitProcess PROTO : DWORD\n";
 		OUT_ASM_FILE << "__PrintNumber PROTO :SDWORD\n";
-		OUT_ASM_FILE << "__PrintArray PROTO :SDWORD, :SDWORD, :SDWORD\n";
+		OUT_ASM_FILE << "__PrintArray PROTO :DWORD, :DWORD, :DWORD\n";
+		OUT_ASM_FILE << "__StrCmp PROTO :DWORD, :DWORD\n";
 		OUT_ASM_FILE << "\n.stack 4096\n\n";
 
 		OUT_ASM_FILE << R"(PrintArrayMACRO MACRO arrName
@@ -30,6 +31,12 @@ namespace CD
     push lengthof arrName ; Длина массива
     push offset arrName   ; Смещение массива
     call __PrintArray     ; Вызов процедуры __PrintArray
+ENDM)" << "\n\n";
+
+		OUT_ASM_FILE << R"(StrCmpCallMACRO MACRO str1, str2
+    push OFFSET str2   ; Адрес второй строки в стек
+    push OFFSET str1   ; Адрес первой строки в стек
+    call __StrCmp      ; Вызов функции __StrCmp
 ENDM)" << "\n\n";
 
 		__s_const();

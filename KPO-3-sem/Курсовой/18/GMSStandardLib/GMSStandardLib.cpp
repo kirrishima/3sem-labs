@@ -15,7 +15,7 @@ extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 {
 	SetConsoleOutputCP(1251);
 	void* ptr;
-	if (type == 1)
+	if (type == sizeof(char))
 	{
 		std::cout << "char[]: ";
 		for (int i = 0; i < n; i++)
@@ -23,7 +23,7 @@ extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 			std::cout << *(reinterpret_cast<const char*>(arr) + i);
 		}
 	}
-	if (type == 2)
+	if (type == sizeof(short))
 	{
 		std::cout << "short[]: ";
 		for (int i = 0; i < n; i++)
@@ -32,7 +32,7 @@ extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 		}
 	}
 
-	if (type == 4)
+	if (type == sizeof(int))
 	{
 		std::cout << "int[]: ";
 		for (int i = 0; i < n; i++)
@@ -44,3 +44,8 @@ extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 	std::cout << std::endl;
 }
 
+extern "C" int __stdcall __StrCmp(const char* _str1, const char* _str2)
+{
+	int result = strcmp(_str1, _str2);
+	return (result < 0) ? -1 : (result > 0) ? 1 : 0;
+}
