@@ -69,7 +69,15 @@ namespace In
 					insideString = !insideString;
 					break;
 				}
-
+				case IN::Slash:
+				{
+					if (!insideString && position < p.second && tmp[position + 1] == '/')
+					{
+						in.ignore += p.second - position;
+						position = p.second + 1;
+					}
+					break;
+				}
 				case IN::Asterisk:
 				case IN::Equal:
 				case IN::LeftBrace:
@@ -79,7 +87,6 @@ namespace In
 				case IN::RightBrace:
 				case IN::RightParen:
 				case IN::Semicolon:
-				case IN::Slash:
 				case IN::Comma:
 				case IN::Compare:
 				{
