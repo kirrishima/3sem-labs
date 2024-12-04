@@ -29,13 +29,13 @@ namespace LexAn::Utils
 
 		if (!LT_file.is_open())
 		{
-			std::wcout << L"Не удалось открыть файл " << LT_filename << L"\n";
+			std::wcout << L"Не удалось открыть файл \"" << LT_filename << L"\"\n";
 			return;
 		}
 
 		if (!IT_file.is_open())
 		{
-			std::wcout << L"Не удалось открыть файл " << IT_filename << L"\n";
+			std::wcout << L"Не удалось открыть файл \"" << IT_filename << L"\"\n";
 			return;
 		}
 

@@ -143,6 +143,14 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				IT_entry.idtype = IT::IDTYPE::L;
 				IT_entry.value.vint = atoi(str);
 
+				int index = i - 1;
+				while (index > 0 && isdigit(in.text[index])) index--;
+
+				if (in.text[index] == '-')
+				{
+					IT_entry.value.vint *= -1;
+				}
+
 				int pos = IT::search(ID_Table, IT_entry);
 				if (pos >= 0)
 				{
@@ -150,7 +158,6 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					LT_entry.idxTI = pos;
 					break;
 				}
-
 
 				sprintf_s(IT_entry.id, "L%d", literalsCount++);
 				IT_entry.id[ID_SIZE] = '\0';
@@ -352,6 +359,10 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			goto add_LT_entry;
 			break;
 		case MINUS:
+			if (i > 0 && in.text[i - 1] == EQUAL)
+			{
+				break;
+			}
 			LT_entry.lexema[0] = LEX_MINUS;
 			goto add_LT_entry;
 			break;

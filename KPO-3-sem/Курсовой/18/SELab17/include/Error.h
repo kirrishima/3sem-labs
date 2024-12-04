@@ -19,7 +19,7 @@ namespace Error
 	struct ERROR // тип исключения для throw ERROR_THROW | ERROR_THROW_IN и catch(ERROR)
 	{
 		int id;									//код ошибки
-		char message[ERROR_MAXSIZE_MESSAGE];    // сообщение об ошибке 
+		const char* message/*[ERROR_MAXSIZE_MESSAGE]*/;    // сообщение об ошибке 
 		struct IN 								// расширение для ошибок при обработке входных данных
 		{
 			short line;							// номер строки (0, 1, 2, ...) 

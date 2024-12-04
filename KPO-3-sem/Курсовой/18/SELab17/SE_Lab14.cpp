@@ -7,11 +7,14 @@
 #include <locale>
 #include <chrono>
 #include "SVV.h"
+#include <map>
 
 using namespace std;
 using namespace MFST;
 using namespace GRB;
 namespace fs = std::filesystem;
+
+// Удобный alias для работы с типом _TCHAR
 
 std::set<std::u8string> get_files_in_directory(const std::wstring& path) {
 	std::set<std::u8string> files;
@@ -66,9 +69,20 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		argc++;
 		argv = new _TCHAR * [2];
 		argv[1] = const_cast<_TCHAR*>(L"-in:input.txt");
-
 	}
 #endif // _DEBUG
+
+	//// Вывод обработанных именованных параметров
+	//tcout << _T("Именованные параметры:\n");
+	//for (const auto& param : namedParams) {
+	//	tcout << _T("  -") << param.first << _T(": ") << param.second << std::endl;
+	//}
+
+	//// Вывод обработанных флагов
+	//tcout << _T("\nФлаги:\n");
+	//for (const auto& flag : flags) {
+	//	tcout << _T("  /") << flag.first << _T(": ") << (flag.second ? _T("true") : _T("false")) << std::endl;
+	//}
 
 	//const char* str = "!=";
 
@@ -83,18 +97,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	//auto initial_files = get_files_in_directory(current_path);
 
 #ifndef TEST
-	try {
-		Parm::PARM parm = Parm::getparm(argc, argv);
-		In::IN in = In::getin(parm.in);
-		cout << in.text << endl;
-		cout << "Всего символов: " << in.size << endl;
-		cout << "Всего строк: " << in.lines << endl;
-		cout << "Пропущено: " << in.ignore << endl;
-	}
-	catch (Error::ERROR e) {
-		cout << "Ошибка " << e.id << ": " << e.message << endl << endl;
-		cout << "строка " << e.inext.line << " позиция " << e.inext.col << endl << endl;
-	};
 
 #ifndef __DISABLE_LOGS
 	Log::LOG log = Log::INIT_LOG;
@@ -102,10 +104,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif // !__DISABLE_LOGS
 
 
-	Parm::PARM parm = Parm::getparm(argc, argv);
-	In::IN in = In::getin(parm.in);
-	cout << '\n';
+
 	try {
+		Parm::PARM parm = Parm::getparm(argc, argv);
+		In::IN in = In::getin(parm.in);
+		cout << '\n';
 #ifndef __DISABLE_LOGS
 		out = Out::getout(parm.out);
 		log = Log::getlog(parm.log);
@@ -159,7 +162,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Out::Close(out);
 #endif // !__DISABLE_LOGS
 
-
 		cout << "\n";
 
 		CD::CodeGeneration cd(IdTable, LexTable, parm.asem);
@@ -177,7 +179,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	catch (Error::ERROR e)
 	{
 		cout << "Ошибка" << e.id << ':' << e.message << endl << endl;
-		if (e.inext.line) {
+		if (e.inext.line >= 0) {
 #ifndef __DISABLE_LOGS
 			Log::WriteError(log, e);
 			Out::WriteError(out, e);
@@ -208,4 +210,4 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 #endif // !TEST
 	return 0;
-}
+		}
