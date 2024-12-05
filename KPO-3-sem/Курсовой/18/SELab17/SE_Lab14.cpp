@@ -12,6 +12,7 @@
 using namespace std;
 using namespace MFST;
 using namespace GRB;
+
 namespace fs = std::filesystem;
 
 // Удобный alias для работы с типом _TCHAR
@@ -178,7 +179,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	}
 	catch (Error::ERROR e)
 	{
-		cout << "Ошибка" << e.id << ':' << e.message << endl << endl;
+		cout << "Ошибка " << e.id << ':' << endl << e.message << endl;
 		if (e.inext.line >= 0) {
 #ifndef __DISABLE_LOGS
 			Log::WriteError(log, e);
@@ -210,4 +211,4 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 #endif // !TEST
 	return 0;
-		}
+}

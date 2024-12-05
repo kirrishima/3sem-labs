@@ -6,17 +6,17 @@ using namespace std;
 void CD::CodeGeneration::__s_const()
 {
 	OUT_ASM_FILE << ".const\n";
-	for (size_t i = 0; i < ID_TABLE.size; i++)
+	for (int i = 0; i < ID_TABLE.size; i++)
 	{
 		if (ID_TABLE.table[i].idtype == IT::L)
 		{
 			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::INT)
 			{
-				OUT_ASM_FILE << '\t' << __getIDnameInDataSegment(ID_TABLE.table[i]) << " SDWORD " << ID_TABLE.table[i].value.vint << '\n';
+				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " SDWORD " << ID_TABLE.table[i].value.vint << '\n';
 			}
 			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::STR)
 			{
-				OUT_ASM_FILE << '\t' << __getIDnameInDataSegment(ID_TABLE.table[i]) << " db \"" << ID_TABLE.table[i].value.vstr->str << "\", 0\n";
+				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " db \"" << ID_TABLE.table[i].value.vstr->str << "\", 0\n";
 			}
 		}
 	}
@@ -24,38 +24,38 @@ void CD::CodeGeneration::__s_const()
 
 void CD::CodeGeneration::__s_data()
 {
-	OUT_ASM_FILE << ".data\n";
+	OUT_ASM_FILE << ".data\n" << tab << reservedBoolName << ' ' << "byte" << " ? \n";
 
-	for (size_t i = 0; i < ID_TABLE.size; i++)
+	for (int i = 0; i < ID_TABLE.size; i++)
 	{
 		auto entry = &ID_TABLE.table[i];
 		if (entry->idtype == IT::IDTYPE::V)
 		{
 			if (entry->iddatatype == IT::INT)
 			{
-				OUT_ASM_FILE << "\t" << __getIDnameInDataSegment(*entry)
-					<< " SDWORD "
+				OUT_ASM_FILE << tab << get_id_name_in_data_segment(*entry)
+					<< " sdword "
 					<< "0\n";
 			}
-			if (entry->iddatatype == IT::STR)
-			{
-				OUT_ASM_FILE << "\t" << __getIDnameInDataSegment(*entry);
-				//if (entry->value.vstr->len > 0)
-				//{
-				//	OUT_ASM_FILE << " db ";
-
-				//	OUT_ASM_FILE << '"' << entry->value.vstr->str << "\" , 0\n";
-				//}
-			//else
+			//if (entry->iddatatype == IT::STR)
 			//{
-				OUT_ASM_FILE << " dword ?\n";
-				/*}*/
-			}
+			//	OUT_ASM_FILE << tab << get_id_name_in_data_segment(*entry);
+			//	//if (entry->value.vstr->len > 0)
+			//	//{
+			//	//	OUT_ASM_FILE << " db ";
+
+			//	//	OUT_ASM_FILE << '"' << entry->value.vstr->str << "\" , 0\n";
+			//	//}
+			////else
+			////{
+			//	OUT_ASM_FILE << " dword ?\n";
+			//	/*}*/
+			//}
 		}
 	}
 }
 
-std::string CD::CodeGeneration::__getIDnameInDataSegment(const IT::Entry& entry)
+std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& entry)
 {
 	static unordered_map <int, std::string> var;
 

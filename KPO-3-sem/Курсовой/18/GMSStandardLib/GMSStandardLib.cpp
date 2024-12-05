@@ -1,14 +1,15 @@
-﻿// GMSStandardLib.cpp : Defines the functions for the static library.
-//
-
-#include "pch.h"
+﻿#include "pch.h"
 #include "framework.h"
 #include <Windows.h>
 
-// TODO: This is an example of a library function
 extern "C" void __stdcall __PrintNumber(int n)
 {
 	std::cout << "number: " << n << std::endl;
+}
+
+extern "C" void __stdcall __PrintBool(bool b)
+{
+	std::cout << (b ? "True" : "False");
 }
 
 extern "C" void __stdcall __PrintArray(void* arr, int n, int type)

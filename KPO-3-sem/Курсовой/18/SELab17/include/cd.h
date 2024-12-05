@@ -10,22 +10,27 @@ using namespace std;
 
 namespace CD
 {
+	bool is_assignment(const std::string& expr);
+
 	struct CodeGeneration {
 		std::string tab = "    ";
+		const std::string reservedBoolName = "_@bool";
+
+		int trueLabelsCount = 0;
 
 		IT::ID_Table ID_TABLE;
 		LT::LexTable LEX_TABLE;
 		std::ofstream OUT_ASM_FILE;
 
-		static std::string __getIDnameInDataSegment(const IT::Entry& entry);
 
 		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const std::wstring& OUT_FILEPATH)
-			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), ifElseGeneration(*this)
+			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), ifElseGen(*this)
 		{
 			this->OUT_ASM_FILE.open(OUT_FILEPATH);
 		}
 
-		std::vector<std::string> __generate_math_expressions(const std::string& expr);
+		static std::string get_id_name_in_data_segment(const IT::Entry& entry);
+		std::vector<std::string> generate_math_expressions(const std::string& expr);
 		void __s_const();
 		void __s_data();
 
@@ -72,13 +77,53 @@ namespace CD
 			}
 			}
 		}
-
 		std::vector<std::string> parse_lexem(int& index_in_lex_table);
-		std::vector<std::string> parse_expression(vector<int> ids);
-		vector<string> __parse_print_expression_(int& i);
+		vector<string> parse_lexem_equal__(int& index_in_lex_table);
 
-		std::string __get_string_value(const int lex_id);
-		std::string __lexemVectorIDStoString(const vector<int>& ids);
+		struct ParseExpressionReturnParms
+		{
+			bool isSingleVariable = true;
+
+			bool isResultComputed = false;
+			bool isResultInDefaultBool = false;
+			bool isResultInEAX = false;
+			bool isResultInEBX = false;
+			bool isResultInSTACK = false;
+
+			bool isStringCompare = false;
+			bool isIntCompare = false;
+			bool isCompare = false;
+
+			bool isMath = false;
+			bool isINT = false;
+			bool isSTR = false;
+
+			std::string stringRepresentation;
+			std::string resultStorage;
+		};
+
+		/// <summary>
+		/// выражение присваивания, параметры функции print, условия  
+		/// </summary>
+		/// <param name="ids"></param>
+		/// <param name="instructions"></param>
+		/// <returns></returns>
+		ParseExpressionReturnParms parse_expression(vector<int> ids, std::vector<std::string>& instructions);
+		vector<string> parse_print_lexem__(int& i);
+
+		/// <summary>
+		/// Возвращает строку, представляющую собой текущее значение строковой переменной
+		/// </summary>
+		/// <param name="lex_id"></param>
+		/// <returns></returns>
+		std::string get_string_value(const int lex_id);
+		//// <summary>
+		/// Преобразует входной вектор индексов лексем в строку, представляющую выражение с именами на асм.
+		/// Используется для генерации польской натации по выражению
+		/// </summary>
+		/// <param name="ids">индексы лесем</param>
+		/// <returns></returns>
+		std::string lexems_vector_to_string(const vector<int>& ids);
 
 		void gen(const std::wstring& OUT_FILEPATH, bool);
 
@@ -97,7 +142,9 @@ namespace CD
 
 			std::stack<std::string> if_stack;
 
-			void GenerateCondition(
+			std::string cmp_op_to_jmp(std::string comparison);
+
+			void generate_condition__(
 				const std::vector<std::string>& operands, // два операнда - левый и правый 
 				const std::string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
 				const std::string& trueLabel, // имя метки если условие выполняется
@@ -105,22 +152,22 @@ namespace CD
 				std::vector<std::string>& instructions, bool isStringCmp = false
 			);
 
-			void CompareInts(std::vector<std::string>& instructions, const vector<string>& operands);
-			void CompareStrings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name);
+			void compare_ints(std::vector<std::string>& instructions, const vector<string>& operands);
+			void compare_strings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name);
 
-			void StartIf(const vector<vector<int>>& operands, //2 операнда: левый и правый
+			void start_if__(const vector<vector<int>>& operands, //2 операнда: левый и правый
 				const string&,  // операция (>, <, ==, !=, >=, <=)
 				std::vector<std::string>& // вектор с инструкциями, в которые будет добавлен сгенерированные новые
 			);
-			void StartElse(std::vector<std::string>& instructions);
-			void EndIfOrElse(std::vector<std::string>& instructions);
-			void EndExpression(std::vector<std::string>& instructions);
+			void start_else__(std::vector<std::string>& instructions);
+			void end_if_or_else__(std::vector<std::string>& instructions);
+			void end_expression__(std::vector<std::string>& instructions);
 
-			std::vector<std::string> generateIfStatement(int& i);
+			std::vector<std::string> generate_if_statement(int& i);
 
-			string GenerateLabel(const string& prefix, int n) {
+			string generate_label(const string& prefix, int n) {
 				return prefix + "_" + to_string(n);
 			}
-		} ifElseGeneration;
+		} ifElseGen;
 	};
 }

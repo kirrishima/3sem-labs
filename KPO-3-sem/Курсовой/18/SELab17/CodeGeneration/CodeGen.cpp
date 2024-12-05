@@ -21,6 +21,7 @@ namespace CD
 		OUT_ASM_FILE << ".model flat, stdcall\n";
 		OUT_ASM_FILE << "ExitProcess PROTO : DWORD\n";
 		OUT_ASM_FILE << "__PrintNumber PROTO :SDWORD\n";
+		OUT_ASM_FILE << "__PrintBool PROTO :BYTE\n";
 		OUT_ASM_FILE << "__PrintArray PROTO :DWORD, :DWORD, :DWORD\n";
 		OUT_ASM_FILE << "__StrCmp PROTO :DWORD, :DWORD\n";
 		OUT_ASM_FILE << "\n.stack 4096\n\n";
@@ -77,7 +78,7 @@ ENDM)" << "\n\n";
 			case '}':
 				break;
 			case '?':
-				for (const std::string& str : ifElseGeneration.generateIfStatement(i))
+				for (const std::string& str : ifElseGen.generate_if_statement(i))
 				{
 					OUT_ASM_FILE << str << '\n';
 				}

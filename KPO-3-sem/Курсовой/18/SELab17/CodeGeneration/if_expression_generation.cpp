@@ -21,16 +21,40 @@ std::ostream& operator<<(std::ostream& os, const std::pair<std::string, int>& st
 // для std::string и int (уже имеется)
 std::string operator*(const std::string& str, int times) {
 	std::string new_str;
-	for (size_t i = 0; i < times; i++)
+	for (int i = 0; i < times; i++)
 	{
 		new_str += str;
 	}
 	return new_str;
 }
 
+std::string CD::CodeGeneration::IfElseGeneration::cmp_op_to_jmp(std::string comparison)
+{
+	if (comparison == ">") {
+		return "jg";
+	}
+	else if (comparison == "<") {
+		return "jl";
+	}
+	else if (comparison == "=") {
+		return "je";
+	}
+	else if (comparison == "!=") {
+		return "jne";
+	}
+	else if (comparison == ">=") {
+		return "jge";
+	}
+	else if (comparison == "<=") {
+		return "jle";
+	}
+	else {
+		throw std::runtime_error("Неожиданная операция сравнения при генерации if-else: " + comparison);
+	}
+}
 
 // Генерация условия
-void CD::CodeGeneration::IfElseGeneration::GenerateCondition(
+void CD::CodeGeneration::IfElseGeneration::generate_condition__(
 	const vector<string>& operands, // два операнда - левый и правый 
 	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
 	const string& trueLabel, // имя метки если условие выполняется
@@ -50,38 +74,19 @@ void CD::CodeGeneration::IfElseGeneration::GenerateCondition(
 			operands[0] + comparison + operands[1]);
 	}
 
-	if (comparison == ">") {
-		instructions.push_back(parent.tab * nestingLevel + "jg " + trueLabel);
-	}
-	else if (comparison == "<") {
-		instructions.push_back(parent.tab * nestingLevel + "jl " + trueLabel);
-	}
-	else if (comparison == "=") {
-		instructions.push_back(parent.tab * nestingLevel + "je " + trueLabel);
-	}
-	else if (comparison == "!=") {
-		instructions.push_back(parent.tab * nestingLevel + "jne " + trueLabel);
-	}
-	else if (comparison == ">=") {
-		instructions.push_back(parent.tab * nestingLevel + "jge " + trueLabel);
-	}
-	else if (comparison == "<=") {
-		instructions.push_back(parent.tab * nestingLevel + "jle " + trueLabel);
-	}
-	else {
-		throw std::runtime_error("Неожиданная операция сравнения при генерации if-else: " + comparison);
-	}
+	instructions.push_back(parent.tab * nestingLevel + cmp_op_to_jmp(comparison) + " " + trueLabel);
+
 	instructions.push_back(parent.tab * nestingLevel + "jmp " + falseLabel);
 }
 
 // Начало `if`
-void CD::CodeGeneration::IfElseGeneration::StartIf(
+void CD::CodeGeneration::IfElseGeneration::start_if__(
 	const vector<vector<int>>& operands, // два операнда - левый и правый 
 	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
 	std::vector<std::string>& instructions // текущие инструкции
 ) {
-	string trueLabel = GenerateLabel("IF_TRUE", IFLabelsCount);
-	string endLabel = GenerateLabel("IF_END", IFLabelsCount);
+	string trueLabel = generate_label("IF_TRUE", IFLabelsCount);
+	string endLabel = generate_label("IF_END", IFLabelsCount);
 	currentElseLabel = IFLabelsCount++; // увеличиваем номер else
 	if_stack.push(endLabel);
 
@@ -109,29 +114,29 @@ void CD::CodeGeneration::IfElseGeneration::StartIf(
 		&& parent.ID_TABLE.table[parent.LEX_TABLE.table[operands[0][0]].idxTI].iddatatype == IT::IDDATATYPE::STR
 		&& parent.ID_TABLE.table[parent.LEX_TABLE.table[operands[1][0]].idxTI].iddatatype == IT::IDDATATYPE::STR)
 	{
-		CompareStrings(instructions, parent.__get_string_value(operands[0][0]), parent.__get_string_value(operands[1][0]));
+		compare_strings(instructions, parent.get_string_value(operands[0][0]), parent.get_string_value(operands[1][0]));
 		isStringCmp = true;
 	}
 	else
 	{
 		vector<string> str_operands(2, "");
-		str_operands[0] = parent.__lexemVectorIDStoString(operands[0]);
-		str_operands[1] = parent.__lexemVectorIDStoString(operands[1]);
+		str_operands[0] = parent.lexems_vector_to_string(operands[0]);
+		str_operands[1] = parent.lexems_vector_to_string(operands[1]);
 
-		CompareInts(instructions, str_operands);
+		compare_ints(instructions, str_operands);
 	}
 
 	instructions.push_back(parent.tab * nestingLevel + "; Начало if " + to_string(currentElseLabel));
 
 	// Генерация условия
-	GenerateCondition(comments_operands, comparison, trueLabel, endLabel, instructions, isStringCmp);
+	generate_condition__(comments_operands, comparison, trueLabel, endLabel, instructions, isStringCmp);
 	instructions.push_back(parent.tab * (nestingLevel - 1) + trueLabel + ':');
 }
 
-void CD::CodeGeneration::IfElseGeneration::CompareInts(std::vector<std::string>& instructions, const vector<string>& operands)
+void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>& instructions, const vector<string>& operands)
 {
-	auto math_instructionsRight = parent.__generate_math_expressions(operands[1]);
-	auto math_instructionsLeft = parent.__generate_math_expressions(operands[0]);
+	auto math_instructionsRight = parent.generate_math_expressions(operands[1]);
+	auto math_instructionsLeft = parent.generate_math_expressions(operands[0]);
 
 	if (math_instructionsRight.size() == 1 && math_instructionsLeft.size() == 1)
 	{
@@ -169,21 +174,21 @@ void CD::CodeGeneration::IfElseGeneration::CompareInts(std::vector<std::string>&
 	}
 }
 
-void CD::CodeGeneration::IfElseGeneration::CompareStrings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name)
+void CD::CodeGeneration::IfElseGeneration::compare_strings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name)
 {
 	instructions.push_back(parent.tab * nestingLevel + format("StrCmpCallMACRO {}, {}", str1Name, str2Name));
 }
 
 // Генерация блока `else`
-void CD::CodeGeneration::IfElseGeneration::StartElse(std::vector<std::string>& instructions) {
+void CD::CodeGeneration::IfElseGeneration::start_else__(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
 	string endLabel = if_stack.top();
-	string elseLabel = GenerateLabel("ELSE", currentElseLabel); // -1 так как уже счетчик перешел к следующим, 
+	string elseLabel = generate_label("ELSE", currentElseLabel); // -1 так как уже счетчик перешел к следующим, 
 	//еще не созданным if, а else на 1 меньше
 
-	for (int i = 0; i < instructions.size(); i++)
+	for (size_t i = 0; i < instructions.size(); i++)
 	{
 		if (instructions[i].find(endLabel) != string::npos)
 		{
@@ -196,7 +201,7 @@ void CD::CodeGeneration::IfElseGeneration::StartElse(std::vector<std::string>& i
 }
 
 // Завершение `if` или `else`
-void CD::CodeGeneration::IfElseGeneration::EndIfOrElse(std::vector<std::string>& instructions) {
+void CD::CodeGeneration::IfElseGeneration::end_if_or_else__(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -207,7 +212,7 @@ void CD::CodeGeneration::IfElseGeneration::EndIfOrElse(std::vector<std::string>&
 }
 
 // Завершение `if` или `else`
-void CD::CodeGeneration::IfElseGeneration::EndExpression(std::vector<std::string>& instructions) {
+void CD::CodeGeneration::IfElseGeneration::end_expression__(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -221,7 +226,7 @@ void CD::CodeGeneration::IfElseGeneration::EndExpression(std::vector<std::string
 }
 
 
-std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generateIfStatement(int& i)
+std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_statement(int& i)
 {
 	std::vector<std::string> instructions;
 	int ifcounts = 0;
@@ -256,7 +261,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generateIfStateme
 				i++;
 			} // while
 			ifcounts++;
-			StartIf(operands, operation, instructions);
+			start_if__(operands, operation, instructions);
 		}
 
 		while (i < parent.LEX_TABLE.size && parent.LEX_TABLE.table[i].lexema[0] != '}')
@@ -264,7 +269,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generateIfStateme
 			switch (parent.LEX_TABLE.table[i].lexema[0]) {
 
 			case '?':
-				for (const std::string& str : generateIfStatement(i))
+				for (const std::string& str : generate_if_statement(i))
 				{
 					instructions.push_back(str);
 				}
@@ -285,16 +290,16 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generateIfStateme
 			i++;
 		}
 
-		EndIfOrElse(instructions);
+		end_if_or_else__(instructions);
 
 		if (parent.LEX_TABLE.table[i + 1].lexema[0] == ':')
 		{
 			i += 2;
-			StartElse(instructions);
+			start_else__(instructions);
 
 			if (parent.LEX_TABLE.table[i].lexema[0] == '?')
 			{
-				std::vector<std::string> insts = generateIfStatement(i);
+				std::vector<std::string> insts = generate_if_statement(i);
 				for (const std::string& ins : insts)
 				{
 					instructions.push_back(ins);
@@ -305,7 +310,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generateIfStateme
 		}
 		break;
 	}
-	EndExpression(instructions);
+	end_expression__(instructions);
 
 	return instructions;
 }

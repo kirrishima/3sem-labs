@@ -148,9 +148,13 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="CodeGeneration\arithmetic_expressions.cpp" />
+    <ClCompile Include="CodeGeneration\CodeGen.cpp" />
     <ClCompile Include="CodeGeneration\data_const_segments.cpp" />
     <ClCompile Include="CodeGeneration\if_expression_generation.cpp" />
     <ClCompile Include="CodeGeneration\parse_expression.cpp" />
+    <ClCompile Include="CodeGeneration\parse_expression_inside_parentheses.cpp" />
+    <ClCompile Include="CodeGeneration\parse_lexem_equal.cpp" />
+    <ClCompile Include="CodeGeneration\parse_utils.cpp" />
     <ClCompile Include="Error.cpp" />
     <ClCompile Include="FST.cpp" />
     <ClCompile Include="GRB.cpp" />
@@ -163,7 +167,6 @@
     <ClCompile Include="Out.cpp" />
     <ClCompile Include="Parm.cpp" />
     <ClCompile Include="SE_Lab14.cpp" />
-    <ClCompile Include="CodeGen.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

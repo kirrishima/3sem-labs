@@ -128,7 +128,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				if (indexIT != -1)
 				{
-					throw ERROR_THROW(105);
+					std::cout << "Вторая точка входа определена в строке " << currentLine << std::endl;
+					throw ERROR_THROW(140);
 				}
 
 				LT_entry.idxTI = ID_Table.size;
@@ -240,7 +241,16 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					IT::Add(ID_Table, IT_entry); // добавляем id
 					addedToITFlag = true;
 				}
-
+				else if (in.text[i] == LEX_EQUAL)
+				{
+					if (IT::search(ID_Table, IT_entry) == -1
+						&& LexTable.table[LexTable.size - 2].lexema[0] != LEX_TYPE)
+					{
+						std::cout << "Идентификатор " << IT_entry.id
+							<< " использован до объявления в строке " << currentLine << std::endl;
+						throw ERROR_THROW(142);
+					}
+				}
 				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_FUNCTION) // если предыдущая лексема была фукнция (f, в коде function)
 				{
 					IT_entry.idtype = IT::F; // указываем это
@@ -424,8 +434,9 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 			index--; // цикл находит индекс символа за ковычкой
 
-			if (str[0] == '\'' && ID_Table.size > 1 // если это строковой литерал инициализирует переменную
-				&& ID_Table.table[ID_Table.size - 1].idtype == IT::V)
+			if (ID_Table.size > 0 // если это строковой литерал инициализирует переменную
+				&& ID_Table.table[ID_Table.size - 1].idtype == IT::V && LexTable.size > 2
+				&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL)
 			{
 				ID_Table.table[ID_Table.size - 1].iddatatype = IT::STR;
 				if (in.text[index] == MARK /*&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL*/) // если была найдена вторая кавычка
@@ -461,6 +472,13 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 			IT_entry.value.vstr->str[index - i - 1] = '\0';
 			IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
+
+			if (IT_entry.value.vstr->len <= 0)
+			{
+				std::cout << "Пустой литерал в строке " << currentLine << std::endl;
+				ERROR_THROW(141);
+			}
+
 			LT_entry.sn = currentLine;
 			IT_entry.scope = NULL;
 			IT_entry.idxfirstLE = currentLine;

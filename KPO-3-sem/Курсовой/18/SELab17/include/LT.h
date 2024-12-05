@@ -5,19 +5,20 @@
 #define LT_TI_NULLIDX 0XFFFFFFFF  // Указатель на отсутствующий индекс в таблице.
 
 // Лексемы для типов данных.
-#define LEX_INTEGER 't'           // Целое число.
-#define LEX_STRING 't'            // Строка.
+#define LEX_TYPE		't'
+#define LEX_INTEGER		LEX_TYPE           // Целое число.
+#define LEX_STRING		LEX_TYPE           // Строка.
 
 // Лексемы для идентификаторов и литералов.
-#define LEX_ID 'i'                // Идентификатор.
-#define LEX_LITERAL 'l'           // Литерал.
+#define LEX_ID		'i'                // Идентификатор.
+#define LEX_LITERAL 'l'				   // Литерал.
 
 // Лексемы для ключевых слов.
-#define LEX_FUNCTION 'f'          // Ключевое слово: функция.
-#define LEX_DECLARE 'd'           // Ключевое слово: объявление переменной.
-#define LEX_RETURN 'r'            // Ключевое слово: возврат.
-#define LEX_PRINT 'p'             // Ключевое слово: печать.
-#define LEX_MAIN 'm'              // Ключевое слово: главная функция.
+#define LEX_FUNCTION	'f'          // Ключевое слово: функция.
+#define LEX_DECLARE		'd'          // Ключевое слово: объявление переменной.
+#define LEX_RETURN		'r'          // Ключевое слово: возврат.
+#define LEX_PRINT		'p'          // Ключевое слово: печать.
+#define LEX_MAIN		'm'          // Ключевое слово: главная функция.
 
 // Лексемы для разделителей.
 #define LEX_SEMICOLON ';'         // Символ: точка с запятой.

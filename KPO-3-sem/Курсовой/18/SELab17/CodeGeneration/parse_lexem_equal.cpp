@@ -1,0 +1,62 @@
+#include "stdafx.h"
+#include "cd.h"
+#include <vector>
+
+using namespace std;
+
+vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
+{
+	if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].iddatatype == IT::IDDATATYPE::STR
+		/*&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].value.vstr->len > 0*/)
+	{
+		if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::V) // если присваем значение переменной
+		{
+			if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].iddatatype == IT::IDDATATYPE::STR)
+			{
+				ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].idxfirstLE =
+					ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idxfirstLE;
+			}
+			else
+			{
+				throw "Присвоение неверного типа данных: " + ("dest: " + to_string(IT::IDDATATYPE::STR) + ", src: " +
+					to_string(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].iddatatype));
+			}
+		}
+		else if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::L) // если присваем значеним литерала
+		{
+			ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].idxfirstLE = index_in_lex_table + 1;
+		}
+		else
+		{
+			throw "Присвоение неверного типа данных: " + ("dest: " + to_string(IT::IDDATATYPE::STR) + ", src: " +
+				to_string(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].iddatatype));
+		}
+		return {};
+	}
+
+	vector<int> lexems;
+
+	index_in_lex_table++;
+	while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
+		lexems.push_back(index_in_lex_table++);
+
+	std::vector<std::string> instructions_set;
+
+	auto p = parse_expression(lexems, instructions_set);
+
+	if (p.isCompare)
+	{
+		throw "parse_lexem_equal: присвоение логических значений не допускается";
+	}
+	if (p.isSingleVariable)
+	{
+		instructions_set.push_back(format("mov eax, {}", p.resultStorage));
+		instructions_set.push_back(format("mov {}, eax", get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[lexems[0] - 2].idxTI]))); // -2 от литерала/id
+	}
+	else if (p.isMath)
+	{
+		instructions_set.push_back(format("mov {}, eax", p.resultStorage));
+	}
+
+	return instructions_set;
+}

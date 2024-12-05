@@ -118,8 +118,6 @@ namespace CD
 	}
 
 	void generateMASM(const vector<string>& rpn) {
-		bool printedNLafterpush = false;
-
 		if (rpn.size() == 1)
 		{
 			masmCode.push_back("push " + rpn[0]);
@@ -141,15 +139,10 @@ namespace CD
 
 		for (const string& token : rpn) {
 			if (isIdentifier(token) || isLiteral(token)) {
-				if (!printedNLafterpush)
-				{
-					printedNLafterpush = true;
-				}
 				// Если токен — идентификатор или литерал, генерируем `push`
 				masmCode.push_back("push " + token);
 			}
 			else if (isOperator(token[0])) {
-				printedNLafterpush = false;
 				// Если токен — оператор, извлекаем два операнда из стека
 				masmCode.push_back("pop ebx"); // Второй операнд
 				masmCode.push_back("pop eax"); // Первый операнд
@@ -170,7 +163,7 @@ namespace CD
 		}
 	}
 
-	std::vector<std::string> CD::CodeGeneration::__generate_math_expressions(const std::string& expr)
+	std::vector<std::string> CD::CodeGeneration::generate_math_expressions(const std::string& expr)
 	{
 		masmCode.clear();
 		vector<string> result = parseExpression(expr);
