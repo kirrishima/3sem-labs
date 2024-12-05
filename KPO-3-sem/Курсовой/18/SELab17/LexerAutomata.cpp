@@ -38,6 +38,7 @@ char LexAn::determineLexeme()
 	}
 	if (execute(*StringFST))
 	{
+		stringFlag = true;
 		return LEX_STRING;
 	}
 
@@ -222,7 +223,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				IT_entry.idxfirstLE = currentLine; // номер строки для этого id в таблице лексем 
 				IT_entry.idtype = IT::V; // по умолчанию расцениваем как обычную переменную
 
-				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_INTEGER) // если это объявление переменной (ключ. слово declare + тип_данных + текущий_id)
+				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_TYPE) // если это объявление переменной (ключ. слово declare + тип_данных + текущий_id)
 				{
 					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag) // если это была строка (stringFlag устанавливается в determineLexeme)
 					{
@@ -337,6 +338,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				IT_entry.value.vint = NULL; // без значения (по факту будет 0)
 				addedToITFlag = false;
 
+
+
 				break;
 			}
 			default:
@@ -352,6 +355,23 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT_entry.sn = currentLine;
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
+
+			if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_ID)
+			{
+				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_EQUAL
+					&& LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID)
+				{
+					if (ID_Table.table[LexTable.table[LexTable.size - 1].idxTI].iddatatype !=
+						ID_Table.table[LexTable.table[LexTable.size - 3].idxTI].iddatatype)
+					{
+						std::cout << "Строка " << currentLine << ", типы операндов не совпадают.\n";
+
+						if (ID_Table.table[LexTable.table[LexTable.size - 1].idxTI].iddatatype == IT::INT)
+							throw ERROR_THROW(143)
+						else ERROR_THROW(144)
+					}
+				}
+			}
 		}
 
 		switch (in.text[i])
@@ -438,7 +458,12 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				&& ID_Table.table[ID_Table.size - 1].idtype == IT::V && LexTable.size > 2
 				&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL)
 			{
-				ID_Table.table[ID_Table.size - 1].iddatatype = IT::STR;
+
+				if (ID_Table.table[ID_Table.size - 1].iddatatype != IT::STR)
+				{
+					std::cout << "Ошибка в строке " << currentLine << std::endl;
+					throw ERROR_THROW(143);
+				}
 				if (in.text[index] == MARK /*&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL*/) // если была найдена вторая кавычка
 				{
 					sprintf(ID_Table.table[ID_Table.size - 1].value.vstr->str, "L%d\0", literalsCount); // сохраняем не значение, а номер литерала. e.g L3 или L0
