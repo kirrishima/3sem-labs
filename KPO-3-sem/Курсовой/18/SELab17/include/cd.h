@@ -73,7 +73,10 @@ namespace CD
 			}
 		}
 
-		std::vector<std::string> parse_expression(int& index_in_lex_table);
+		std::vector<std::string> parse_lexem(int& index_in_lex_table);
+		std::vector<std::string> parse_expression(vector<int> ids);
+		vector<string> __parse_print_expression_(int& i);
+
 		std::string __get_string_value(const int lex_id);
 		std::string __lexemVectorIDStoString(const vector<int>& ids);
 

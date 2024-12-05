@@ -272,7 +272,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generateIfStateme
 			case '=':
 			case 'p':
 			{
-				auto res = parent.parse_expression(i);
+				auto res = parent.parse_lexem(i);
 				for (const std::string& s : res)
 				{
 					instructions.push_back(parent.tab * nestingLevel + s);

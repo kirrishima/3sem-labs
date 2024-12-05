@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "cd.h"
+#include <vector>
 
 using namespace std;
 
@@ -14,7 +15,7 @@ bool isAssignment(const std::string& expr) {
 	return true;
 }
 
-std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_table)
+std::vector<std::string> CD::CodeGeneration::parse_lexem(int& index_in_lex_table)
 {
 	std::vector<std::string> instructions_set;
 
@@ -98,19 +99,122 @@ std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_
 	}
 	case 'p':
 	{
-		int idxIT = IT::search(ID_TABLE, ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 2].idxTI]);
+		auto print_insts = __parse_print_expression_(index_in_lex_table);
+		instructions_set.insert(instructions_set.end(), print_insts.begin(), print_insts.end());
+		break;
+	}
+	default:
+		break;
+	}
+	return instructions_set;
+}
+
+std::vector<std::string> CD::CodeGeneration::parse_expression(vector<int> ids)
+{
+	bool isCompare = false;
+	bool isMath = false;
+	bool isINT = false;
+	bool isSTR = false;
+
+	// что нам дали?
+	for (int id : ids)
+	{
+		LT::Entry& lt_entry = LEX_TABLE.table[id];
+		switch (LEX_TABLE.table[id].lexema[0])
+		{
+		case LEX_ID:
+			switch (ID_TABLE.table[lt_entry.idxTI].iddatatype)
+			{
+			case IT::IDDATATYPE::INT:
+				isINT = true;
+				break;
+			case IT::IDDATATYPE::STR:
+				isSTR = true;
+				break;
+			}
+			break;
+		case LEX_COMPARE:
+			isCompare = true;
+			break;
+		case LEX_MATH:
+			isMath = true;
+			break;
+		default:
+			break;
+		}
+	}
+
+	std::vector<std::string> instructions;
+
+	// выражение сравнени€ (что_то операци€_сравнени€ что_то_еще)
+	if (isCompare)
+	{
+		vector<vector<int>> operands;
+		int pos = 0;
+		int operationID = 0;
+
+		for (int id : ids) // слева и справа от оператора сравнени€
+		{
+			if (LEX_TABLE.table[id].lexema[0] == LEX_COMPARE)
+			{
+				pos++;
+				continue;
+			}
+			operands[pos].push_back(id);
+		}
+
+		if (isSTR)
+		{
+			if (operands[0].size() != 1 || operands[1].size() != 1)
+				throw "parse_expression: установлен флаг isSTR, но число операндов не равно по 1 дл€ каждой стороны";
+
+			ifElseGeneration.CompareStrings(instructions, __get_string_value(operands[0][0]), __get_string_value(operands[1][0]));
+		}
+		else if (isINT)
+		{
+			vector<string> str_operands(2, "");
+			str_operands[0] = __lexemVectorIDStoString(operands[0]);
+			str_operands[1] = __lexemVectorIDStoString(operands[1]);
+
+			ifElseGeneration.CompareInts(instructions, str_operands);
+			//ifElseGeneration.CompareInts(instructions, operands)
+		}
+	}
+}
+
+vector<string> CD::CodeGeneration::__parse_print_expression_(int& index_in_lex_table)
+{
+
+	if (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_PRINT)
+	{
+		throw "__parse_print_expression_: передан индекс лексемы, котора€ не равна LEX_PRINT";
+	}
+	vector<string> instructions_set;
+	vector<int> lexems;
+
+	index_in_lex_table += 2;
+
+	while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
+	{
+		cout << LEX_TABLE.table[index_in_lex_table].lexema[0];
+		lexems.push_back(index_in_lex_table++);
+	};
+	lexems.pop_back();
+	cout << endl;
+
+	if (lexems.size() == 1)
+	{
+		int idxIT = IT::search(ID_TABLE, ID_TABLE.table[LEX_TABLE.table[lexems[0]].idxTI]); // (x
 		if (idxIT < 0)
 		{
 			cout << "¬стречен неопознанный индификатор в праметрах функции print. »м€ "
-				<< ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 2].idxTI].id
+				<< ID_TABLE.table[LEX_TABLE.table[lexems[0]].idxTI].id
 				<< " не было найдено в таблице индификаторов.";
 
 			throw "Wrong id in print's params";
 		}
 		IT::Entry* id = &ID_TABLE.table[idxIT];
 
-		//if (id->idtype == IT::IDTYPE::L)
-		//{
 		if (id->iddatatype == IT::IDDATATYPE::INT)
 		{
 			instructions_set.push_back("push " + __getIDnameInDataSegment(ID_TABLE.table[idxIT]));
@@ -133,17 +237,21 @@ std::vector<std::string> CD::CodeGeneration::parse_expression(int& index_in_lex_
 		{
 			throw "Ќеожиданный тип литерала: " + to_string(id->iddatatype);
 		}
-
 	}
 
-	break;
-	default:
-		break;
+	if (lexems.size() > 2)
+	{
+
 	}
 	return instructions_set;
 }
 
-
+/// <summary>
+/// ѕреобразует входной вектор индексов лексем в строку, представл€ющую выражение с именами на асм.
+/// »спользуетс€ дл€ генерации польской натации по выражению
+/// </summary>
+/// <param name="ids">индексы лесем</param>
+/// <returns></returns>
 std::string CD::CodeGeneration::__lexemVectorIDStoString(const vector<int>& ids)
 {
 	string result = "";

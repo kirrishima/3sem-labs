@@ -61,7 +61,7 @@ ENDM)" << "\n\n";
 			case 'p':
 			case '=':
 			{
-				auto res = parse_expression(i);
+				auto res = parse_lexem(i);
 				for (const std::string& s : res)
 				{
 					OUT_ASM_FILE << '\t' << s << '\n';
