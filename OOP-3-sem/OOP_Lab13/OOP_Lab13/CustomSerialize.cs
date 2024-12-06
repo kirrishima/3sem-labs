@@ -3,11 +3,33 @@ using System.Xml.Serialization;
 using OOP_Lab13.OOP_Lab04.Figures;
 using OOP_Lab13.Models;
 using System.Runtime.Serialization.Formatters.Soap;
+using System.Runtime.Serialization.Formatters.Binary;
 
 namespace OOP_Lab13
 {
     public class CustomSerialize
     {
+/*        public static void SerializeToBinary(Rectangle rectangle)
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            using (FileStream fs = new FileStream("binary.dat", FileMode.OpenOrCreate))
+            {
+                formatter.Serialize(fs, rectangle);
+            }
+        }
+
+        public static void DeserializeFromBinary()
+        {
+            BinaryFormatter formatter = new BinaryFormatter();
+
+            using (FileStream fs = new FileStream("binary.dat", FileMode.OpenOrCreate))
+            {
+                Rectangle newR = (Rectangle)formatter.Deserialize(fs);
+                Console.WriteLine(newR.ToString());
+            }
+        }*/
+
         public static void SerializeToXML(Rectangle rectangle)
         {
             XmlSerializer xSer = new(typeof(Rectangle));

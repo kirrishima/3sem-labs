@@ -9,7 +9,7 @@ extern "C" void __stdcall __PrintNumber(int n)
 
 extern "C" void __stdcall __PrintBool(bool b)
 {
-	std::cout << (b ? "True" : "False");
+	std::cout << (b ? "True" : "False") << std::endl;
 }
 
 extern "C" void __stdcall __PrintArray(void* arr, int n, int type)

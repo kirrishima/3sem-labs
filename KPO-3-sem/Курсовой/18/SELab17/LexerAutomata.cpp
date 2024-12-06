@@ -24,7 +24,6 @@ IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
 
 char* str = new char[MAX_LEX_SIZE];
 
-
 FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* StringFST(CreateStringFST(str));
 FST::FST* PrintFST(CreatePrintFST(str));
@@ -595,7 +594,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
 
-			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID 
+			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID
 				&& LexTable.table[LexTable.size - 3].lexema[0])
 			{
 				ID_Table.table[LexTable.table[LexTable.size - 2].idxTI].idtype = IT::F;

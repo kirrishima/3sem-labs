@@ -55,7 +55,6 @@ namespace OOP_Lab12
 
                         try
                         {
-
                             using (StreamWriter fileStream = new(outputFileName, append: false))
                             {
                                 EnumerationOptions enumerationOptions = new()
