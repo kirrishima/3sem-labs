@@ -20,6 +20,7 @@ IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
 
 char* str = new char[MAX_LEX_SIZE];
 
+
 FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* StringFST(CreateStringFST(str));
 FST::FST* PrintFST(CreatePrintFST(str));
@@ -215,7 +216,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				if (strlen(str) > ID_SIZE)
 				{
-					std::cout << str << " слишком длинное имя идентификатора - допустимый размер - 5 символов. Оно будет обрезано до " << IT_entry.id << std::endl;
+					std::cout << str << " слишком длинное имя идентификатора - допустимый размер - 5 символов."
+						"Оно будет обрезано до " << IT_entry.id << ".Возможен конфликт имен." << std::endl;
 				}
 
 				IT_entry.iddatatype = IT::INT; // по умолчанию расцениваем как INT
@@ -450,7 +452,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 		case MARK: // отдельно для кавычек
 		{
 			int index = i + 1; // индекс второго символа "'" (конец строкового литерала)
-			while (index < MAX_LEX_SIZE - 1 && in.text[index++] != MARK);
+
+			while (index < MAX_LEX_SIZE - 1 && (in.text[index++] != MARK || (in.text[index - 1] == MARK && in.text[index - 2] == '\\')));
 
 			index--; // цикл находит индекс символа за ковычкой
 
@@ -496,6 +499,10 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(in.text + i + 1), index - i - 1);
 
 			IT_entry.value.vstr->str[index - i - 1] = '\0';
+
+			//std::string escapedString = utils::processEscapeSequences(IT_entry.value.vstr->str);
+			//strcpy(IT_entry.value.vstr->str, escapedString.c_str());
+
 			IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
 
 			if (IT_entry.value.vstr->len <= 0)

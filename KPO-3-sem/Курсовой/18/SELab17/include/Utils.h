@@ -5,8 +5,8 @@
 
 namespace utils
 {
-	/*std::string trimmed_pos(const std::string& str);*/
 	std::pair<int, int> trimmed_pos(const std::string& str);
+	std::string processEscapeSequences(const std::string& input);
 }
 
 namespace LexAn::Utils

@@ -12,6 +12,27 @@ namespace utils
 		size_t last = str.find_last_not_of(' ');
 		return std::make_pair<int, int>(first, last);
 	}
+
+	std::string processEscapeSequences(const std::string& input) {
+		std::string output;
+		for (size_t i = 0; i < input.length(); ++i) {
+			if (input[i] == '\\' && i + 1 < input.length()) {
+				char nextChar = input[++i];
+				switch (nextChar) {
+				case 'n': output += '\n'; break;
+				case 't': output += '\t'; break;
+				case '\\': output += '\\'; break;
+				case '\"': output += '\"'; break;
+				case '\'': output += '\''; break;
+				default: output += '\\'; output += nextChar; break;
+				}
+			}
+			else {
+				output += input[i];
+			}
+		}
+		return output;
+	}
 }
 
 

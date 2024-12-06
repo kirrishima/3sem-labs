@@ -69,6 +69,7 @@ namespace LT              // таблица лексем
 		int maxsize;       // емкость таблицы лексем < LT_MAXSIZE
 		int size;          // текущий размер таблицы лексем < maxsize
 		Entry* table;      // массив строк таблицы лексем
+		~LexTable() { delete[] table; }
 	};
 
 	LexTable Create(       // создать таблицу лексем
