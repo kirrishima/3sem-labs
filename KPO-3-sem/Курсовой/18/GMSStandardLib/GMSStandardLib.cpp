@@ -19,9 +19,24 @@ extern "C" void __stdcall __PrintArray(void* arr, int n, int type)
 	if (type == sizeof(char))
 	{
 		std::cout << "char[]: ";
-		for (int i = 0; i < n; i++)
-		{
-			std::cout << *(reinterpret_cast<const char*>(arr) + i);
+
+		for (int i = 0; i < n; ++i) {
+			if (((const char*)arr)[i] == '\\' && i + 1 < n) {
+				char nextChar = ((const char*)arr)[++i];
+				switch (nextChar) {
+				case 'n': std::cout << '\n'; break;
+				case 't': std::cout << '\t'; break;
+				case '\\': std::cout << '\\'; break;
+				case '"': std::cout << '"'; break;
+				case '\'': std::cout << '\''; break;
+				default:
+					std::cout << '\\' << nextChar;
+					break;
+				}
+			}
+			else {
+				std::cout << ((const char*)arr)[i];
+			}
 		}
 	}
 	if (type == sizeof(short))
