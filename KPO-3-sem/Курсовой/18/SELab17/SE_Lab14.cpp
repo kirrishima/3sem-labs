@@ -104,8 +104,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	Out::OUT out = Out::INIT_OUT;
 #endif // !__DISABLE_LOGS
 
-
-
 	try {
 		Parm::PARM parm = Parm::getparm(argc, argv);
 		In::IN in = In::getin(parm.in);
@@ -167,7 +165,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 		CD::CodeGeneration cd(IdTable, LexTable, parm.asem);
 
-		cd.gen(parm.asem, hasP);
+		//cd.gen(parm.asem, hasP);
 	}
 	catch (const char* e)
 	{

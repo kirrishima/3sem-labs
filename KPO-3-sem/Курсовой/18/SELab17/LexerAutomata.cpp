@@ -28,6 +28,7 @@ char* str = new char[MAX_LEX_SIZE];
 FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* StringFST(CreateStringFST(str));
 FST::FST* PrintFST(CreatePrintFST(str));
+FST::FST* MainFST(CreateMainFST(str));
 FST::FST* INTLiteralFST(CreateINTLiteralFST(str));
 FST::FST* IdentifierFST(CreateIdentifierFST(str));
 FST::FST* ifFST(CreateIfFST(str));
@@ -50,6 +51,11 @@ char LexAn::determineLexeme()
 	if (execute(*PrintFST))
 	{
 		return LEX_PRINT;
+	}
+
+	if (execute(*MainFST))
+	{
+		return LEX_MAIN;
 	}
 
 	if (execute(*INTLiteralFST))
@@ -589,17 +595,23 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
 
-			if (declareFunctionflag)
+			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID 
+				&& LexTable.table[LexTable.size - 3].lexema[0])
 			{
-				for (int j = ID_Table.size - 1; j >= 0; j--)
-				{
-					if (ID_Table.table[j].idtype == IT::F)
-					{
-						scope.push(&ID_Table.table[j]);
-						break;
-					}
-				}
+				ID_Table.table[LexTable.table[LexTable.size - 2].idxTI].idtype = IT::F;
+				scope.push(&ID_Table.table[LexTable.table[LexTable.size - 2].idxTI]);
 			}
+			//if (declareFunctionflag)
+			//{
+			//	for (int j = ID_Table.size - 1; j >= 0; j--)
+			//	{
+			//		if (ID_Table.table[j].idtype == IT::F)
+			//		{
+			//			scope.push(&ID_Table.table[j]);
+			//			break;
+			//		}
+			//	}
+			//}
 			break;
 		}
 		case RIGHTTHESIS:

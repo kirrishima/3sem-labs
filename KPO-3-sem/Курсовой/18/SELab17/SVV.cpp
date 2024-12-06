@@ -39,6 +39,18 @@ namespace SVV
 		);
 	}
 
+	FST::FST* CreateMainFST(const char* str)
+	{
+		return new FST::FST(str,
+			5,
+			FST::NODE(1, FST::RELATION('m', 1)),
+			FST::NODE(1, FST::RELATION('a', 2)),
+			FST::NODE(1, FST::RELATION('i', 3)),
+			FST::NODE(1, FST::RELATION('n', 4)),
+			FST::NODE()
+		);
+	}
+
 	FST::FST* CreateINTLiteralFST(const char* str)
 	{
 		return new FST::FST(str,
