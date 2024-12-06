@@ -264,6 +264,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 			start_if__(operands, operation, instructions);
 		}
 
+		vector<int> ids;
 		while (i < parent.LEX_TABLE.size && parent.LEX_TABLE.table[i].lexema[0] != '}')
 		{
 			switch (parent.LEX_TABLE.table[i].lexema[0]) {

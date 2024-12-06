@@ -10,7 +10,7 @@ namespace In
 		IN in;
 
 		in.size = 0;
-		in.lines = 1;
+		in.lines = 0;
 		in.ignore = 0;
 
 		std::ifstream file(infile);
@@ -32,6 +32,9 @@ namespace In
 
 			if (p.first == -1 || p.second == -1)
 			{
+				in.lines++;
+				in.text[in.size++] = IN_CODE_REPLACE_ENDL;
+				in.ignore += tmp.length();
 				continue;
 			}
 
@@ -75,8 +78,9 @@ namespace In
 					{
 						in.ignore += p.second - position;
 						position = p.second + 1;
+						/*in.text[in.size++]*/
+						break;
 					}
-					break;
 				}
 				case IN::Asterisk:
 				case IN::Equal:

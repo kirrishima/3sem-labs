@@ -15,6 +15,10 @@ using LexAn::Utils::printToFile;
 bool stringFlag = false; // stringFlag
 bool _isDeclare = false; // _isDeclare
 
+using namespace std;
+
+unordered_map<string, bool> long_ids;
+
 LT::LexTable LexTable = LT::Create(LT_MAXSIZE - 1);
 IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
 
@@ -101,6 +105,10 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 	for (int i = 0; i < in.size; i++)
 	{
+		if (in.text[i] == NEW_LINE)
+		{
+			currentLine++;
+		}
 		if (((in.text[i] >= 'A' && in.text[i] <= 'Z') || (in.text[i] >= 'a' && in.text[i] <= 'z') ||
 			(in.text[i] >= '0' && in.text[i] <= '9') || in.text[i] == '\'') && in.text[i] != ' ')
 		{
@@ -216,8 +224,12 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				if (strlen(str) > ID_SIZE)
 				{
-					std::cout << str << " слишком длинное имя идентификатора - допустимый размер - 5 символов."
-						"Оно будет обрезано до " << IT_entry.id << ".Возможен конфликт имен." << std::endl;
+					if (long_ids.find(string(str)) == long_ids.end())
+					{
+						long_ids[string(str)] = true;
+						std::cout << str << " слишком длинное имя идентификатора - допустимый размер - 5 символов."
+							"Оно будет обрезано до " << IT_entry.id << ". Возможен конфликт имен и сопутствущие ошибки." << std::endl;
+					}
 				}
 
 				IT_entry.iddatatype = IT::INT; // по умолчанию расцениваем как INT
@@ -530,14 +542,14 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 		}
 		break;
 
-		case NEW_LINE:
-		{
-			//LT_entry.lexema[0] = '|';
-			LT_entry.sn = currentLine++;
-			//LT::Add(LexTable, LT_entry);
-			LT_entry.lexema[0] = NULL;
-			break;
-		}
+		//case NEW_LINE:
+		//{
+		//	//LT_entry.lexema[0] = '|';
+		//	LT_entry.sn = currentLine++;
+		//	//LT::Add(LexTable, LT_entry);
+		//	LT_entry.lexema[0] = NULL;
+		//	break;
+		//}
 
 		case LEFT_BRACE:
 		{
