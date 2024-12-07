@@ -174,4 +174,28 @@ namespace LexAn::Utils
 		LT_file << "</table></body></html>" << std::endl;
 		LT_file.close();
 	}
+
+	int stringToNumber(const std::string& str) {
+		if (str.empty()) {
+			throw std::invalid_argument("Input string is empty");
+		}
+
+		// Двоичная система (префикс "0b" или "0B")
+		if (str.size() > 2 && (str[0] == '0') && (str[1] == 'b' || str[1] == 'B')) {
+			return std::strtol(str.c_str() + 2, nullptr, 2);  // Пропускаем "0b"
+		}
+
+		// Шестнадцатеричная система (префикс "0x" или "0X")
+		if (str.size() > 2 && (str[0] == '0') && (str[1] == 'x' || str[1] == 'X')) {
+			return std::strtol(str.c_str() + 2, nullptr, 16); // Пропускаем "0x"
+		}
+
+		// Восьмеричная система (префикс "0")
+		if (str.size() > 1 && str[0] == '0' && std::isdigit(str[1])) {
+			return std::strtol(str.c_str(), nullptr, 8); // Обычная восьмеричная запись
+		}
+
+		// Десятичная система (по умолчанию)
+		return std::strtol(str.c_str(), nullptr, 10);
+	}
 }

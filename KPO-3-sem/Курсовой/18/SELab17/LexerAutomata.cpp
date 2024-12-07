@@ -28,7 +28,10 @@ FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* StringFST(CreateStringFST(str));
 FST::FST* PrintFST(CreatePrintFST(str));
 FST::FST* MainFST(CreateMainFST(str));
-FST::FST* INTLiteralFST(CreateINTLiteralFST(str));
+FST::FST* IntDECIMALLiteralFST(CreateIntDECIMALLiteralFST(str));
+FST::FST* IntBINARYLiteralFST(CreateIntBINARYLiteralFST(str));
+FST::FST* IntOCTALLiteralFST(CreateIntOCTALLiteralFST(str));
+FST::FST* IntHEXLiteralFST(CreateIntHEXLiteralFST(str));
 FST::FST* IdentifierFST(CreateIdentifierFST(str));
 FST::FST* ifFST(CreateIfFST(str));
 FST::FST* elseFST(CreateElseFST(str));
@@ -57,7 +60,8 @@ char LexAn::determineLexeme()
 		return LEX_MAIN;
 	}
 
-	if (execute(*INTLiteralFST))
+	if (execute(*IntDECIMALLiteralFST) || execute(*IntHEXLiteralFST)
+		|| execute(*IntOCTALLiteralFST) || execute(*IntBINARYLiteralFST))
 	{
 		return LEX_LITERAL;
 	}
@@ -157,7 +161,16 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			{
 				IT_entry.iddatatype = IT::IDDATATYPE::INT;
 				IT_entry.idtype = IT::IDTYPE::L;
-				IT_entry.value.vint = atoi(str);
+
+				try
+				{
+					IT_entry.value.vint = Utils::stringToNumber(str);
+				}
+				catch (const std::exception& ex)
+				{
+					std::cout << "Ошибка в числовом литерале '" << str << "'. Строка: " << currentLine << std::endl;
+					throw ERROR_THROW(149);
+				}
 
 				int index = i - 1;
 				while (index > 0 && isdigit(in.text[index])) index--;
@@ -224,6 +237,12 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				//}
 			case LEX_ID:
 			{
+				if (isdigit(str[0]))
+				{
+					std::cout << "Строка " << currentLine << std::endl;
+					throw ERROR_THROW(150);
+				}
+
 				if (scope.empty())
 					IT_entry.scope = NULL; //Если стек пуст, то текущему идентификатору IT_entry устанавливается область видимости (scope) равной NULL
 				else
@@ -658,7 +677,11 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 	delete ifFST;
 	delete IntegerFST;
 	delete PrintFST;
-	delete INTLiteralFST;
+	delete MainFST;
+	delete IntHEXLiteralFST;
+	delete IntOCTALLiteralFST;
+	delete IntBINARYLiteralFST;
+	delete IntDECIMALLiteralFST;
 	delete IdentifierFST;
 
 	return std::make_pair(LexTable, ID_Table);
