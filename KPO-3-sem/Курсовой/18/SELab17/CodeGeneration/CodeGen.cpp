@@ -8,8 +8,10 @@ using namespace std;
 
 namespace CD
 {
-	vector<string> CD::CodeGeneration::parse_function_body(int start_index, int end_index)
+	vector<string> CD::CodeGeneration::parse_function_body(UserDefinedFunctions& function, int start_index, int end_index)
 	{
+		function.push_code(format("{} proc", function.name));
+		function.push_code("start:");
 		for (int i = start_index; i < end_index; i++)
 		{
 			switch (LEX_TABLE.table[i].lexema[0])
@@ -20,7 +22,7 @@ namespace CD
 				auto res = parse_lexem(i);
 				for (const std::string& s : res)
 				{
-					OUT_ASM_FILE << '\t' << s << '\n';
+					function.push_code(s);
 				}
 				break;
 			}
@@ -35,26 +37,48 @@ namespace CD
 			case '?':
 				for (const std::string& str : ifElseGen.generate_if_statement(i))
 				{
-					OUT_ASM_FILE << str << '\n';
+					function.push_code(str);
 				}
-				OUT_ASM_FILE << "\n; закончились условки\n";
+				function.push_code( "; конец условного");
 				break;
 			default:
 				break;
 			}
 		}
+		function.push_code(format("{} endp", function.name));
 	}
 
 	vector<string> CD::CodeGeneration::parse_function(int start_index, int end_index)
 	{
+		UserDefinedFunctions function;
 		vector<string> instrs;
-		for (int i = start_index; i < end_index; i++)
-		{
-			switch (LEX_TABLE.table[i].lexema[0]) {
-			case LEX_ID:
 
+		bool f = false;
+		for (start_index; start_index < end_index && !f; start_index++)
+		{
+			switch (LEX_TABLE.table[start_index].lexema[0]) {
+			case LEX_ID:
+				switch (ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].idtype)
+				{
+				case IT::IDTYPE::F:
+					function.name = string(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].id);
+					break;
+
+				case IT::IDTYPE::P:
+					function.push_params(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype);
+					break;
+				default:
+					break;
+				}
+			case LEX_LEFTBRACE:
+				f = true;
+				break;
+			default:
+				break;
 			}
 		}
+
+		parse_function_body(function, start_index, end_index);
 	}
 
 	void CodeGeneration::gen(const std::wstring& OUT_FILEPATH, bool p)

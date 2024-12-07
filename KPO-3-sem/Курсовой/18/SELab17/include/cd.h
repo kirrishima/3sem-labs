@@ -22,6 +22,7 @@ namespace CD
 		LT::LexTable LEX_TABLE;
 		std::ofstream OUT_ASM_FILE;
 
+		vector<UserDefinedFunctions> user_functions;
 
 		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const std::wstring& OUT_FILEPATH)
 			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), ifElseGen(*this)
@@ -172,5 +173,24 @@ namespace CD
 				return prefix + "_" + to_string(n);
 			}
 		} ifElseGen;
+	};
+
+	struct UserDefinedFunctions
+	{
+		std::string name;
+		vector<IT::IDDATATYPE> params;
+		vector<string> code;
+
+		void push_code(string code_instruction) {
+			code.push_back(code_instruction);
+		}
+
+		void push_code(const char* code_instruction) {
+			code.push_back(string(code_instruction));
+		}
+
+		void push_params(const IT::IDDATATYPE type) {
+			params.push_back(type);
+		}
 	};
 }

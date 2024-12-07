@@ -10,7 +10,7 @@
 namespace IT
 {
 	enum IDDATATYPE { INT = 1, STR = 2 };
-	enum IDTYPE { V = 1, F = 2, P = 3, L = 4 };
+	enum IDTYPE { V = 10, F = 12, P = 13, L = 14 };
 
 	struct Entry		// строка таблицы идентификаторов
 	{
