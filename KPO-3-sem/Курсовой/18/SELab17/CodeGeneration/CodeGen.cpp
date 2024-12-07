@@ -8,6 +8,55 @@ using namespace std;
 
 namespace CD
 {
+	vector<string> CD::CodeGeneration::parse_function_body(int start_index, int end_index)
+	{
+		for (int i = start_index; i < end_index; i++)
+		{
+			switch (LEX_TABLE.table[i].lexema[0])
+			{
+			case 'p':
+			case '=':
+			{
+				auto res = parse_lexem(i);
+				for (const std::string& s : res)
+				{
+					OUT_ASM_FILE << '\t' << s << '\n';
+				}
+				break;
+			}
+			case ';':
+				break;
+			case '{':
+			case ')':
+			case '(':
+				break;
+			case '}':
+				break;
+			case '?':
+				for (const std::string& str : ifElseGen.generate_if_statement(i))
+				{
+					OUT_ASM_FILE << str << '\n';
+				}
+				OUT_ASM_FILE << "\n; закончились условки\n";
+				break;
+			default:
+				break;
+			}
+		}
+	}
+
+	vector<string> CD::CodeGeneration::parse_function(int start_index, int end_index)
+	{
+		vector<string> instrs;
+		for (int i = start_index; i < end_index; i++)
+		{
+			switch (LEX_TABLE.table[i].lexema[0]) {
+			case LEX_ID:
+
+			}
+		}
+	}
+
 	void CodeGeneration::gen(const std::wstring& OUT_FILEPATH, bool p)
 	{
 		/*ofstream wfile(OUT_FILEPATH);*/
@@ -53,50 +102,36 @@ ENDM)" << "\n\n";
 		}
 #endif // _LEGACY_CODE
 
+		int count = 0;
 
 		OUT_ASM_FILE << "\nmain proc\nstart:\n";
-		for (int i = 0; i < LEX_TABLE.size; i++)
+		int start = 0;
+		int end = LEX_TABLE.size;
+
+		for (size_t i = start; i < end; i++)
 		{
-			switch (LEX_TABLE.table[i].lexema[0])
+			if (LEX_TABLE.table[i].lexema[0]==LEX_LEFTBRACE)
 			{
-			case 'p':
-			case '=':
-			{
-				auto res = parse_lexem(i);
-				for (const std::string& s : res)
-				{
-					OUT_ASM_FILE << '\t' << s << '\n';
-				}
-				break;
+				count++;
 			}
-			case ';':
-				break;
-			case '{':
-			case ')':
-			case '(':
-				break;
-			case '}':
-				break;
-			case '?':
-				for (const std::string& str : ifElseGen.generate_if_statement(i))
+			else if(LEX_TABLE.table[i].lexema[0] == LEX_BRACELET)
+			{
+				if (--count == 0)
 				{
-					OUT_ASM_FILE << str << '\n';
+					break;
 				}
-				OUT_ASM_FILE << "\n; закончились условки\n";
-				break;
-			default:
-				break;
 			}
 		}
+
+		
 	exit:
 		OUT_ASM_FILE << "\tpush 0\n" << "\tcall ExitProcess\n" << "main ENDP" << endl;
 		OUT_ASM_FILE << "END main";
 		OUT_ASM_FILE.flush();
 		OUT_ASM_FILE.close();
 
-		cout << "Compiling: \n\n";
-
 #ifdef _DEBUG
+		cout << "Compiling: \n\n";
 		system("compile_debug.bat");
 #endif // _DEBUG
 

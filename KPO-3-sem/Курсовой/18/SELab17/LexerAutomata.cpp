@@ -295,29 +295,30 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					addedToITFlag = true;
 				}
 
-				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_LEFTTHESIS && // вид <идентификатор>(<тип> <идентификатор>...
-					LexTable.table[LexTable.size - 2].lexema[0] == LEX_FUNCTION && // TODO пофиксить этот момент
-					LexTable.table[LexTable.size - 2].idxTI == ID_Table.size - 1)  /*  &&
+				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_TYPE && // вид <идентификатор>(<тип> <идентификатор>...
+					LexTable.table[LexTable.size - 2].lexema[0] == LEX_LEFTTHESIS && // TODO пофиксить этот момент
+					LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID
+					&& ID_Table.table[ID_Table.size-2].idtype == IT::F)  /*  &&
 					ID_Table.table[ID_Table.size - 1].idtype == IT::F) //текущий идентификатор - параметр функции */
 				{
-					IT_entry.idtype = IT::P;
+					ID_Table.table[ID_Table.size - 1].idtype = IT::P;
 
-					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag) // если тип параметра - это строка
-					{
-						IT_entry.iddatatype = IT::STR;
-						strcpy_s(IT_entry.value.vstr->str, "");
-						stringFlag = false;
-					}
+					//if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag) // если тип параметра - это строка
+					//{
+					//	IT_entry.iddatatype = IT::STR;
+					//	strcpy_s(IT_entry.value.vstr->str, "");
+					//	stringFlag = false;
+					//}
 
-					indexIT = IT::search(ID_Table, IT_entry);
-					if (indexIT != -1)
-					{
-						throw ERROR_THROW(105);
-					}
+					//indexIT = IT::search(ID_Table, IT_entry);
+					//if (indexIT != -1)
+					//{
+					//	throw ERROR_THROW(105);
+					//}
 
-					LT_entry.idxTI = ID_Table.size;
-					IT::Add(ID_Table, IT_entry);
-					addedToITFlag = true;
+					//LT_entry.idxTI = ID_Table.size;
+					//IT::Add(ID_Table, IT_entry);
+					//addedToITFlag = true;
 				}
 
 				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_COMMA // если это еще один параметр функции
@@ -595,7 +596,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT_entry.lexema[0] = NULL;
 
 			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID
-				&& LexTable.table[LexTable.size - 3].lexema[0])
+				&& LexTable.table[LexTable.size - 3].lexema[0] == LEX_TYPE)
 			{
 				ID_Table.table[LexTable.table[LexTable.size - 2].idxTI].idtype = IT::F;
 				scope.push(&ID_Table.table[LexTable.table[LexTable.size - 2].idxTI]);

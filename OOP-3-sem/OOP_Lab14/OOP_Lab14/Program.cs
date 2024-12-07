@@ -39,7 +39,7 @@ namespace OOP_Lab14
 
             Console.WriteLine($"\nFailed: {fails}");*/
 
-            Console.WriteLine();
+/*            Console.WriteLine();
             //2
 
             var domain = AppDomain.CurrentDomain;
@@ -53,7 +53,7 @@ namespace OOP_Lab14
 
             Console.WriteLine(domain.SetupInformation.TargetFrameworkName);
             Console.WriteLine(domain.SetupInformation.ApplicationBase);
-
+*/
             // устарело
             /* var newDomain = AppDomain.CreateDomain("52");
              string assemblyPath = typeof(Program).Assembly.Location;

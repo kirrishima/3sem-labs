@@ -12,12 +12,12 @@
 
             Thread evenThread = new Thread(() => EvenNumbers(100))
             {
-                Priority = ThreadPriority.AboveNormal
+                Priority = ThreadPriority.Lowest
             };
 
             Thread oddThread = new Thread(() => OddNumbers(100))
             {
-                Priority = ThreadPriority.BelowNormal
+                Priority = ThreadPriority.AboveNormal
             };
 
             evenThread.Start();
@@ -30,23 +30,24 @@
         }
 
         public static void EvenNumbers(int n)
-        {
+        {                
+            lock (_lockObject)
+            {
             for (int i = 0; i <= n; i += 2)
             {
-                lock (_lockObject)
-                {
-                    while (!_evenTurn)
+
+                /*    while (!_evenTurn)
                     {
                         Monitor.Wait(_lockObject);
-                    }
+                    }*/
 
                     Console.Write($"{i} ");
                     _writer?.Write($"{i} ");
-                    _evenTurn = false;
-                    Monitor.Pulse(_lockObject);
+                    //_evenTurn = false;
+                    //Monitor.Pulse(_lockObject);
                 }
 
-                Thread.Sleep(100);
+                /*Thread.Sleep(100);*/
             }
         }
 
@@ -56,15 +57,15 @@
             {
                 lock (_lockObject)
                 {
-                    while (_evenTurn)
+/*                    while (_evenTurn)
                     {
                         Monitor.Wait(_lockObject);
-                    }
+                    }*/
 
                     Console.Write($"{i} ");
                     _writer?.Write($"{i} ");
-                    _evenTurn = true;
-                    Monitor.Pulse(_lockObject);
+/*                    _evenTurn = true;
+                    Monitor.Pulse(_lockObject);*/
                 }
 
                 Thread.Sleep(50);

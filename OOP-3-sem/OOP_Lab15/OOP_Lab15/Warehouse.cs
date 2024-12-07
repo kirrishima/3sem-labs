@@ -68,12 +68,12 @@ namespace OOP_Lab15
 
             Peek();
 
-            for (int i = 0; i < 5; i++)
+            for (int i = 0; i < 15; i++)
             {
                 await Task.Run(async () =>
                 {
-                    await Task.Delay(random.Next(300, 2000));
-                    _goods.Add(products[i]);
+                    await Task.Delay(random.Next(300, 1000));
+                    _goods.Add(products[i % 5]);
                 });
             }
 

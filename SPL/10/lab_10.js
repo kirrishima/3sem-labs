@@ -46,11 +46,12 @@ const num2 = increasePassedNumber(num1);
 console.log(num1);
 console.log(num2);
 
+console.log('Пример 9')
 // Пример 9
 const value = { number: 10 };
 
 const multiply = (x = { ...value }) => {
-    console.log((x.number *= 2));
+    console.log(x.number *= 2);
 };
 
 multiply();
