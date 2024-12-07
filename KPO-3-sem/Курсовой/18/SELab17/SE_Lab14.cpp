@@ -165,7 +165,9 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 		CD::CodeGeneration cd(IdTable, LexTable, parm.asem);
 
-		//cd.gen(parm.asem, hasP);
+		cd.gen(parm.asem);
+		IT::Delete(IdTable);
+		LT::Delete(LexTable);
 	}
 	catch (const char* e)
 	{

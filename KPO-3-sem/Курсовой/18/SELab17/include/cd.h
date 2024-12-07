@@ -8,9 +8,35 @@
 
 using namespace std;
 
+std::string trim(const std::string& str);
+bool isMASMLabel(const std::string& line);
+std::string removeComment(const std::string& str);
+bool isValidIdentifier(const std::string& identifier);
+bool isFunctionStart(const std::string& line);
+bool isFunctionEnd(const std::string& line);
+
 namespace CD
 {
 	bool is_assignment(const std::string& expr);
+
+	struct UserDefinedFunctions
+	{
+		std::string name;
+		vector<IT::IDDATATYPE> params;
+		vector<string> code;
+
+		void push_code(string code_instruction) {
+			code.push_back(code_instruction);
+		}
+
+		void push_code(const char* code_instruction) {
+			code.push_back(string(code_instruction));
+		}
+
+		void push_params(const IT::IDDATATYPE type) {
+			params.push_back(type);
+		}
+	};
 
 	struct CodeGeneration {
 		std::string tab = "    ";
@@ -79,8 +105,8 @@ namespace CD
 			}
 		}
 
-		vector<string> parse_function(int start_index, int end_index);
-		vector<string> parse_function_body(UserDefinedFunctions& function, int start_index, int end_index);
+		void parse_function(int start_index, int end_index);
+		void parse_function_body(UserDefinedFunctions& function, int start_index, int end_index);
 		std::vector<std::string> parse_lexem(int& index_in_lex_table);
 		vector<string> parse_lexem_equal__(int& index_in_lex_table);
 
@@ -129,7 +155,7 @@ namespace CD
 		/// <returns></returns>
 		std::string lexems_vector_to_string(const vector<int>& ids);
 
-		void gen(const std::wstring& OUT_FILEPATH, bool);
+		void gen(const std::wstring& OUT_FILEPATH);
 
 		/// <summary>
 		/// Генератор условных операторов
@@ -174,23 +200,26 @@ namespace CD
 			}
 		} ifElseGen;
 	};
+#define BASE R"(.586
+.model flat, stdcall
+ExitProcess PROTO : DWORD
+__PrintNumber PROTO :SDWORD
+__PrintBool PROTO :BYTE
+__PrintArray PROTO :DWORD, :DWORD, :DWORD
+__StrCmp PROTO :DWORD, :DWORD
+.stack 4096
 
-	struct UserDefinedFunctions
-	{
-		std::string name;
-		vector<IT::IDDATATYPE> params;
-		vector<string> code;
+PrintArrayMACRO MACRO arrName
+    LOCAL arrType, arrLength, arrOffset
+    push type arrName     ; Тип элементов массива
+    push lengthof arrName ; Длина массива
+    push offset arrName   ; Смещение массива
+    call __PrintArray     ; Вызов процедуры __PrintArray
+ENDM
 
-		void push_code(string code_instruction) {
-			code.push_back(code_instruction);
-		}
-
-		void push_code(const char* code_instruction) {
-			code.push_back(string(code_instruction));
-		}
-
-		void push_params(const IT::IDDATATYPE type) {
-			params.push_back(type);
-		}
-	};
+StrCmpCallMACRO MACRO str1, str2
+    push OFFSET str2   ; Адрес второй строки в стек
+    push OFFSET str1   ; Адрес первой строки в стек
+    call __StrCmp      ; Вызов функции __StrCmp
+ENDM)";
 }

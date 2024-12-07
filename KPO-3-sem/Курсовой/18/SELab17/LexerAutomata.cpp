@@ -15,12 +15,12 @@ using LexAn::Utils::printToFile;
 bool stringFlag = false; // stringFlag
 bool _isDeclare = false; // _isDeclare
 
+LT::LexTable LexTable = LT::Create(LT_MAXSIZE - 1);
+IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
+
 using namespace std;
 
 unordered_map<string, bool> long_ids;
-
-LT::LexTable LexTable = LT::Create(LT_MAXSIZE - 1);
-IT::ID_Table ID_Table = IT::Create(TI_MAXSIZE - 1);
 
 char* str = new char[MAX_LEX_SIZE];
 
@@ -120,7 +120,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			str[bufferIndex++] = in.text[i]; // Сохранение символа в буфер
 
 			if (bufferIndex >= MAX_LEX_SIZE) {
-				throw ERROR_THROW(119); // Ошибка при переполнении буфера
+				throw ERROR_THROW(145); // Ошибка при переполнении буфера
 			}
 		}
 		else
@@ -162,9 +162,15 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				int index = i - 1;
 				while (index > 0 && isdigit(in.text[index])) index--;
 
-				if (in.text[index] == '-')
+				if (in.text[index] == '-' && (in.text[index - 1] == EQUAL
+					|| in.text[index - 1] == LEFTTHESIS && in.text[index - 2] == STAR)
+					)
 				{
 					IT_entry.value.vint *= -1;
+					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_MATH && LexTable.table[LexTable.size - 1].v == MINUS)
+					{
+						LexTable.size--;
+					}
 				}
 
 				int pos = IT::search(ID_Table, IT_entry);
@@ -254,7 +260,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					indexIT = IT::search(ID_Table, IT_entry);//поиск текущего идентификатора в таблице идентификаторов 
 					if (indexIT != -1) //Если идентификатор уже существует
 					{
-						throw ERROR_THROW(105);
+						std::cout << "Ошибка в строке " << currentLine << std::endl;
+						throw ERROR_THROW(148);
 					}
 
 					LT_entry.idxTI = ID_Table.size;
@@ -287,7 +294,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 					if (indexIT != -1)
 					{
-						throw ERROR_THROW(105);
+						std::cout << "Ошибка в строке " << currentLine << std::endl;
+						throw ERROR_THROW(146);
 					}
 
 					LT_entry.idxTI = ID_Table.size;
@@ -298,7 +306,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_TYPE && // вид <идентификатор>(<тип> <идентификатор>...
 					LexTable.table[LexTable.size - 2].lexema[0] == LEX_LEFTTHESIS && // TODO пофиксить этот момент
 					LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID
-					&& ID_Table.table[ID_Table.size-2].idtype == IT::F)  /*  &&
+					&& ID_Table.table[ID_Table.size - 2].idtype == IT::F)  /*  &&
 					ID_Table.table[ID_Table.size - 1].idtype == IT::F) //текущий идентификатор - параметр функции */
 				{
 					ID_Table.table[ID_Table.size - 1].idtype = IT::P;
@@ -336,7 +344,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					indexIT = IT::search(ID_Table, IT_entry);
 					if (indexIT != -1)
 					{
-						throw ERROR_THROW(105);
+						std::cout << "Ошибка в строке " << currentLine << std::endl;
+						throw ERROR_THROW(147);
 					}
 
 					IT::Add(ID_Table, IT_entry);
@@ -350,6 +359,11 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					{
 						LT_entry.idxTI = indexIT;
 					}
+					else
+					{
+						std::cout << "Ошибка в строке " << currentLine << std::endl;
+						throw ERROR_THROW(142);
+					}
 				}
 
 				std::memset(IT_entry.id, NULL, ID_SIZE); // очищаем ID перед новой итерацией
@@ -357,8 +371,6 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				IT_entry.iddatatype = IT::INT; // по умолчанию INT
 				IT_entry.value.vint = NULL; // без значения (по факту будет 0)
 				addedToITFlag = false;
-
-
 
 				break;
 			}

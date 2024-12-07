@@ -76,7 +76,7 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 
 		if (entry.scope != NULL)
 		{
-			ss << entry.scope;
+			ss << entry.scope->id;
 		}
 
 		ss << "__" << entry.id;

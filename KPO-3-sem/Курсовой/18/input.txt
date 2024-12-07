@@ -1,0 +1,109 @@
+int aboba(int p)
+{
+    int z = 12;
+    print(z);
+    if (z > 10)
+    {
+        print('aboba: z > 10, так и должно быть');
+    }
+    else if (z < 10)
+    {
+        print('aboba: ошибка, z < 10');
+    }
+    else
+    {
+        print('ошибка в aboba в else');
+    }
+}
+
+main
+{
+
+    int z = -5;
+    print('Вывод числа -5...');
+    print(z);
+    print('Вывод строки \'OK\'...');
+    str status = 'OK';
+    print(status);
+
+    if (status == 'OK')
+    {
+        print('status == \'OK\', это верно');
+        if (z > 0)
+        {
+            print('z > 0, это ошибка');
+        }
+        else if (z == -4)
+        {
+            print('ошибка: z == -4');
+        }
+        else if (z <= -6)
+        {
+            print('ошибка: z <= -6');
+        }
+        else if (z >= 0)
+        {
+            print('ошибка: z >= 0');
+        }
+        else
+        {
+            z = 10;
+            print('вложенные условия не отработали, это верно');
+            z = z + 5;
+        }
+    }
+    z = z * 10;
+    print('z должно быть 150:');
+    print(z);
+    print('\n');
+
+    print('\'abcd\' < \'efg\' (ожидается True):');
+    print('abcd' < 'efg');
+
+    print('z > 12 * (10 - 12) + 54 * (12 / 3) - 100 (ожидается True):');
+    print(z > 12 * (10 - 12) + 54 * (12 / 3) - 100);
+
+    print('число int x = 12 * (10 - 12) + 54 * (12 / 3) - 100(ожидается 92): ');
+    int x = 12 * (10 - 12) + 54 * (12 / 3) - 100;
+    print(x);
+
+    print('x * (-10):');
+    print(x * (-10));
+    print('\n');
+
+    int a = 10;
+    int b = 5;
+    int c = 8;
+    int d = 3;
+
+    int result1 = (a + b) * c - d;
+    int result2 = a * b / (c - d);
+    int result3 = ((a + b) * (c - d)) / a;
+    int result4 = a + b * (c / d - a);
+    int result5 = ((a + b) * c - (d + b)) / (a - d);
+    int result6 = (a * c) / (b + d) - a;
+    int result7 = a * b * c / (a + d);
+    int result8 = a - b + c * (d - b);
+    int result9 = (a * (b + c)) / (d + b);
+
+    print('result1 expected: 117');
+    print(result1);
+    print('result2 expected: 10');
+    print(result2);
+    print('result3 expected: 7');
+    print(result3);
+    print('result4 expected: -30');
+    print(result4);
+    print('result5 expected: 16');
+    print(result5);
+    print('result6 expected: 0');
+    print(result6);
+    print('result7 expected: 30');
+    print(result7);
+    print('result8 expected: -11');
+    print(result8);
+    print('result9 expected: 16');
+    print(result9);
+    print('result10 без сохранения в переменную (result9*((-1))+21), ожидается 5:');
+    print(result9 * (-1) + 21);
+}

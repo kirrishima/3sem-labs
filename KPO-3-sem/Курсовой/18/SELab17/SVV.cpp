@@ -112,12 +112,17 @@ namespace SVV
 		FST::RELATION('v', state), FST::RELATION('w', state), FST::RELATION('x', state),\
 		FST::RELATION('y', state), FST::RELATION('z', state)
 
+#define FRN(c, s) FST::RELATION(c, s)
+
 	FST::FST* CreateIdentifierFST(const char* str)
 	{
 		return new FST::FST(str,
 			2,
-			FST::NODE(NUM_LETTERS * 2, relationsForState(0),
-				relationsForState(1)),
+			FST::NODE(NUM_LETTERS * 2 + 20, relationsForState(0),
+				relationsForState(1), FRN('0', 0), FRN('1', 0), FRN('2', 0), FRN('3', 0),
+				FRN('4', 0), FRN('5', 0), FRN('6', 0), FRN('7', 0), FRN('8', 0), FRN('9', 0),
+				FRN('0', 1), FRN('1', 1), FRN('2', 1), FRN('3', 1),
+				FRN('4', 1), FRN('5', 1), FRN('6', 1), FRN('7', 1), FRN('8', 1), FRN('9', 1)),
 			FST::NODE()
 		);
 	}

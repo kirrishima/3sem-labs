@@ -1,6 +1,8 @@
 ﻿#pragma once
 
-#define ID_MAXSIZE 6
+#include <iostream>
+
+#define ID_MAXSIZE 26
 #define TI_MAXSIZE 4096
 #define TI_INT_DEFAULT 0x00000000
 #define TI_STR_DEFAULT 0x00
@@ -36,10 +38,6 @@ namespace IT
 		int maxsize;            // емкость таблицы идентификаторов < TI_MAXSIZE
 		int size;               // текущий размер таблицы идентификаторов < maxsize
 		Entry* table;           // массив строк таблицы идентификаторов
-		~ID_Table()
-		{
-			delete[] table; // Освобождение памяти
-		}
 	};
 
 	ID_Table Create(             // создать таблицу идентификаторов
