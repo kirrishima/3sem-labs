@@ -78,8 +78,8 @@ namespace CD
 			}
 		}
 
-		vector<string> parse_fucntion(int start_index, int end_index);
-		vector<string> parse_fucntion_body(int start_index, int end_index);
+		vector<string> parse_function(int start_index, int end_index);
+		vector<string> parse_function_body(int start_index, int end_index);
 		std::vector<std::string> parse_lexem(int& index_in_lex_table);
 		vector<string> parse_lexem_equal__(int& index_in_lex_table);
 
