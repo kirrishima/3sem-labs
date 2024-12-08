@@ -7,6 +7,7 @@
 #include <string>
 #include "Utils.h"
 #include "IT.h"
+#include <format>
 
 using namespace SVV;
 using FST::execute;
@@ -26,13 +27,19 @@ char* str = new char[MAX_LEX_SIZE];
 
 FST::FST* IntegerFST(CreateIntegerFST(str));
 FST::FST* StringFST(CreateStringFST(str));
+
 FST::FST* PrintFST(CreatePrintFST(str));
 FST::FST* MainFST(CreateMainFST(str));
+FST::FST* ReturnFST(CreateReturnFST(str));
+
 FST::FST* IntDECIMALLiteralFST(CreateIntDECIMALLiteralFST(str));
 FST::FST* IntBINARYLiteralFST(CreateIntBINARYLiteralFST(str));
 FST::FST* IntOCTALLiteralFST(CreateIntOCTALLiteralFST(str));
 FST::FST* IntHEXLiteralFST(CreateIntHEXLiteralFST(str));
+
 FST::FST* IdentifierFST(CreateIdentifierFST(str));
+
+
 FST::FST* ifFST(CreateIfFST(str));
 FST::FST* elseFST(CreateElseFST(str));
 //FST::FST* compareFST(SVV::CreateCompareFST(str));
@@ -76,10 +83,10 @@ char LexAn::determineLexeme()
 		return LEX_ELSE;
 	}
 
-	//if (execute(*compareFST))
-	//{
-	//	return LEX_COMPARE_EQUAL;
-	//}
+	if (execute(*ReturnFST))
+	{
+		return LEX_RETURN;
+	}
 
 	if (execute(*IdentifierFST))
 	{
@@ -156,7 +163,6 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				break;
 			}
-
 			case LEX_LITERAL:
 			{
 				IT_entry.iddatatype = IT::IDDATATYPE::INT;
@@ -166,9 +172,19 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				{
 					IT_entry.value.vint = Utils::stringToNumber(str);
 				}
-				catch (const std::exception& ex)
+				catch (const std::out_of_range& ex)
 				{
+					std::cout << "Ошибка в числовом литерале '" << str << "': слишком большое значение" << ". Строка: " << currentLine << std::endl;
+					throw ERROR_THROW(149);
+				}
+				catch (const std::string& ex) {
+					std::cout << "Ошибка в числовом литерале '" << str << "'. " << ex << ". Строка: " << currentLine << std::endl;
+					throw ERROR_THROW(149);
+				}
+				catch (const std::exception& ex) {
 					std::cout << "Ошибка в числовом литерале '" << str << "'. Строка: " << currentLine << std::endl;
+					std::cout << "Допустимые значения: " << format("[{}; {}]", SHRT_MIN, SHRT_MAX)
+						<< ". Допустимые форматы записи: десятичная, двоичная (префикс '0b'), шестнадцатеричная (префикс '0x'), восьмеричная (префикс '0')" << std::endl;
 					throw ERROR_THROW(149);
 				}
 
@@ -267,7 +283,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				IT_entry.idxfirstLE = currentLine; // номер строки для этого id в таблице лексем 
 				IT_entry.idtype = IT::V; // по умолчанию расцениваем как обычную переменную
 
-				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_TYPE) // если это объявление переменной (ключ. слово declare + тип_данных + текущий_id)
+				if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_TYPE &&
+					(LexTable.size == 1 || LexTable.table[LexTable.size - 2].lexema[0] != LEX_COMMA)) // если это объявление переменной (ключ. слово declare + тип_данных + текущий_id)
 				{
 					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_STRING && stringFlag) // если это была строка (stringFlag устанавливается в determineLexeme)
 					{
@@ -348,8 +365,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					//addedToITFlag = true;
 				}
 
-				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_COMMA // если это еще один параметр функции
-					&& ID_Table.table[LexTable.table[LexTable.size - 2].idxTI].idtype == IT::P)
+				if (LexTable.size > 3 && LexTable.table[LexTable.size - 2].lexema[0] == LEX_COMMA // если это еще один параметр функции
+					&& ID_Table.table[LexTable.table[LexTable.size - 3].idxTI].idtype == IT::P)
 				{
 					IT_entry.idtype = IT::P;
 
@@ -564,14 +581,26 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			IT_entry.scope = NULL;
 			IT_entry.idxfirstLE = currentLine;
 
-			LT::Add(LexTable, LT_entry);
+
 
 			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_STRING)
 			{
 				IT_entry.idxfirstLE = LexTable.size - 1;
 			}
 
-			IT::Add(ID_Table, IT_entry);
+			int pos = IT::search(ID_Table, IT_entry);
+
+			if (pos != -1)
+			{
+				LT_entry.idxTI = pos;
+			}
+			else
+			{
+				IT::Add(ID_Table, IT_entry);
+			}
+
+			LT::Add(LexTable, LT_entry);
+
 
 			LT_entry.lexema[0] = NULL;
 

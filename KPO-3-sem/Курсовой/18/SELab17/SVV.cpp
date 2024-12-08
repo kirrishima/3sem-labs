@@ -51,6 +51,20 @@ namespace SVV
 		);
 	}
 
+	FST::FST* CreateReturnFST(const char* str)
+	{
+		return new FST::FST(str,
+			7,
+			FST::NODE(1, FST::RELATION('r', 1)),
+			FST::NODE(1, FST::RELATION('e', 2)),
+			FST::NODE(1, FST::RELATION('t', 3)),
+			FST::NODE(1, FST::RELATION('u', 4)),
+			FST::NODE(1, FST::RELATION('r', 5)),
+			FST::NODE(1, FST::RELATION('n', 6)),
+			FST::NODE()
+		);
+	}
+
 #define nums(state) 	FST::RELATION('0', state), FST::RELATION('1', state), FST::RELATION('2', state),\
 						FST::RELATION('3', state), FST::RELATION('4', state), FST::RELATION('5', state),\
 						FST::RELATION('6', state), FST::RELATION('7', state), FST::RELATION('8', state),\
@@ -63,16 +77,8 @@ namespace SVV
 	FST::FST* CreateIntDECIMALLiteralFST(const char* str)
 	{
 		return new FST::FST(str,
-			4,
-			FST::NODE(20,
-				FST::RELATION('0', 1), FST::RELATION('1', 0), FST::RELATION('2', 0),
-				FST::RELATION('3', 0), FST::RELATION('4', 0), FST::RELATION('5', 0),
-				FST::RELATION('6', 0), FST::RELATION('7', 0), FST::RELATION('8', 0),
-				FST::RELATION('9', 0), nums(2)),
-
-			FST::NODE(15, FST::RELATION('x', 2), FST::RELATION('X', 2), FST::RELATION('b', 2), FST::RELATION('B', 2),
-				FST::RELATION('0', 3), nums(2)),
-			FST::NODE(20, nums(2), nums(3)),
+			2,
+			FST::NODE(20, nums(0), nums(1)),
 			FST::NODE()
 		);
 	}

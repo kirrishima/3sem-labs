@@ -90,7 +90,8 @@
     <Link>
       <SubSystem>Console</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
-      <AdditionalDependencies>GMSStandardLib.lib;libucrt.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <AdditionalDependencies>GMSStandardLib.lib;%(AdditionalDependencies)</AdditionalDependencies>
+      <ModuleDefinitionFile>E:\3-sem\KPO-3-sem\Курсовой\18\GMSStandardLib\as.def</ModuleDefinitionFile>
     </Link>
     <MASM>
       <AssembledCodeListingFile>$(IntDir)</AssembledCodeListingFile>

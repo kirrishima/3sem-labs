@@ -1,6 +1,7 @@
 ﻿#include "stdafx.h"
 #include "Utils.h"
 #include <iomanip>
+#include <format>
 
 namespace utils
 {
@@ -11,27 +12,6 @@ namespace utils
 
 		size_t last = str.find_last_not_of(' ');
 		return std::make_pair<int, int>(first, last);
-	}
-
-	std::string processEscapeSequences(const std::string& input) {
-		std::string output;
-		for (size_t i = 0; i < input.length(); ++i) {
-			if (input[i] == '\\' && i + 1 < input.length()) {
-				char nextChar = input[++i];
-				switch (nextChar) {
-				case 'n': output += '\n'; break;
-				case 't': output += '\t'; break;
-				case '\\': output += '\\'; break;
-				case '\"': output += '\"'; break;
-				case '\'': output += '\''; break;
-				default: output += '\\'; output += nextChar; break;
-				}
-			}
-			else {
-				output += input[i];
-			}
-		}
-		return output;
 	}
 }
 
@@ -180,22 +160,41 @@ namespace LexAn::Utils
 			throw std::invalid_argument("Input string is empty");
 		}
 
-		// Двоичная система (префикс "0b" или "0B")
-		if (str.size() > 2 && (str[0] == '0') && (str[1] == 'b' || str[1] == 'B')) {
-			return std::strtol(str.c_str() + 2, nullptr, 2);  // Пропускаем "0b"
+		// Определяем базу (по умолчанию 10)
+		int base = 10;
+		std::size_t startIndex = 0;
+
+		if (str.size() > 2 && str[0] == '0') {
+			if (str[1] == 'b' || str[1] == 'B') {
+				base = 2;
+				startIndex = 2;
+			}
+			else if (str[1] == 'x' || str[1] == 'X') {
+				base = 16;
+				startIndex = 2;
+			}
+			else if (std::isdigit(str[1])) {
+				base = 8;
+				startIndex = 1;
+			}
 		}
 
-		// Шестнадцатеричная система (префикс "0x" или "0X")
-		if (str.size() > 2 && (str[0] == '0') && (str[1] == 'x' || str[1] == 'X')) {
-			return std::strtol(str.c_str() + 2, nullptr, 16); // Пропускаем "0x"
+		// Преобразуем строку в 64-битное число, чтобы избежать переполнения
+		int64_t number = std::stoll(str.substr(startIndex), nullptr, base);
+
+		// Приведение к знаковому значению, если используется 16-битное представление
+		if (base == 16) {
+			number &= 0xFFFF; // Ограничиваем до 16 бит
+			if (number > 0x7FFF) {
+				number -= 0x10000; // Преобразуем в отрицательное число
+			}
 		}
 
-		// Восьмеричная система (префикс "0")
-		if (str.size() > 1 && str[0] == '0' && std::isdigit(str[1])) {
-			return std::strtol(str.c_str(), nullptr, 8); // Обычная восьмеричная запись
+		// Проверяем, помещается ли число в диапазон short
+		if (number < std::numeric_limits<short>::min() || number > std::numeric_limits<short>::max()) {
+			throw std::format("Литерал выходит за границы числа. диапазон допустимых значений: [{}; {}]", SHRT_MIN, SHRT_MAX);
 		}
 
-		// Десятичная система (по умолчанию)
-		return std::strtol(str.c_str(), nullptr, 10);
+		return static_cast<short>(number);
 	}
 }

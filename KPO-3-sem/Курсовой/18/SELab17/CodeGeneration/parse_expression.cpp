@@ -22,6 +22,27 @@ vector<string> CD::CodeGeneration::parse_lexem(int& index_in_lex_table)
 		instructions_set.insert(instructions_set.end(), print_insts.begin(), print_insts.end());
 		break;
 	}
+
+	case LEX_ID:
+		if (LEX_TABLE.table[index_in_lex_table + 1].lexema[0] == LEX_LEFTTHESIS)
+		{
+			std::string name = ID_TABLE.table[LEX_TABLE.table[index_in_lex_table].idxTI].id;
+			index_in_lex_table += 2;
+			std::vector<int> ids;
+			while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
+				ids.push_back(index_in_lex_table++);
+
+			for (auto& func : user_functions)
+			{
+				if (func.name == name)
+				{
+					auto v = parse_function_call(func, ids[0], ids.back());
+					instructions_set.insert(instructions_set.end(), v.begin(), v.end());
+					break;
+				}
+			}
+		}
+		break;
 	default:
 		break;
 	}
@@ -68,7 +89,8 @@ vector<string> CD::CodeGeneration::parse_print_lexem__(int& index_in_lex_table)
 	}
 	else if (p.isSTR)
 	{
-		instructions_set.push_back("PrintArrayMACRO " + p.resultStorage);
+		instructions_set.push_back(format("push {}", p.resultStorage));
+		instructions_set.push_back("call __Print");
 	}
 	else if (p.isINT)
 	{

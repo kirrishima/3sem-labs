@@ -19,14 +19,14 @@ std::ostream& operator<<(std::ostream& os, const std::pair<std::string, int>& st
 //}
 
 // для std::string и int (уже имеется)
-std::string operator*(const std::string& str, int times) {
-	std::string new_str;
-	for (int i = 0; i < times; i++)
-	{
-		new_str += str;
-	}
-	return new_str;
-}
+//std::string operator*(const std::string& str, int times) {
+//	std::string new_str;
+//	for (int i = 0; i < times; i++)
+//	{
+//		new_str += str;
+//	}
+//	return new_str;
+//}
 
 std::string CD::CodeGeneration::IfElseGeneration::cmp_op_to_jmp(std::string comparison)
 {
@@ -53,36 +53,10 @@ std::string CD::CodeGeneration::IfElseGeneration::cmp_op_to_jmp(std::string comp
 	}
 }
 
-// Генерация условия
-void CD::CodeGeneration::IfElseGeneration::generate_condition__(
-	const vector<string>& operands, // два операнда - левый и правый 
-	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
-	const string& trueLabel, // имя метки если условие выполняется
-	const string& falseLabel, // если не выполняется
-	std::vector<std::string>& instructions,
-	bool isStringCmp
-) {
-
-	if (isStringCmp)
-	{
-		instructions.push_back(parent.tab * nestingLevel + "cmp eax, 0" + parent.tab + "; Условие: " +
-			operands[0] + comparison + operands[1]);
-	}
-	else
-	{
-		instructions.push_back(parent.tab * nestingLevel + "cmp eax, ebx" + parent.tab + "; Условие: " +
-			operands[0] + comparison + operands[1]);
-	}
-
-	instructions.push_back(parent.tab * nestingLevel + cmp_op_to_jmp(comparison) + " " + trueLabel);
-
-	instructions.push_back(parent.tab * nestingLevel + "jmp " + falseLabel);
-}
 
 // Начало `if`
 void CD::CodeGeneration::IfElseGeneration::start_if__(
-	const vector<vector<int>>& operands, // два операнда - левый и правый 
-	const string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
+	const vector<int>& operands, // операция сравнения (>, <, ==, !=, >=, <=)
 	std::vector<std::string>& instructions // текущие инструкции
 ) {
 	string trueLabel = generate_label("IF_TRUE", IFLabelsCount);
@@ -90,27 +64,17 @@ void CD::CodeGeneration::IfElseGeneration::start_if__(
 	currentElseLabel = IFLabelsCount++; // увеличиваем номер else
 	if_stack.push(endLabel);
 
-	nestingLevel++;
-
 	vector<string> comments_operands;
 	string tmp;
 	bool isStringCmp = false;
 
-	for (const int n : operands[0])
+	for (const int n : operands)
 	{
 		tmp += parent.lexem_to_source(parent.LEX_TABLE.table[n]);
 	}
 	comments_operands.push_back(tmp);
 
-	tmp.clear();
-
-	for (const int n : operands[1])
-	{
-		tmp += parent.lexem_to_source(parent.LEX_TABLE.table[n]);
-	}
-	comments_operands.push_back(tmp);
-
-	if (operands[0].size() == 1 && operands[1].size() == 1
+	/*if (operands[0].size() == 1 && operands[1].size() == 1
 		&& parent.ID_TABLE.table[parent.LEX_TABLE.table[operands[0][0]].idxTI].iddatatype == IT::IDDATATYPE::STR
 		&& parent.ID_TABLE.table[parent.LEX_TABLE.table[operands[1][0]].idxTI].iddatatype == IT::IDDATATYPE::STR)
 	{
@@ -124,12 +88,16 @@ void CD::CodeGeneration::IfElseGeneration::start_if__(
 		str_operands[1] = parent.lexems_vector_to_string(operands[1]);
 
 		compare_ints(instructions, str_operands);
-	}
+	}*/
 
+	auto p = parent.parse_expression(operands, instructions);
 	instructions.push_back(parent.tab * nestingLevel + "; Начало if " + to_string(currentElseLabel));
 
 	// Генерация условия
-	generate_condition__(comments_operands, comparison, trueLabel, endLabel, instructions, isStringCmp);
+	instructions.push_back(parent.tab * nestingLevel + "cmp " + parent.reservedBoolName + ", 1");
+	instructions.push_back(parent.tab * nestingLevel + "je " + trueLabel);
+	instructions.push_back(parent.tab * nestingLevel + "jmp " + endLabel);
+	nestingLevel++;
 	instructions.push_back(parent.tab * (nestingLevel - 1) + trueLabel + ':');
 }
 
@@ -176,7 +144,9 @@ void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>
 
 void CD::CodeGeneration::IfElseGeneration::compare_strings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name)
 {
-	instructions.push_back(parent.tab * nestingLevel + format("StrCmpCallMACRO {}, {}", str1Name, str2Name));
+	instructions.push_back(parent.tab * nestingLevel + "push " + str2Name);
+	instructions.push_back(parent.tab * nestingLevel + "push " + str1Name);
+	instructions.push_back(parent.tab * nestingLevel + "call __StrCmp");
 }
 
 // Генерация блока `else`
@@ -190,9 +160,10 @@ void CD::CodeGeneration::IfElseGeneration::start_else__(std::vector<std::string>
 
 	for (size_t i = 0; i < instructions.size(); i++)
 	{
-		if (instructions[i].find(endLabel) != string::npos)
+		if (instructions[i].find(endLabel) != std::string::npos)
 		{
-			instructions[i] = parent.tab * nestingLevel + "jmp " + elseLabel;
+			size_t pos = instructions[i].find(endLabel); // Найти позицию вхождения endLabel
+			instructions[i].replace(pos, endLabel.length(), elseLabel); // Заменить на elseLabel
 			break;
 		}
 
@@ -234,34 +205,26 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 		if (parent.LEX_TABLE.table[i].lexema[0] == '?')
 		{
 			i += 2; // пропускаем '(' и переходим к первому символу условия
-			std::vector<std::vector<int>> operands(2, std::vector<int>(0));
+			std::vector<int> ops;
 			std::string operation;
 			int currentOperand = 0;
 
 			while (i < parent.LEX_TABLE.size && parent.LEX_TABLE.table[i].lexema[0] != '{')
 			{
 				switch (parent.LEX_TABLE.table[i].lexema[0]) {
-				case 'c':
-					operation = parent.LEX_TABLE.table[i].c;
-					currentOperand++;
-					if (currentOperand != 1)
-					{
-						throw "Ошибки при генерации if-else: больше одного сравнения не поддерживается";
-					}
-					break;
 				case ')':
 					if (parent.LEX_TABLE.table[i + 1].lexema[0] == '{')
 					{
 						break;
 					}
 				default:
-					operands[currentOperand].push_back(i);
+					ops.push_back(i);
 					break;
 				}
 				i++;
 			} // while
 			ifcounts++;
-			start_if__(operands, operation, instructions);
+			start_if__(ops, instructions);
 		}
 
 		vector<int> ids;
@@ -277,6 +240,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 				break;
 			case '=':
 			case 'p':
+			case LEX_ID:
 			{
 				auto res = parent.parse_lexem(i);
 				for (const std::string& s : res)

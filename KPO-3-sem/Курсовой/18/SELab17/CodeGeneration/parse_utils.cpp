@@ -10,6 +10,15 @@ std::string trim(const std::string& str) {
 	return (start == std::string::npos) ? "" : str.substr(start, end - start + 1);
 }
 
+std::string operator*(const std::string& str, int times) {
+	std::string new_str;
+	for (int i = 0; i < times; i++)
+	{
+		new_str += str;
+	}
+	return new_str;
+}
+
 // Удаляет комментарии, начиная с символа ';'
 std::string removeComment(const std::string& str) {
 	size_t commentPos = str.find(';');
@@ -136,16 +145,11 @@ std::string CD::CodeGeneration::get_string_value(const int lex_id)
 
 	if (id->iddatatype == IT::IDDATATYPE::STR)
 	{
-		std::string idName;
-		if (id->idtype == IT::IDTYPE::L)
+		if (id->idtype == IT::L)
 		{
-			idName = get_id_name_in_data_segment(ID_TABLE.table[idxIT]);
+			return string("offset ") + get_id_name_in_data_segment(ID_TABLE.table[idxIT]);
 		}
-		else
-		{
-			idName = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[id->idxfirstLE].idxTI]);
-		}
-		return idName;
+		return get_id_name_in_data_segment(ID_TABLE.table[idxIT]);
 	}
 	else
 	{
