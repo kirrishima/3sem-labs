@@ -6,6 +6,7 @@ using namespace std;
 
 vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
 {
+	int idIndex = LEX_TABLE.table[index_in_lex_table - 1].idxTI;
 	if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].iddatatype == IT::IDDATATYPE::STR
 		/*&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].value.vstr->len > 0*/)
 	{
@@ -55,7 +56,7 @@ vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
 	}
 	else if (p.isMath)
 	{
-		instructions_set.push_back(format("mov {}, eax", p.resultStorage));
+		instructions_set.push_back(format("mov {}, eax", get_id_name_in_data_segment(ID_TABLE.table[idIndex])));
 	}
 
 	return instructions_set;

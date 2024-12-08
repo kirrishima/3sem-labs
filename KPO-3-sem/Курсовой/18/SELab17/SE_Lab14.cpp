@@ -107,7 +107,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	try {
 		Parm::PARM parm = Parm::getparm(argc, argv);
 		In::IN in = In::getin(parm.in);
-		cout << '\n';
 #ifndef __DISABLE_LOGS
 		out = Out::getout(parm.out);
 		log = Log::getlog(parm.log);
@@ -118,7 +117,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Log::WriteIn(log, in);
 #endif // !__DISABLE_LOGS
 
-		cout << '\n';
 
 		auto [LexTable, IdTable] = LexAn::lexAnalize(parm, in);
 
@@ -161,11 +159,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Out::Close(out);
 #endif // !__DISABLE_LOGS
 
-		cout << "\n";
-
 		CD::CodeGeneration cd(IdTable, LexTable, parm.asem);
 
-		//cd.gen(parm.asem, hasP);
+		cd.gen(parm.asem);
+		IT::Delete(IdTable);
+		LT::Delete(LexTable);
 	}
 	catch (const char* e)
 	{
@@ -209,4 +207,4 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 #endif // !TEST
 	return 0;
-}
+		}
