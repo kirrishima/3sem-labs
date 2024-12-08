@@ -8,7 +8,9 @@ vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
 {
 	std::vector<std::string> instructions_set;
 	int idIndex = LEX_TABLE.table[index_in_lex_table - 1].idxTI;
+
 	if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].iddatatype == IT::IDDATATYPE::STR
+		&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype != IT::IDTYPE::F
 		/*&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI].value.vstr->len > 0*/)
 	{
 		if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::V) // если присваем значение переменной
@@ -36,11 +38,38 @@ vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
 				+ get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI]));
 			instructions_set.push_back(format("mov {}, eax", get_id_name_in_data_segment(ID_TABLE.table[idIndex])));
 		}
+		//else if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::F)
+		//{
+
+		//}
 		else
 		{
 			throw "Присвоение неверного типа данных: " + ("dest: " + to_string(IT::IDDATATYPE::STR) + ", src: " +
 				to_string(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].iddatatype));
 		}
+		return instructions_set;
+	}
+	else if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::F)
+	{
+		std::string funcName = ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].id;
+		int start = index_in_lex_table + 3;
+		int end = start;
+
+		while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
+		{
+			end = index_in_lex_table++;
+		}
+
+		auto function = find_if(user_functions.begin(), user_functions.end(),
+			[&](const UserDefinedFunctions& func) {return func.name == funcName; });
+
+		if (function == user_functions.end())
+		{
+			throw "parse_lexem_equal__: Попытка вызвать несуществующую функцию";
+		}
+		auto v = parse_function_call(*function, start, end);
+		instructions_set.insert(instructions_set.end(), v.begin(), v.end());
+		instructions_set.push_back(format("mov {}, eax", get_id_name_in_data_segment(ID_TABLE.table[idIndex])));
 		return instructions_set;
 	}
 

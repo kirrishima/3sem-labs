@@ -87,6 +87,9 @@
     <ClCompile Include="CodeGeneration\parse_lexem_equal.cpp">
       <Filter>Source Files\Code Generation</Filter>
     </ClCompile>
+    <ClCompile Include="CodeGeneration\parse_function.cpp">
+      <Filter>Source Files\Code Generation</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Error.h">
