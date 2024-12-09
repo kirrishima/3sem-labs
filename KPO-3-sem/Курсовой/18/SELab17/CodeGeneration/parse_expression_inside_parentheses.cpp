@@ -85,8 +85,9 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 		instructions.push_back(format("mov {}, 0", reservedBoolName));
 		instructions.push_back(format("{} @true{}", ifElseGen.cmp_op_to_jmp(LEX_TABLE.table[operationID].c), trueLabelsCount));
 		instructions.push_back(format("jmp @false{}", trueLabelsCount));
-		instructions.push_back(format("\n@true{}:\n{}mov {}, 1", trueLabelsCount, tab, reservedBoolName));
-		instructions.push_back(format("\n@false{}:", trueLabelsCount++));
+		instructions.push_back(format("@true{}:", trueLabelsCount));
+		instructions.push_back(format("mov {}, 1", reservedBoolName));
+		instructions.push_back(format("@false{}:", trueLabelsCount++));
 
 		params.isResultInDefaultBool = true;
 		params.isResultComputed = true;

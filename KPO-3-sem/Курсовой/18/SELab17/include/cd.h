@@ -15,6 +15,8 @@ bool isValidIdentifier(const std::string& identifier);
 bool isFunctionStart(const std::string& line);
 bool isFunctionEnd(const std::string& line);
 
+std::string operator*(const std::string& str, int times);
+
 namespace CD
 {
 	bool is_assignment(const std::string& expr);
@@ -41,7 +43,6 @@ namespace CD
 	struct CodeGeneration {
 		std::string tab = "    ";
 		const std::string reservedBoolName = "_@bool";
-
 		int trueLabelsCount = 0;
 
 		IT::ID_Table ID_TABLE;
@@ -105,6 +106,7 @@ namespace CD
 			}
 		}
 
+		std::vector<std::string> parse_function_call(UserDefinedFunctions& function, int params_start_index, int params_end_index);
 		void parse_function(int start_index, int end_index);
 		void parse_function_body(UserDefinedFunctions& function, int start_index, int end_index);
 		std::vector<std::string> parse_lexem(int& index_in_lex_table);
@@ -113,6 +115,7 @@ namespace CD
 		struct ParseExpressionReturnParms
 		{
 			bool isSingleVariable = true;
+			bool isStringPTR = false;
 
 			bool isResultComputed = false;
 			bool isResultInDefaultBool = false;
@@ -128,6 +131,7 @@ namespace CD
 			bool isINT = false;
 			bool isSTR = false;
 
+			IT::IDDATATYPE returnDataType;
 			std::string stringRepresentation;
 			std::string resultStorage;
 		};
@@ -142,7 +146,7 @@ namespace CD
 		vector<string> parse_print_lexem__(int& i);
 
 		/// <summary>
-		/// Возвращает строку, представляющую собой текущее значение строковой переменной
+		/// Возвращает строку, представляющую собой текущее значение строковой переменной в виде имени литерала
 		/// </summary>
 		/// <param name="lex_id"></param>
 		/// <returns></returns>
@@ -174,19 +178,18 @@ namespace CD
 
 			std::string cmp_op_to_jmp(std::string comparison);
 
-			void generate_condition__(
-				const std::vector<std::string>& operands, // два операнда - левый и правый 
-				const std::string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
-				const std::string& trueLabel, // имя метки если условие выполняется
-				const std::string& falseLabel, // если не выполняется
-				std::vector<std::string>& instructions, bool isStringCmp = false
-			);
+			//void generate_condition__(
+			//	const std::vector<std::string>& operands, // два операнда - левый и правый 
+			//	const std::string& comparison, // операция сравнения (>, <, ==, !=, >=, <=)
+			//	const std::string& trueLabel, // имя метки если условие выполняется
+			//	const std::string& falseLabel, // если не выполняется
+			//	std::vector<std::string>& instructions, bool isStringCmp = false
+			//);
 
 			void compare_ints(std::vector<std::string>& instructions, const vector<string>& operands);
 			void compare_strings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name);
 
-			void start_if__(const vector<vector<int>>& operands, //2 операнда: левый и правый
-				const string&,  // операция (>, <, ==, !=, >=, <=)
+			void start_if__(const vector<int>& operands, // операция (>, <, ==, !=, >=, <=)
 				std::vector<std::string>& // вектор с инструкциями, в которые будет добавлен сгенерированные новые
 			);
 			void start_else__(std::vector<std::string>& instructions);
@@ -206,20 +209,7 @@ ExitProcess PROTO : DWORD
 __PrintNumber PROTO :SDWORD
 __PrintBool PROTO :BYTE
 __PrintArray PROTO :DWORD, :DWORD, :DWORD
+__Print PROTO :DWORD
 __StrCmp PROTO :DWORD, :DWORD
-.stack 4096
-
-PrintArrayMACRO MACRO arrName
-    LOCAL arrType, arrLength, arrOffset
-    push type arrName     ; Тип элементов массива
-    push lengthof arrName ; Длина массива
-    push offset arrName   ; Смещение массива
-    call __PrintArray     ; Вызов процедуры __PrintArray
-ENDM
-
-StrCmpCallMACRO MACRO str1, str2
-    push OFFSET str2   ; Адрес второй строки в стек
-    push OFFSET str1   ; Адрес первой строки в стек
-    call __StrCmp      ; Вызов функции __StrCmp
-ENDM)";
+.stack 4096)";
 }
