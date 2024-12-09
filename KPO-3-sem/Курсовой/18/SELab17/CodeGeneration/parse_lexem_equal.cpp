@@ -52,12 +52,30 @@ vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
 	else if (ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].idtype == IT::IDTYPE::F)
 	{
 		std::string funcName = ID_TABLE.table[LEX_TABLE.table[index_in_lex_table + 1].idxTI].id;
+		
+		stack<char> skobki;
+		skobki.push(LEX_LEFTTHESIS);
 		int start = index_in_lex_table + 3;
 		int end = start;
 
-		while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
+		bool f = false;
+		while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON && !f)
 		{
-			end = index_in_lex_table++;
+			switch (LEX_TABLE.table[index_in_lex_table].lexema[0])
+			{
+			case LEX_RIGHTTHESIS:
+				skobki.pop();
+				if ( skobki.size() == 0)
+				{
+					f = true;
+				}
+				break;
+			case LEX_LEFTTHESIS:
+				skobki.push(LEX_LEFTTHESIS);
+			default:
+				end = index_in_lex_table++;
+				break;
+			}
 		}
 
 		auto function = find_if(user_functions.begin(), user_functions.end(),
