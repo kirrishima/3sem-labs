@@ -122,6 +122,10 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 
 		ss << "__" << entry.id;
 	}
+	else if (entry.idtype == IT::IDTYPE::F)
+	{
+		ss << entry.id;
+	}
 	else
 	{
 		throw "Неизвестный ID при генерации имени в сегменте .data";

@@ -25,6 +25,8 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 				params.isSTR = true;
 				break;
 			}
+			if (ID_TABLE.table[lt_entry.idxTI].idtype == IT::IDTYPE::F)
+				params.isFunctionCall = true;
 			break;
 		case LEX_COMPARE:
 			params.isCompare = true;
@@ -69,11 +71,11 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 		else if (params.isINT)
 		{
 			params.isIntCompare = true;
-			vector<string> str_operands(2, "");
-			str_operands[0] = lexems_vector_to_string(operands[0]);
-			str_operands[1] = lexems_vector_to_string(operands[1]);
+			//vector<string> str_operands(2, "");
+			//str_operands[0] = lexems_vector_to_string(operands[0]);
+			//str_operands[1] = lexems_vector_to_string(operands[1]);
 
-			ifElseGen.compare_ints(instructions, str_operands);
+			ifElseGen.compare_ints(instructions, operands);
 			//ifElseGen.compare_ints(instructions, operands)
 			instructions.push_back("cmp eax, ebx");
 		}
@@ -96,7 +98,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	}
 	else if (params.isMath)
 	{
-		auto v = generate_math_expressions(params.stringRepresentation);
+		auto v = generate_math_expressions(ids);
 		instructions.insert(instructions.end(), v.begin(), v.end());
 		params.isSingleVariable = false;
 		params.isResultComputed = true;

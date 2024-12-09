@@ -3,31 +3,6 @@
 
 using namespace std;
 
-// Перегрузка оператора << для повторения строки n раз
-std::ostream& operator<<(std::ostream& os, const std::pair<std::string, int>& str_times) {
-	const std::string& str = str_times.first;
-	int times = str_times.second;
-	for (int i = 0; i < times; ++i) {
-		os << str;
-	}
-	return os;
-}
-
-//// для std::string и int (уже имеется)
-//std::pair<std::string, int> operator*(const std::string& str, int times) {
-//	return { str, times };
-//}
-
-// для std::string и int (уже имеется)
-//std::string operator*(const std::string& str, int times) {
-//	std::string new_str;
-//	for (int i = 0; i < times; i++)
-//	{
-//		new_str += str;
-//	}
-//	return new_str;
-//}
-
 std::string CD::CodeGeneration::IfElseGeneration::cmp_op_to_jmp(std::string comparison)
 {
 	if (comparison == ">") {
@@ -74,22 +49,6 @@ void CD::CodeGeneration::IfElseGeneration::start_if__(
 	}
 	comments_operands.push_back(tmp);
 
-	/*if (operands[0].size() == 1 && operands[1].size() == 1
-		&& parent.ID_TABLE.table[parent.LEX_TABLE.table[operands[0][0]].idxTI].iddatatype == IT::IDDATATYPE::STR
-		&& parent.ID_TABLE.table[parent.LEX_TABLE.table[operands[1][0]].idxTI].iddatatype == IT::IDDATATYPE::STR)
-	{
-		compare_strings(instructions, parent.get_string_value(operands[0][0]), parent.get_string_value(operands[1][0]));
-		isStringCmp = true;
-	}
-	else
-	{
-		vector<string> str_operands(2, "");
-		str_operands[0] = parent.lexems_vector_to_string(operands[0]);
-		str_operands[1] = parent.lexems_vector_to_string(operands[1]);
-
-		compare_ints(instructions, str_operands);
-	}*/
-
 	auto p = parent.parse_expression(operands, instructions);
 	instructions.push_back(parent.tab * nestingLevel + "; Начало if " + to_string(currentElseLabel));
 
@@ -101,15 +60,15 @@ void CD::CodeGeneration::IfElseGeneration::start_if__(
 	instructions.push_back(parent.tab * (nestingLevel - 1) + trueLabel + ':');
 }
 
-void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>& instructions, const vector<string>& operands)
+void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>& instructions, const vector<std::vector<int> >& operands)
 {
 	auto math_instructionsRight = parent.generate_math_expressions(operands[1]);
 	auto math_instructionsLeft = parent.generate_math_expressions(operands[0]);
 
 	if (math_instructionsRight.size() == 1 && math_instructionsLeft.size() == 1)
 	{
-		instructions.push_back(parent.tab * nestingLevel + "mov eax, " + operands[0] + parent.tab + "; lefthand операнд");
-		instructions.push_back(parent.tab * nestingLevel + "mov ebx, " + operands[1] + parent.tab + "; righthand операнд");
+		instructions.push_back(parent.tab * nestingLevel + "mov eax, " + parent.lexems_vector_to_string(operands[0]) + parent.tab + "; lefthand операнд");
+		instructions.push_back(parent.tab * nestingLevel + "mov ebx, " + parent.lexems_vector_to_string(operands[1]) + parent.tab + "; righthand операнд");
 		instructions.push_back("");
 	}
 	else
@@ -135,7 +94,7 @@ void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>
 		}
 		else
 		{
-			instructions.push_back("\n" + parent.tab * nestingLevel + "mov eax, " + operands[0] + parent.tab + "; lefthand операнд");
+			instructions.push_back("\n" + parent.tab * nestingLevel + "mov eax, " + parent.lexems_vector_to_string(operands[0]) + parent.tab + "; lefthand операнд");
 		}
 
 		instructions.push_back(parent.tab * nestingLevel + "pop ebx ; загружаем значение righthand операнда");

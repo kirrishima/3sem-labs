@@ -1,5 +1,6 @@
 int aboba(int p)
 {
+    print('\nвход в функцию абоба!\n');
     int z = 12;
     print(z);
     if (z > 10)
@@ -14,11 +15,23 @@ int aboba(int p)
     {
         print('ошибка в aboba в else');
     }
+    print('\tвыходим из абобы...\n');
+    return z * p - 12;
+}
+
+str fun(str p)
+{
+    print('Вызвана функция fun!\nПереданный параметр:');
+    print(p);
+    print('Возращаем занчение из fun...');
+    return 'значение, что вернула функция fun';
 }
 
 main
 {
 
+    str aaaaa = fun('вызываем функцию fun...');
+    print(aaaaa);
     int z = -5;
     print('Вывод числа -5...');
     print(z);
@@ -50,6 +63,10 @@ main
             z = 10;
             print('вложенные условия не отработали, это верно');
             z = z + 5;
+            if (aboba(10) > 100)
+            {
+                print('aboba(10) > 100, это правильно');
+            }
         }
     }
     z = z * 10;

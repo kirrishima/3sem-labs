@@ -8,8 +8,7 @@ using namespace std;
 
 namespace CD
 {
-	std::vector<std::string> masmCode;
-
+	unordered_map <std::string, std::vector<std::string>> used_functions;
 	// Определение приоритетов операций
 	int getPrecedence(char op) {
 		if (op == '+' || op == '-') return 1;
@@ -38,54 +37,73 @@ namespace CD
 	}
 
 	// Функция для разбора выражения с учетом приоритета операций
-	vector<string> parseExpression(const string& expression) {
+	vector<string> CD::CodeGeneration::parseExpression(const std::vector<int>& expression) {
 		stack<char> operators;         // Стек для операторов
 		vector<string> output;         // Выходная очередь (в конечном итоге RPN)
-		string token;                  // Для накопления идентификаторов и операторов
 
-		for (char ch : expression) {
-			if (isspace(ch)) continue; // Пропуск пробелов
+		for (int id = expression.front(); id <= expression.back(); id++) {
+			if (LEX_TABLE.table[id].lexema[0] == LEX_ID && ID_TABLE.table[LEX_TABLE.table[id].idxTI].idtype == IT::IDTYPE::F)
+			{
+				std::string functionName = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[id].idxTI]);
 
-			if (isalnum(ch) || ch == '_') {
-				token += ch; // Накопление идентификатора или литерала
-			}
-			else {
-				if (!token.empty()) {
-					if (token.size() > 3 && token[0] == '_' && token[1] == '_')
+				auto function = find_if(user_functions.begin(), user_functions.end(),
+					[&](const UserDefinedFunctions& func) {
+						return func.name == functionName; });
+
+				stack<char> parenthesis;
+				parenthesis.push(LEX_LEFTTHESIS);
+				std::vector<int> function_call_args;
+
+				id += 2;
+				while (id <= expression.back())
+				{
+					if (LEX_TABLE.table[id].lexema[0] == LEX_RIGHTTHESIS)
 					{
-						output.push_back(token);
+						parenthesis.pop();
+						if (parenthesis.size() == 0)
+						{
+							break;
+						}
 					}
-					else
+					if (LEX_TABLE.table[id].lexema[0] == LEX_LEFTTHESIS)
 					{
-						output.push_back(token);
+						parenthesis.push(id);
 					}
-					// Добавляем идентификатор или литерал
-					token.clear();
+					if (LEX_TABLE.table[id].lexema[0] == LEX_ID || LEX_TABLE.table[id].lexema[0] == LEX_LITERAL)
+					{
+						functionName += get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[id].idxTI]);
+					}
+					function_call_args.push_back(id++);
 				}
 
-				if (isOperator(ch)) {
-					while (!operators.empty() &&
-						getPrecedence(operators.top()) >= getPrecedence(ch)) {
-						output.push_back(string(1, operators.top()));
-						operators.pop();
-					}
-					operators.push(ch);
+				if (used_functions.find(functionName) == used_functions.end())
+				{
+					used_functions[functionName] = parse_function_call(*function, function_call_args.front(), function_call_args.back());
 				}
-				else if (ch == '(') {
-					operators.push(ch); // Открывающая скобка
-				}
-				else if (ch == ')') {
-					while (!operators.empty() && operators.top() != '(') {
-						output.push_back(string(1, operators.top()));
-						operators.pop();
-					}
-					if (!operators.empty()) operators.pop(); // Удалить '(' из стека
-				}
+				output.push_back(functionName);
 			}
-		}
-
-		if (!token.empty()) {
-			output.push_back(token); // Последний токен
+			else if (LEX_TABLE.table[id].lexema[0] == LEX_ID || LEX_TABLE.table[id].lexema[0] == LEX_LITERAL) {
+				output.push_back(get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[id].idxTI])); // Накопление идентификатора или литерала
+			}
+			else if (LEX_TABLE.table[id].lexema[0] == LEX_MATH)
+			{
+				while (!operators.empty() &&
+					getPrecedence(operators.top()) >= getPrecedence(LEX_TABLE.table[id].v)) {
+					output.push_back(string(1, operators.top()));
+					operators.pop();
+				}
+				operators.push(LEX_TABLE.table[id].v);
+			}
+			else if (LEX_TABLE.table[id].lexema[0] == LEX_LEFTTHESIS) {
+				operators.push('('); // Открывающая скобка
+			}
+			else if (LEX_TABLE.table[id].lexema[0] == LEX_RIGHTTHESIS) {
+				while (!operators.empty() && operators.top() != LEX_LEFTTHESIS) {
+					output.push_back(string(1, operators.top()));
+					operators.pop();
+				}
+				if (!operators.empty()) operators.pop(); // Удалить '(' из стека
+			}
 		}
 
 		// Перенос оставшихся операторов в выход
@@ -97,7 +115,7 @@ namespace CD
 		return output;
 	}
 
-	void generateOperation(const std::string& operation)
+	void generateOperation(std::vector<std::string>& masmCode, const std::string& operation)
 	{
 		if (operation == "+") {
 			masmCode.push_back("add eax, ebx");
@@ -117,22 +135,57 @@ namespace CD
 		}
 	}
 
-	void generateMASM(const vector<string>& rpn) {
+	void generateMASM(std::vector<std::string>& masmCode, const vector<string>& rpn) {
 		if (rpn.size() == 1)
 		{
+			if (used_functions.find(rpn[0]) != used_functions.end())
+			{
+				masmCode.push_back("; function call");
+				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end());
+				return;
+			}
 			masmCode.push_back("push " + rpn[0]);
 			return;
 		}
 
 		if (rpn.size() == 3 &&
-			(isIdentifier(rpn[0]) || isLiteral(rpn[0])) &&
-			(isIdentifier(rpn[1]) || isLiteral(rpn[1])) &&
+			/*(isIdentifier(rpn[0]) || isLiteral(rpn[0])) &&
+			(isIdentifier(rpn[1]) || isLiteral(rpn[1])) &&*/
 			isOperator(rpn[2][0]))
 		{
-			masmCode.push_back("mov eax, " + rpn[0]); // Первый операнд в eax
-			masmCode.push_back("mov ebx, " + rpn[1]); // Второй операнд в ebx
+			//for (size_t i = 0; i <= 1; i++)
+			//{
+			if (used_functions.find(rpn[0]) != used_functions.end()
+				&& used_functions.find(rpn[1]) != used_functions.end()) // если оба операнда - вызовы функции
+			{
+				masmCode.push_back("; function call"); // правый операнд вычисляем и помещаем в ebx
+				masmCode.insert(masmCode.end(), used_functions[rpn[1]].begin(), used_functions[rpn[1]].end());
+				masmCode.push_back("mov ebx, eax");
 
-			generateOperation(rpn[2]);
+				masmCode.push_back("; function call"); // левый вычисляется и остается результат в eax
+				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end());
+			}
+			else if (used_functions.find(rpn[0]) != used_functions.end()) // если левый это рез функции
+			{
+				masmCode.push_back("; function call");
+				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end()); // оставляем его в eax
+				masmCode.push_back("mov ebx, " + rpn[1]); // правый в ebx
+			}
+			else if (used_functions.find(rpn[1]) != used_functions.end()) // если правый функция
+			{
+				masmCode.push_back("; function call");
+				masmCode.insert(masmCode.end(), used_functions[rpn[1]].begin(), used_functions[rpn[1]].end());
+				masmCode.push_back("mov ebx, eax"); // сразу вычисляем его и в ebx
+				masmCode.push_back("mov eax, " + rpn[0]); // в eax левый копируем
+			}
+			else
+			{
+				masmCode.push_back("mov eax, " + rpn[0]); // Первый операнд в eax
+				masmCode.push_back("mov ebx, " + rpn[1]); // Второй операнд в ebx
+			}
+			/*}*/
+
+			generateOperation(masmCode, rpn[2]);
 			// Результат остается в eax, добавлять в стек не требуется, если это не нужно
 			return;
 		}
@@ -140,14 +193,23 @@ namespace CD
 		for (const string& token : rpn) {
 			if (isIdentifier(token) || isLiteral(token)) {
 				// Если токен — идентификатор или литерал, генерируем `push`
-				masmCode.push_back("push " + token);
+				if (used_functions.find(token) != used_functions.end())
+				{
+					masmCode.push_back("; function call");
+					masmCode.insert(masmCode.end(), used_functions[token].begin(), used_functions[token].end());
+					masmCode.push_back("push eax");
+				}
+				else
+				{
+					masmCode.push_back("push " + token);
+				}
 			}
 			else if (isOperator(token[0])) {
 				// Если токен — оператор, извлекаем два операнда из стека
 				masmCode.push_back("pop ebx"); // Второй операнд
 				masmCode.push_back("pop eax"); // Первый операнд
 
-				generateOperation(token);
+				generateOperation(masmCode, token);
 
 				// Помещаем результат обратно в стек
 				masmCode.push_back("push eax");
@@ -163,12 +225,13 @@ namespace CD
 		}
 	}
 
-	std::vector<std::string> CD::CodeGeneration::generate_math_expressions(const std::string& expr)
+	std::vector<std::string> CD::CodeGeneration::generate_math_expressions(const std::vector<int>& expr)
 	{
-		masmCode.clear();
+		std::vector<std::string> masmCode;
+		//masmCode.push_back(";" + lexems_vector_to_string(expr));
 		vector<string> result = parseExpression(expr);
 
-		generateMASM(result);
+		generateMASM(masmCode, result);
 		//for (const auto e : result)
 		//{
 		//	cout << e << " ";

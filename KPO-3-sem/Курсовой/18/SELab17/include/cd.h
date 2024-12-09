@@ -58,7 +58,8 @@ namespace CD
 		}
 
 		static std::string get_id_name_in_data_segment(const IT::Entry& entry);
-		std::vector<std::string> generate_math_expressions(const std::string& expr);
+		vector<string> parseExpression(const std::vector<int>& expression);
+		std::vector<std::string> generate_math_expressions(const std::vector<int>& expr);
 		void __s_const();
 		void __s_data();
 
@@ -130,6 +131,7 @@ namespace CD
 			bool isMath = false;
 			bool isINT = false;
 			bool isSTR = false;
+			bool isFunctionCall = false;
 
 			IT::IDDATATYPE returnDataType;
 			std::string stringRepresentation;
@@ -186,7 +188,7 @@ namespace CD
 			//	std::vector<std::string>& instructions, bool isStringCmp = false
 			//);
 
-			void compare_ints(std::vector<std::string>& instructions, const vector<string>& operands);
+			void compare_ints(std::vector<std::string>& instructions, const vector<std::vector<int> >& operands);
 			void compare_strings(std::vector<std::string>& instructions, const string& str1Name, const string& str2Name);
 
 			void start_if__(const vector<int>& operands, // операция (>, <, ==, !=, >=, <=)

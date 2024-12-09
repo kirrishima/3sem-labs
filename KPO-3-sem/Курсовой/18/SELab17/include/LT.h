@@ -60,8 +60,8 @@ namespace LT              // таблица лексем
 		char lexema[LEXEMA_FIXSIZE];  // лексема
 		int sn;                       // номер строки в исходном тексте
 		int idxTI;                    // индекс в таблице идентификаторов или LT_TI_NULLIDX
-		char v;
-		std::string c;
+		char v; // математическая операция в виде символа(+,-,*,/)
+		std::string c; // оператор сравнения
 	};
 
 	struct LexTable        // экземпляр таблицы лексем

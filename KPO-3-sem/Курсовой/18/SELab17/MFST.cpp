@@ -149,7 +149,8 @@ namespace MFST
 	{
 		bool rc = false;
 		MfstState state;
-
+#pragma warning(push)
+#pragma warning(disable : 4706)
 		if (rc = (storestate.size() > 0)) // Проверка, есть ли сохраненные состояния
 		{
 			state = storestate.top(); // Получение верхнего состояния из стека
@@ -168,7 +169,7 @@ namespace MFST
 
 		return rc;
 	};
-
+#pragma warning(pop)
 	// Метод для сохранения диагноза ошибки синтаксического анализа
 	bool Mfst::savediagnosis(RC_STEP prc_step)
 	{
@@ -177,7 +178,8 @@ namespace MFST
 
 		while (k < MFST_DIAGN_NUMBER && lenta_position <= diagnosis[k].lenta_position)
 			k++; // Поиск свободной позиции для диагноза
-
+#pragma warning(push)
+#pragma warning(disable : 4706)
 		if (rc = (k < MFST_DIAGN_NUMBER))
 		{
 			diagnosis[k] = MfstDiagnosis(lenta_position, prc_step, nrule, nrulechain); // Сохранение диагноза
@@ -188,7 +190,7 @@ namespace MFST
 
 		return rc;
 	};
-
+#pragma warning(pop)
 	// Метод для начала синтаксического анализа
 	bool Mfst::start()
 	{
