@@ -708,9 +708,10 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 	try
 	{
-#ifndef __DISABLE_IT_LT_TABLES_SAVE
-		printToFile(ID_Table, param.it, LexTable, param.lt, in);
-#endif // !__DISABLE_IT_LT_TABLES_SAVE
+		if (param.enableLexAnSave)
+		{
+			printToFile(ID_Table, param.it, LexTable, param.lt, in);
+		}
 
 	}
 	catch (...) {}

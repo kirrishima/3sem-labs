@@ -18,6 +18,7 @@ namespace CD
 		}
 
 		OUT_ASM_FILE << BASE;
+		OUT_ASM_FILE << '\n' << ".stack " << parm.stackSize;
 		OUT_ASM_FILE << "\n\n";
 		__s_const();
 		OUT_ASM_FILE << '\n';

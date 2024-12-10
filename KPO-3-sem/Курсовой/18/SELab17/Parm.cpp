@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <map>
 
+
 #ifdef _UNICODE
 #define tstring std::wstring
 #define tcout std::wcout
@@ -93,7 +94,6 @@ namespace Parm {
 			parm.lt = parm.in + PARM_LT_TABLE_DEFAULT;
 		}
 
-
 		// Проверка и установка `PARM_IT`
 		if (namedParams.find(PARM_IT) != namedParams.end()) {
 			std::filesystem::path itPath(namedParams[PARM_IT]);
@@ -106,7 +106,35 @@ namespace Parm {
 			parm.it = parm.in + PARM_IT_TABLE_DEFAULT;
 		}
 
-		parm.asem = (fs::path(fs::absolute(parm.in)).parent_path() / (fs::path(parm.in).filename().string() + ".asm")).wstring();
+		if (namedParams.find(PARM_STACK) != namedParams.end()) {
+			try {
+				size_t stackSize = std::stoul(namedParams[PARM_STACK]); // преобразование строки в число
+
+				// Проверка диапазона размера стека
+				if (stackSize < STACK_MIN_SIZE || stackSize > STACK_MAX_SIZE) {
+					throw ERROR_THROW(120); // Ошибка: некорректный размер стека
+				}
+
+				parm.stackSize = stackSize; // Установка значения в параметр
+				std::cout << "stack : " << stackSize << std::endl;
+			}
+			catch (const std::exception&) {
+				throw ERROR_THROW(121); // Ошибка: некорректный формат значения размера стека
+			}
+		}
+		else {
+			parm.stackSize = PARM_STACK_DEFAULT_SIZE; // Установка значения по умолчанию, если параметр отсутствует
+		}
+
+		if (flags.find(PARM_F_LEX) != flags.end()) {
+			parm.enableLexAnSave = true;
+		}
+
+		/*	if (flags.find(PARM_LEX) != flags.end()) {
+				parm.enableLexAnSave = true;
+			}*/
+
+		parm.masmDest = (fs::path(fs::absolute(parm.in)).parent_path() / (fs::path(parm.in).filename().string() + ".asm")).wstring();
 		//parm.obj = (fs::path(fs::absolute(parm.out)).parent_path() / (fs::path(parm.in).filename().string() + ".obj")).wstring();
 		//parm.exe = (fs::path(fs::absolute(parm.out)).parent_path() / (fs::path(parm.in).filename().string() + ".exe")).wstring();
 
@@ -127,6 +155,24 @@ namespace Parm {
 	}
 }
 
+
+bool areDirectoriesValid(const fs::path& path) {
+	// итеративно проверяем существование всех родительских директорий
+	fs::path parentPath = path.parent_path();
+	while (!parentPath.empty()) {
+		if (!fs::exists(parentPath)) {
+			return false; // директория не существует
+		}
+		parentPath = parentPath.parent_path();
+	}
+	return true;
+}
+
+bool isFilePath(const fs::path& path) {
+	// проверяем, что путь содержит имя файла (имеет имя и расширение)
+	return path.has_filename();
+}
+
 bool validatePath(const std::wstring& filePath) {
 	std::filesystem::path path(filePath);
 
@@ -145,13 +191,11 @@ bool validatePath(const std::wstring& filePath) {
 
 // Функция для проверки корректности пути (директория или файл с расширением .html)
 bool validateHtmlPath(const std::filesystem::path& path) {
-	if (std::filesystem::is_directory(path)) {
-		// Путь указывает на директорию — проверяем, существует ли она
-		return std::filesystem::exists(path);
-	}
-	else if (std::filesystem::is_regular_file(path)) {
+
+	if (isFilePath(path) && areDirectoriesValid(path)) {
 		// Путь указывает на файл — проверяем, что расширение .html
-		return path.extension() == ".html" && std::filesystem::exists(path);
+		return path.extension() == ".html";
 	}
+
 	return false; // Неверный путь
 }

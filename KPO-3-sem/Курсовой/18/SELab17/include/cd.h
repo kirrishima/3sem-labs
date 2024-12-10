@@ -5,6 +5,7 @@
 #include <fstream>
 #include <format>
 #include <stack>
+#include "Parm.h"
 
 using namespace std;
 
@@ -31,13 +32,14 @@ namespace CD
 		IT::ID_Table ID_TABLE;
 		LT::LexTable LEX_TABLE;
 		std::ofstream OUT_ASM_FILE;
+		Parm::PARM parm;
 
 		std::unordered_map<string, UserDefinedFunctions> user_functions;
 
-		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const std::wstring& OUT_FILEPATH)
-			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), ifElseGen(*this)
+		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM& parm)
+			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), parm(parm), ifElseGen(*this)
 		{
-			this->OUT_ASM_FILE.open(OUT_FILEPATH);
+			this->OUT_ASM_FILE.open(parm.masmDest);
 		}
 
 		static string get_id_name_in_data_segment(const IT::Entry& entry);
@@ -177,6 +179,5 @@ __PrintNumber PROTO :SDWORD
 __PrintBool PROTO :BYTE
 __PrintArray PROTO :DWORD, :DWORD, :DWORD
 __Print PROTO :DWORD
-__StrCmp PROTO :DWORD, :DWORD
-.stack 4096)";
+__StrCmp PROTO :DWORD, :DWORD)";
 }

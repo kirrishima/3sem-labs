@@ -159,9 +159,9 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Out::Close(out);
 #endif // !__DISABLE_LOGS
 
-		CD::CodeGeneration cd(IdTable, LexTable, parm.asem);
+		CD::CodeGeneration cd(IdTable, LexTable, parm);
 
-		cd.gen(parm.asem);
+		cd.gen(parm.masmDest);
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);
 	}
@@ -207,4 +207,4 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 #endif // !TEST
 	return 0;
-		}
+}
