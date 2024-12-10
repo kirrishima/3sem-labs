@@ -58,7 +58,7 @@ namespace CD
 		for (const auto& function : user_functions)
 		{
 			OUT_ASM_FILE << '\n';
-			for (const auto& cl : function.code)
+			for (const auto& cl : function.second.code)
 			{
 				if (isMASMLabel(cl) || isFunctionEnd(cl) || isFunctionStart(cl))
 				{
@@ -75,7 +75,7 @@ namespace CD
 
 #ifdef _DEBUG
 		cout << "Compiling: \n\n";
-		system("compile_debug.bat >> nul");
+		system("compile_debug.bat");
 		system("program.exe");
 #endif // _DEBUG
 

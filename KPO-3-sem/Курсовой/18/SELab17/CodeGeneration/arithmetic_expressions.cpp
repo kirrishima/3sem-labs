@@ -37,7 +37,7 @@ namespace CD
 	}
 
 	// Функция для разбора выражения с учетом приоритета операций
-	vector<string> CD::CodeGeneration::parseExpression(const std::vector<int>& expression) {
+	vector<string> CD::CodeGeneration::__parse_math_expression(const std::vector<int>& expression) {
 		stack<char> operators;         // Стек для операторов
 		vector<string> output;         // Выходная очередь (в конечном итоге RPN)
 
@@ -46,9 +46,7 @@ namespace CD
 			{
 				std::string functionName = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[id].idxTI]);
 
-				auto function = find_if(user_functions.begin(), user_functions.end(),
-					[&](const UserDefinedFunctions& func) {
-						return func.name == functionName; });
+				auto function = user_functions[functionName];
 
 				stack<char> parenthesis;
 				parenthesis.push(LEX_LEFTTHESIS);
@@ -78,7 +76,7 @@ namespace CD
 
 				if (used_functions.find(functionName) == used_functions.end())
 				{
-					used_functions[functionName] = parse_function_call(*function, function_call_args.front(), function_call_args.back());
+					used_functions[functionName] = parse_function_call(function, function_call_args.front(), function_call_args.back());
 				}
 				output.push_back(functionName);
 			}
@@ -149,12 +147,8 @@ namespace CD
 		}
 
 		if (rpn.size() == 3 &&
-			/*(isIdentifier(rpn[0]) || isLiteral(rpn[0])) &&
-			(isIdentifier(rpn[1]) || isLiteral(rpn[1])) &&*/
 			isOperator(rpn[2][0]))
 		{
-			//for (size_t i = 0; i <= 1; i++)
-			//{
 			if (used_functions.find(rpn[0]) != used_functions.end()
 				&& used_functions.find(rpn[1]) != used_functions.end()) // если оба операнда - вызовы функции
 			{
@@ -183,7 +177,6 @@ namespace CD
 				masmCode.push_back("mov eax, " + rpn[0]); // Первый операнд в eax
 				masmCode.push_back("mov ebx, " + rpn[1]); // Второй операнд в ebx
 			}
-			/*}*/
 
 			generateOperation(masmCode, rpn[2]);
 			// Результат остается в eax, добавлять в стек не требуется, если это не нужно
@@ -228,14 +221,13 @@ namespace CD
 	std::vector<std::string> CD::CodeGeneration::generate_math_expressions(const std::vector<int>& expr)
 	{
 		std::vector<std::string> masmCode;
-		//masmCode.push_back(";" + lexems_vector_to_string(expr));
-		vector<string> result = parseExpression(expr);
+		vector<string> result = __parse_math_expression(expr);
 
 		generateMASM(masmCode, result);
-		for (const auto e : result)
-		{
-			cout << e << " ";
-		}
+		//for (const auto e : result)
+		//{
+		//	cout << e << " ";
+		//}
 
 		return masmCode;
 	}

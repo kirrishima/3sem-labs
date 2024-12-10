@@ -9,7 +9,6 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 	for (int i = params_end_index; i >= params_start_index; i--)
 	{
 		LT::Entry* lex = &LEX_TABLE.table[i];
-		aboba:
 		if (lex->lexema[0] == LEX_COMMA || params_start_index > i - 1)
 		{
 			if (params_start_index == i)
@@ -19,8 +18,8 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 			std::reverse(param.begin(), param.end());
 			auto p = parse_expression(param, params);
 
-			if (p.isINT && !function.params[params_pos] == IT::IDDATATYPE::INT ||
-				p.isSTR && !function.params[params_pos] == IT::IDDATATYPE::STR)
+			if (p.isINT && !(function.params[params_pos] == IT::IDDATATYPE::INT) ||
+				p.isSTR && !(function.params[params_pos] == IT::IDDATATYPE::STR))
 			{
 				throw "parse_function_call: неверный параметр в вызове функции";
 			}
@@ -45,7 +44,7 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 				}
 			}
 			param.clear();
-		}		/*if (lex->lexema[0] == LEX_ID || lex->lexema[0] == LEX_LITERAL)*/
+		}
 		else param.push_back(i);
 	}
 	params.push_back(format("call {}", function.name));
@@ -62,11 +61,7 @@ void CD::CodeGeneration::parse_function_body(UserDefinedFunctions& function, int
 		case 'p':
 		case '=':
 		{
-			auto res = parse_lexem(i);
-			for (const std::string& s : res)
-			{
-				function.push_code(s);
-			}
+			parse_lexem(function.code, i);
 			break;
 		}
 		case ';':
@@ -181,5 +176,5 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 	{
 		function.push_code("END main");
 	}
-	user_functions.push_back(function);
+	user_functions[function.name] = function;
 }

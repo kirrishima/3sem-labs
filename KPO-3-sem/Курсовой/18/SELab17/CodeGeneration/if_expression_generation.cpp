@@ -30,7 +30,7 @@ std::string CD::CodeGeneration::IfElseGeneration::cmp_op_to_jmp(std::string comp
 
 
 // Начало `if`
-void CD::CodeGeneration::IfElseGeneration::start_if__(
+void CD::CodeGeneration::IfElseGeneration::__start_if(
 	const vector<int>& operands, // операция сравнения (>, <, ==, !=, >=, <=)
 	std::vector<std::string>& instructions // текущие инструкции
 ) {
@@ -109,7 +109,7 @@ void CD::CodeGeneration::IfElseGeneration::compare_strings(std::vector<std::stri
 }
 
 // Генерация блока `else`
-void CD::CodeGeneration::IfElseGeneration::start_else__(std::vector<std::string>& instructions) {
+void CD::CodeGeneration::IfElseGeneration::__start_else(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -131,7 +131,7 @@ void CD::CodeGeneration::IfElseGeneration::start_else__(std::vector<std::string>
 }
 
 // Завершение `if` или `else`
-void CD::CodeGeneration::IfElseGeneration::end_if_or_else__(std::vector<std::string>& instructions) {
+void CD::CodeGeneration::IfElseGeneration::__end_if_or_else(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -142,7 +142,7 @@ void CD::CodeGeneration::IfElseGeneration::end_if_or_else__(std::vector<std::str
 }
 
 // Завершение `if` или `else`
-void CD::CodeGeneration::IfElseGeneration::end_expression__(std::vector<std::string>& instructions) {
+void CD::CodeGeneration::IfElseGeneration::__end_expression(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
@@ -183,7 +183,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 				i++;
 			} // while
 			ifcounts++;
-			start_if__(ops, instructions);
+			__start_if(ops, instructions);
 		}
 
 		vector<int> ids;
@@ -198,22 +198,18 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 				}
 				break;
 			default:
-				auto res = parent.parse_lexem(i);
-				for (const std::string& s : res)
-				{
-					instructions.push_back(parent.tab * nestingLevel + s);
-				}
+				parent.parse_lexem(instructions, i);
 				break;
 			}
 			i++;
 		}
 
-		end_if_or_else__(instructions);
+		__end_if_or_else(instructions);
 
 		if (parent.LEX_TABLE.table[i + 1].lexema[0] == ':')
 		{
 			i += 2;
-			start_else__(instructions);
+			__start_else(instructions);
 
 			if (parent.LEX_TABLE.table[i].lexema[0] == '?')
 			{
@@ -228,7 +224,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 		}
 		break;
 	}
-	end_expression__(instructions);
+	__end_expression(instructions);
 
 	return instructions;
 }
