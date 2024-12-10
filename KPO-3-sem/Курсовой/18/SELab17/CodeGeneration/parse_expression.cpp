@@ -29,8 +29,27 @@ vector<string> CD::CodeGeneration::parse_lexem(int& index_in_lex_table)
 			std::string name = ID_TABLE.table[LEX_TABLE.table[index_in_lex_table].idxTI].id;
 			index_in_lex_table += 2;
 			std::vector<int> ids;
-			while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
+
+			stack<char> parenthesis;
+			parenthesis.push(LEX_LEFTTHESIS);
+
+			while (index_in_lex_table <LEX_TABLE.size)
+			{
+				if (LEX_TABLE.table[index_in_lex_table].lexema[0] == LEX_RIGHTTHESIS)
+				{
+					parenthesis.pop();
+					if (parenthesis.size() == 0)
+					{
+						break;
+					}
+				}
+				if (LEX_TABLE.table[index_in_lex_table].lexema[0] == LEX_LEFTTHESIS)
+				{
+					parenthesis.push(index_in_lex_table);
+				}
+
 				ids.push_back(index_in_lex_table++);
+			}
 
 			for (auto& func : user_functions)
 			{
@@ -43,6 +62,35 @@ vector<string> CD::CodeGeneration::parse_lexem(int& index_in_lex_table)
 			}
 		}
 		break;
+	case LEX_RETURN:
+	{
+		std::vector<int> ids;
+		index_in_lex_table++;
+		while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
+		{
+			ids.push_back(index_in_lex_table++);
+		}
+
+		auto p = parse_expression(ids, instructions_set);
+
+		if (p.isResultInDefaultBool)
+		{
+			instructions_set.push_back(format("mov eax, {}", reservedBoolName));
+		}
+		else if (p.isResultInEAX)
+		{
+			break;
+		}
+		else if (p.isResultInSTACK)
+		{
+			instructions_set.push_back("pop eax");
+		}
+		else if (p.isSingleVariable)
+		{
+			instructions_set.push_back(format("mov eax, {}", p.resultStorage));
+		}
+		break;
+	}
 	default:
 		break;
 	}

@@ -5,25 +5,48 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 {
 	std::vector<std::string> params;
 	int params_pos = function.params.size() - 1;
+	vector<int> param;
 	for (int i = params_end_index; i >= params_start_index; i--)
 	{
 		LT::Entry* lex = &LEX_TABLE.table[i];
-		if (lex->lexema[0] == LEX_ID || lex->lexema[0] == LEX_LITERAL)
+		aboba:
+		if (lex->lexema[0] == LEX_COMMA || params_start_index > i - 1)
 		{
-			if (ID_TABLE.table[lex->idxTI].iddatatype != function.params[params_pos])
+			if (params_start_index == i)
+			{
+				param.push_back(i);
+			}
+			std::reverse(param.begin(), param.end());
+			auto p = parse_expression(param, params);
+
+			if (p.isINT && !function.params[params_pos] == IT::IDDATATYPE::INT ||
+				p.isSTR && !function.params[params_pos] == IT::IDDATATYPE::STR)
 			{
 				throw "parse_function_call: неверный параметр в вызове функции";
 			}
 			params_pos--;
-			if (ID_TABLE.table[lex->idxTI].iddatatype == IT::IDDATATYPE::STR)
+			if (p.isSingleVariable)
 			{
-				params.push_back(format("push {}", get_string_value(i)));
+				params.push_back(format("push {}", p.resultStorage));
 			}
 			else
 			{
-				params.push_back(format("push {}", get_id_name_in_data_segment(ID_TABLE.table[lex->idxTI])));
+				if (p.isResultInEAX)
+				{
+					params.push_back("push eax");
+				}
+				else if (p.isResultInEBX)
+				{
+					params.push_back("push ebx");
+				}
+				else
+				{
+					params.push_back(p.resultStorage);
+				}
 			}
-		}
+			param.clear();
+		}		/*if (lex->lexema[0] == LEX_ID || lex->lexema[0] == LEX_LITERAL)*/
+		else param.push_back(i);
 	}
 	params.push_back(format("call {}", function.name));
 	return params;

@@ -232,10 +232,10 @@ namespace CD
 		vector<string> result = parseExpression(expr);
 
 		generateMASM(masmCode, result);
-		//for (const auto e : result)
-		//{
-		//	cout << e << " ";
-		//}
+		for (const auto e : result)
+		{
+			cout << e << " ";
+		}
 
 		return masmCode;
 	}

@@ -197,18 +197,12 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 					instructions.push_back(str);
 				}
 				break;
-			case '=':
-			case 'p':
-			case LEX_ID:
-			{
+			default:
 				auto res = parent.parse_lexem(i);
 				for (const std::string& s : res)
 				{
 					instructions.push_back(parent.tab * nestingLevel + s);
 				}
-				break;
-			}
-			default:
 				break;
 			}
 			i++;

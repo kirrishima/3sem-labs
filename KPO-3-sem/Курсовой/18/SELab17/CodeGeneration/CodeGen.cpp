@@ -74,8 +74,9 @@ namespace CD
 		OUT_ASM_FILE.close();
 
 #ifdef _DEBUG
-		//cout << "Compiling: \n\n";
-		//system("compile_debug.bat");
+		cout << "Compiling: \n\n";
+		system("compile_debug.bat >> nul");
+		system("program.exe");
 #endif // _DEBUG
 
 #ifdef _RELEASE
