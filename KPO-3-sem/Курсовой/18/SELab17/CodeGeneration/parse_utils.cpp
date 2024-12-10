@@ -138,6 +138,60 @@ std::string CD::CodeGeneration::lexems_vector_to_string(const vector<int>& ids)
 	return result;
 }
 
+std::string CD::CodeGeneration::lexems_vector_to_source_string(const vector<int>& ids)
+{
+	string result = "";
+	for (const int id : ids)
+	{
+		result += lexem_to_source(LEX_TABLE.table[id]);
+	}
+	return result;
+}
+
+std::string CD::CodeGeneration::lexem_to_source(LT::Entry& entry)
+{
+	switch (entry.lexema[0]) {
+	case 'p':
+		return "print";
+
+	case 'l':
+		if (ID_TABLE.table[entry.idxTI].iddatatype == IT::IDDATATYPE::INT)
+		{
+			return to_string(ID_TABLE.table[entry.idxTI].value.vint);
+		}
+		if (ID_TABLE.table[entry.idxTI].iddatatype == IT::IDDATATYPE::STR)
+		{
+			return ID_TABLE.table[entry.idxTI].value.vstr->str;
+		}
+		throw "Литерал неизвестного типа данных";
+
+	case 'i':
+		return ID_TABLE.table[entry.idxTI].id;
+
+	case 'c':
+		return entry.c;
+
+	case 'v':
+	{
+		std::string result = " ";
+		result[0] = entry.v;
+		return result;
+	}
+
+	case LEX_INTEGER:
+		if (ID_TABLE.table[entry.idxTI].iddatatype == IT::IDDATATYPE::INT)
+		{
+			return "int";
+		}
+		throw "Идентификатор неизвестного типа данных";
+	default: {
+		std::string result = " ";
+		result[0] = entry.lexema[0];
+		return result;
+	}
+	}
+}
+
 std::string CD::CodeGeneration::get_string_value(const int lex_id)
 {
 	int idxIT = IT::search(ID_TABLE, ID_TABLE.table[LEX_TABLE.table[lex_id].idxTI]);
@@ -157,6 +211,8 @@ std::string CD::CodeGeneration::get_string_value(const int lex_id)
 			+ to_string(lex_id) + ">: " + to_string(id->iddatatype);
 	}
 }
+
+
 
 // = значение или = результат_выражения
 bool CD::is_assignment(const std::string& expr) {

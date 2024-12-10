@@ -109,12 +109,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	{
 		std::string functionName = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[ids[0]].idxTI]);
 
-		auto function = find_if(user_functions.begin(), user_functions.end(),
-			[&](const UserDefinedFunctions& func) {
-				return func.name == functionName; });
-		
-		auto instrs = parse_lexem(ids.front());
-		instructions.insert(instructions.end(), instrs.begin(), instrs.end());
+		parse_lexem(instructions, ids.front());
 		params.isResultInEAX = true;
 		params.resultStorage = "eax";
 	}
