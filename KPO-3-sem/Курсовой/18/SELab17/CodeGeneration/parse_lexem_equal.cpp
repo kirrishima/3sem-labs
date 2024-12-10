@@ -10,6 +10,7 @@ vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
 	vector<int> ids;
 	string destName = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[index_in_lex_table - 1].idxTI]);
 
+	index_in_lex_table++;
 	while (LEX_TABLE.table[index_in_lex_table].lexema[0] != LEX_SEMICOLON)
 		ids.push_back(index_in_lex_table++);
 
@@ -19,12 +20,12 @@ vector<string> CD::CodeGeneration::parse_lexem_equal__(int& index_in_lex_table)
 	{
 		throw "parse_lexem_equal: присвоение логических значений не допускается";
 	}
-	if (p.isSingleVariable)
+	if (p.isSingleVariable && !p.isFunctionCall)
 	{
 		instructions_set.push_back(format("mov eax, {}", p.resultStorage));
 		instructions_set.push_back(format("mov {}, eax", destName)); // -2 от литерала/id
 	}
-	else if (p.isMath || p.isFunctionCall)
+	else if (p.isResultInEAX)
 	{
 		instructions_set.push_back(format("mov {}, eax", destName));
 	}
