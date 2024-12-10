@@ -105,8 +105,32 @@ namespace LexAn::Utils
 			// Scope
 			IT_file << "<td>";
 			if (IT_entry.scope != NULL) {
-				std::string scopeValue(IT_entry.scope->id);
-				IT_file << scopeValue;
+				std::stack<IT::Entry*> scope;
+				bool isFirst = true;
+
+				auto tmp = IT_entry.scope;
+				scope.push(tmp);
+
+				while ((*tmp).scope != nullptr)
+				{
+					scope.push(tmp->scope);
+					tmp = (*tmp).scope;
+				}
+
+				while (!scope.empty())
+				{
+					if (!isFirst)
+					{
+						IT_file << '.';
+					}
+					else
+					{
+						isFirst = false;
+					}
+					IT_file << scope.top()->id;
+					scope.pop();
+				}
+
 			}
 			else {
 				IT_file << "-";

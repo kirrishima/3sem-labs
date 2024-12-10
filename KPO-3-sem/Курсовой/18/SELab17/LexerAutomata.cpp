@@ -110,6 +110,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 	std::stack<IT::Entry*> scope; // Стек для хранения области видимости
 	scope.push(NULL); // Добавление пустой области видимости
+	int block = 0;
+	int openningParentthesis = 0;
 
 	int literalsCount = 0; // Счетчик литералов
 	bool addedToITFlag = false; // Флаг добавления в таблицу идентификаторов
@@ -160,7 +162,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				LT_entry.idxTI = ID_Table.size;
 				IT::Add(ID_Table, IT_entry);
-
+				scope.push(&ID_Table.table[ID_Table.size - 1]);
 				break;
 			}
 			case LEX_LITERAL:
@@ -619,24 +621,37 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 		case LEFT_BRACE:
 		{
+			IT::Entry* code_of_block = new IT::Entry();
+			code_of_block->scope = NULL;
+
+			if (!scope.empty() && openningParentthesis != 0)
+			{
+				code_of_block->scope = scope.top();
+				scope.push(code_of_block);
+			}
+			sprintf_s(code_of_block->id, "block%d", block++);
+
+			openningParentthesis++;
+
 			LT_entry.lexema[0] = LEX_LEFTBRACE;
 			LT_entry.sn = currentLine;
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
 
-			for (int j = ID_Table.size - 1; j >= 0; j--) // ищем ближайшую функцию для установки области видимости в эту функцию
-			{
-				if (ID_Table.table[j].idtype == IT::F)
-				{
-					scope.push(&ID_Table.table[j]);
-					break;
-				}
-			}
+			//for (int j = ID_Table.size - 1; j >= 0; j--) // ищем ближайшую функцию для установки области видимости в эту функцию
+			//{
+			//	if (ID_Table.table[j].idtype == IT::F)
+			//	{
+			//		scope.push(&ID_Table.table[j]);
+			//		break;
+			//	}
+			//}
 			break;
 		}
 
 		case RIGHT_BRACE:
 		{
+			openningParentthesis--;
 			LT_entry.lexema[0] = RIGHT_BRACE;
 			LT_entry.sn = currentLine;
 			LT::Add(LexTable, LT_entry);

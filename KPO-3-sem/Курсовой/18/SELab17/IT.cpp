@@ -53,9 +53,18 @@ namespace IT
 				}
 				continue;
 			}
-			if (strcmp(entry.id, idtable.table[i].id) == 0 && entry.scope == idtable.table[i].scope)
+			if (strcmp(entry.id, idtable.table[i].id) == 0)
 			{
-				return i;
+				auto tmp_e = entry.scope;
+
+				while (tmp_e != NULL)
+				{
+					if (tmp_e == idtable.table[i].scope)
+					{
+						return i;
+					}
+					tmp_e = tmp_e->scope;
+				}
 			}
 			if (strcmp(entry.id, idtable.table[i].id) == 0 && idtable.table[i].idtype == IT::F)
 			{

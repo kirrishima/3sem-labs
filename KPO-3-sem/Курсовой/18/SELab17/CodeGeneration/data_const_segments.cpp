@@ -68,7 +68,7 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 	{
 		return var[(unsigned int)entry.id];
 	}
-
+	bool isLocal = false;
 	ostringstream ss;
 
 	if (entry.idtype == IT::IDTYPE::L)
@@ -92,35 +92,18 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 		{
 			ss << "_STR_";
 		}
-		ss << '_';
-		if (entry.scope != NULL)
-		{
-			ss << entry.scope->id;
-		}
-
-		ss << "__" << entry.id;
+		isLocal = true;
 	}
 	else if (entry.iddatatype == IT::IDDATATYPE::INT && entry.idtype == IT::IDTYPE::P)
 	{
 		ss << "_INT_PARAM_";
 
-		if (entry.scope != NULL)
-		{
-			ss << entry.scope->id;
-		}
-
-		ss << "__" << entry.id;
+		isLocal = true;
 	}
 	else if (entry.iddatatype == IT::IDDATATYPE::STR && entry.idtype == IT::IDTYPE::P)
 	{
 		ss << "_STR_PARAM_";
-
-		if (entry.scope != NULL)
-		{
-			ss << entry.scope->id;
-		}
-
-		ss << "__" << entry.id;
+		isLocal = true;
 	}
 	else if (entry.idtype == IT::IDTYPE::F)
 	{
@@ -129,6 +112,41 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 	else
 	{
 		throw "Неизвестный ID при генерации имени в сегменте .data";
+	}
+	if (isLocal)
+	{
+		ss << '@';
+		if (entry.scope != NULL)
+		{
+			std::stack<IT::Entry*> scope;
+			bool isFirst = true;
+
+			auto tmp = entry.scope;
+			scope.push(tmp);
+
+			while ((*tmp).scope != nullptr)
+			{
+				scope.push(tmp->scope);
+				tmp = (*tmp).scope;
+			}
+
+			while (!scope.empty())
+			{
+				if (!isFirst)
+				{
+					ss << "@";
+				}
+				else
+				{
+					isFirst = false;
+				}
+				ss << scope.top()->id;
+				scope.pop();
+			}
+			//ss << entry.scope->id;
+		}
+
+		ss << "__" << entry.id;
 	}
 
 	std::string result = ss.str();
