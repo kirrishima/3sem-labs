@@ -11,27 +11,27 @@
 
 namespace IT
 {
-	enum IDDATATYPE { INT = 1, STR, CHAR};
-	enum IDTYPE { V = 1024, F, P, L };
+enum IDDATATYPE { INT = 1, STR, CHAR};
+enum IDTYPE { V = 1024, F, P, L };
 
-	struct Entry		// строка таблицы идентификаторов
+struct Entry		// строка таблицы идентификаторов
+{
+	int			idxfirstLE;			// индекс первой строки в таблице лексем
+	char		id[ID_MAXSIZE];		// идентификатор (автоматически усекается до ID_MAXSIZE)
+	IDDATATYPE	iddatatype;			// тип данных
+	IDTYPE		idtype;				// тип идентификатора (переменная, функция, параметр, локальная переменная)
+	Entry* scope;
+
+	union
 	{
-		int			idxfirstLE;			// индекс первой строки в таблице лексем
-		char		id[ID_MAXSIZE];		// идентификатор (автоматически усекается до ID_MAXSIZE)
-		IDDATATYPE	iddatatype;			// тип данных
-		IDTYPE		idtype;				// тип идентификатора (переменная, функция, параметр, локальная переменная)
-		Entry* scope;
-
-		union
+		int	vint;						// значение integer
+		struct
 		{
-			int	vint;						// значение integer
-			struct
-			{
-				int len;						// кол-во символов в string
-				char str[TI_STR_MAXSIZE - 1];	// символы string
-			}	vstr[TI_STR_MAXSIZE];			// значение string
-		} value;	// значение идентификатора
-	};
+			int len;						// кол-во символов в string
+			char str[TI_STR_MAXSIZE - 1];	// символы string
+		}	vstr[TI_STR_MAXSIZE];			// значение string
+	} value;	// значение идентификатора
+};
 
 	struct ID_Table              // экземпляр таблицы идентификаторов
 	{
