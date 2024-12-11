@@ -56,10 +56,10 @@ namespace CD
 		}
 
 		int padding = 1;
-		for (const auto& function : user_functions)
+		for (const auto& function : __user_functions)
 		{
 			OUT_ASM_FILE << '\n';
-			for (const auto& cl : function.second.code)
+			for (const auto& cl : function->code)
 			{
 				if (isMASMLabel(cl) || isFunctionEnd(cl) || isFunctionStart(cl))
 				{
@@ -85,7 +85,7 @@ namespace CD
 		{
 			system("program.exe");
 		}
-		
+
 #endif // _DEBUG
 
 #ifdef _RELEASE

@@ -47,17 +47,14 @@ void CD::CodeGeneration::IfElseGeneration::__start_if(
 	{
 		tmp += parent.lexem_to_source(parent.LEX_TABLE.table[n]);
 	}
-	comments_operands.push_back(tmp);
-
-	auto p = parent.parse_expression(operands, instructions);
-	instructions.push_back(parent.tab * nestingLevel + "; Начало if " + to_string(currentElseLabel));
+	auto p = parent.parse_expression(operands, instructions, nestingLevel);
+	instructions.push_back(parent.tab * nestingLevel + format("; Начало if{} ({}) ", currentElseLabel, tmp));
 
 	// Генерация условия
 	instructions.push_back(parent.tab * nestingLevel + "cmp " + parent.reservedBoolName + ", 1");
 	instructions.push_back(parent.tab * nestingLevel + "je " + trueLabel);
 	instructions.push_back(parent.tab * nestingLevel + "jmp " + endLabel);
-	nestingLevel++;
-	instructions.push_back(parent.tab * (nestingLevel - 1) + trueLabel + ':');
+	instructions.push_back(parent.tab * nestingLevel++ + trueLabel + ':');
 }
 
 void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>& instructions, const vector<std::vector<int> >& operands)
@@ -189,18 +186,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 		vector<int> ids;
 		while (i < parent.LEX_TABLE.size && parent.LEX_TABLE.table[i].lexema[0] != '}')
 		{
-			switch (parent.LEX_TABLE.table[i].lexema[0]) {
-
-			case '?':
-				for (const std::string& str : generate_if_statement(i))
-				{
-					instructions.push_back(str);
-				}
-				break;
-			default:
-				parent.parse_lexem(instructions, i);
-				break;
-			}
+			parent.parse_lexem(instructions, i, nestingLevel);
 			i++;
 		}
 

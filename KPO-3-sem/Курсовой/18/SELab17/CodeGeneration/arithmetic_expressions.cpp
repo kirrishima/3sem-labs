@@ -152,12 +152,13 @@ namespace CD
 			if (used_functions.find(rpn[0]) != used_functions.end()
 				&& used_functions.find(rpn[1]) != used_functions.end()) // если оба операнда - вызовы функции
 			{
-				masmCode.push_back("; function call"); // правый операнд вычисляем и помещаем в ebx
+				masmCode.push_back("; function call"); // правый операнд вычисляем и помещаем в стек, так как вызов функции может его перезаписать
 				masmCode.insert(masmCode.end(), used_functions[rpn[1]].begin(), used_functions[rpn[1]].end());
-				masmCode.push_back("mov ebx, eax");
+				masmCode.push_back("push eax");
 
 				masmCode.push_back("; function call"); // левый вычисляется и остается результат в eax
 				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end());
+				masmCode.push_back("pop ebx"); // левый вычисляется и остается результат в eax
 			}
 			else if (used_functions.find(rpn[0]) != used_functions.end()) // если левый это рез функции
 			{

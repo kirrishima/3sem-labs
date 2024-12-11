@@ -1,56 +1,62 @@
 .586
 .model flat, stdcall
-INCLUDELIB <E:\3-sem\KPO-3-sem\Курсовой\18\Debug\GMSStandardLib.lib>
 ExitProcess PROTO : DWORD
-EXTERN __PrintNumber : PROC
-EXTERN __PrintBool : PROC
-EXTERN __PrintArray : PROC
-EXTERN __StrCmp : PROC
 .stack 4096
 
-PrintArrayMACRO MACRO arrName
-    LOCAL arrType, arrLength, arrOffset
-    push offset arrName   ; Смещение массива
-    call __PrintArray     ; Вызов процедуры __PrintArray
-ENDM
-
-StrCmpCallMACRO MACRO str1, str2
-    push OFFSET str2   ; Адрес второй строки в стек
-    push OFFSET str1   ; Адрес первой строки в стек
-    call __StrCmp      ; Вызов функции __StrCmp
-ENDM
-
 .const
-    __L0 SDWORD 12
-    __L1 db "18", 0
+    __INT_L0 SDWORD 2
+    __INT_L1 SDWORD 3
 
 .data
     _@bool byte ? 
-    _PARAM__aboba__x sdword 0
-    _STR_PTR__aboba__y dword ?
-    _main__x sdword 0
+    _INT_PARAM_@sum__a sdword 0
+    _INT_PARAM_@sum__b sdword 0
+    _INT_PARAM_@product__a sdword 0
+    _INT_PARAM_@product__b sdword 0
 
 
 .code
-aboba proc
+sum proc
 start:
     mov eax, [esp + 4]
-    mov _PARAM__aboba__x, eax
+    mov _INT_PARAM_@sum__a, eax
     mov eax, [esp + 8]
-    mov _STR_PTR__aboba__y, eax
-    push _PARAM__aboba__x
-    call __PrintNumber
-    PrintArrayMACRO _STR_PTR__aboba__y
+    mov _INT_PARAM_@sum__b, eax
+    mov eax, _INT_PARAM_@sum__a
+    mov ebx, _INT_PARAM_@sum__b
+    add eax, ebx
+sum_END:
     ret 8
-aboba endp
+sum endp
+
+product proc
+start:
+    mov eax, [esp + 4]
+    mov _INT_PARAM_@product__a, eax
+    mov eax, [esp + 8]
+    mov _INT_PARAM_@product__b, eax
+    mov eax, _INT_PARAM_@product__a
+    mov ebx, _INT_PARAM_@product__b
+    imul ebx
+product_END:
+    ret 8
+product endp
 
 main proc
 start:
-    mov eax, __L0
-    mov _main__x, eax
-    push offset __L1
-    push _main__x
-    call aboba
+    ; function call
+    push __INT_L1
+    push __INT_L0
+    call product
+    mov ebx, eax
+    ; function call
+    push __INT_L1
+    push __INT_L0
+    call sum
+    imul ebx
+    push eax
+
+main_END:
     push 0
     call ExitProcess
 main endp

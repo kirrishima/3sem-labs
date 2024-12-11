@@ -160,7 +160,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif // !__DISABLE_LOGS
 
 		CD::CodeGeneration cd(IdTable, LexTable, parm);
-
 		cd.gen(parm.masmDest);
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);

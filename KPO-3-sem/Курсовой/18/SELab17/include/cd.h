@@ -36,7 +36,8 @@ namespace CD
 
 		UserDefinedFunctions* currentFunction = nullptr;
 
-		std::unordered_map<string, UserDefinedFunctions> user_functions;
+		std::unordered_map<string, UserDefinedFunctions*> user_functions;
+		std::vector<UserDefinedFunctions*> __user_functions;
 
 		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM& parm)
 			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), parm(parm), ifElseGen(*this)
@@ -54,12 +55,12 @@ namespace CD
 		string lexems_vector_to_source_string(const vector<int>& ids);
 		string lexem_to_source(LT::Entry& entry);
 
-		vector<string> parse_function_call(UserDefinedFunctions& function, int params_start_index, int params_end_index);
+		vector<string> parse_function_call(UserDefinedFunctions* function, int params_start_index, int params_end_index);
 		void parse_function(int start_index, int end_index);
-		void parse_function_body(UserDefinedFunctions& function, int start_index, int end_index);
+		void parse_function_body(UserDefinedFunctions* function, int start_index, int end_index);
 
-		void parse_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table);
-		void parse_lexem_equal__(std::vector<std::string>& result_instructions, int& index_in_lex_table);
+		void parse_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
+		void parse_lexem_equal__(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
 
 		struct ParseExpressionReturnParms
 		{
@@ -92,8 +93,8 @@ namespace CD
 		/// <param name="ids"></param>
 		/// <param name="instructions"></param>
 		/// <returns></returns>
-		ParseExpressionReturnParms parse_expression(vector<int> ids, vector<string>& instructions);
-		void parse_print_lexem__(std::vector<std::string>& result_instructions, int& i);
+		ParseExpressionReturnParms parse_expression(vector<int> ids, vector<string>& instructions, int tabsize = 0);
+		void parse_print_lexem__(std::vector<std::string>& result_instructions, int& i, int tabsize = 0);
 
 		/// <summary>
 		/// Возвращает строку, представляющую собой текущее значение строковой переменной в виде имени литерала

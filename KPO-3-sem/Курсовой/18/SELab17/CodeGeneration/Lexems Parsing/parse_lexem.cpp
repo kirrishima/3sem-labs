@@ -4,18 +4,18 @@
 
 using namespace std;
 
-void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table)
+void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize)
 {
 	switch (LEX_TABLE.table[index_in_lex_table].lexema[0])
 	{
 	case '=':
 	{
-		parse_lexem_equal__(result_instructions, index_in_lex_table);
+		parse_lexem_equal__(result_instructions, index_in_lex_table, tabsize);
 		break;
 	}
 	case 'p':
 	{
-		parse_print_lexem__(result_instructions, index_in_lex_table);
+		parse_print_lexem__(result_instructions, index_in_lex_table, tabsize);
 		break;
 	}
 
@@ -47,7 +47,10 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 				ids.push_back(index_in_lex_table++);
 			}
 			auto v = parse_function_call(user_functions[name], ids[0], ids.back());
-			result_instructions.insert(result_instructions.end(), v.begin(), v.end());
+			for (const std::string& str : v)
+			{
+				result_instructions.push_back(tab * tabsize + str);
+			}
 		}
 		break;
 	case LEX_RETURN:
@@ -59,11 +62,11 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 			ids.push_back(index_in_lex_table++);
 		}
 
-		auto p = parse_expression(ids, result_instructions);
+		auto p = parse_expression(ids, result_instructions, tabsize);
 
 		if (p.isResultInDefaultBool)
 		{
-			result_instructions.push_back(format("mov eax, {}", reservedBoolName));
+			result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, reservedBoolName));
 		}
 		else if (p.isResultInEAX)
 		{
@@ -71,15 +74,21 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 		}
 		else if (p.isResultInSTACK)
 		{
-			result_instructions.push_back("pop eax");
+			result_instructions.push_back(tab * tabsize + "pop eax");
 		}
 		else if (p.isSingleVariable)
 		{
-			result_instructions.push_back(format("mov eax, {}", p.resultStorage));
+			result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, p.resultStorage));
 		}
-		result_instructions.push_back(format("jmp {}", currentFunction->endLabel));
+		result_instructions.push_back(format("{}jmp {}", tab * tabsize, currentFunction->endLabel));
 		break;
 	}
+	case '?':
+		for (const std::string& str : ifElseGen.generate_if_statement(index_in_lex_table))
+		{
+			result_instructions.push_back(tab * tabsize + str);
+		}
+		break;
 	default:
 		break;
 	}

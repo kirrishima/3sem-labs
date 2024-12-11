@@ -4,7 +4,7 @@
 
 using namespace std;
 
-CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_expression(vector<int> ids, vector<string>& instructions)
+CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_expression(vector<int> ids, vector<string>& instructions, int tabsize)
 {
 	ParseExpressionReturnParms params;
 	params.stringRepresentation = lexems_vector_to_string(ids);
@@ -66,7 +66,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 				throw "parse_expression: установлен флаг isSTR, но число операндов не равно по 1 для каждой стороны";
 
 			ifElseGen.compare_strings(instructions, get_string_value(operands[0][0]), get_string_value(operands[1][0]));
-			instructions.push_back("cmp eax, 0");
+			instructions.push_back(tab * tabsize + "cmp eax, 0");
 		}
 		else if (params.isINT)
 		{
@@ -77,19 +77,19 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 
 			ifElseGen.compare_ints(instructions, operands);
 			//ifElseGen.compare_ints(instructions, operands)
-			instructions.push_back("cmp eax, ebx");
+			instructions.push_back(tab * tabsize + "cmp eax, ebx");
 		}
 		else
 		{
 			throw "Неизвестный тип данных в сравнении";
 		}
 
-		instructions.push_back(format("mov {}, 0", reservedBoolName));
-		instructions.push_back(format("{} @true{}", ifElseGen.cmp_op_to_jmp(LEX_TABLE.table[operationID].c), trueLabelsCount));
-		instructions.push_back(format("jmp @false{}", trueLabelsCount));
-		instructions.push_back(format("@true{}:", trueLabelsCount));
-		instructions.push_back(format("mov {}, 1", reservedBoolName));
-		instructions.push_back(format("@false{}:", trueLabelsCount++));
+		instructions.push_back(format("{}mov {}, 0", tab * tabsize, reservedBoolName));
+		instructions.push_back(format("{}{} @true{}", tab * tabsize, ifElseGen.cmp_op_to_jmp(LEX_TABLE.table[operationID].c), trueLabelsCount));
+		instructions.push_back(format("{}jmp @false{}", tab * tabsize, trueLabelsCount));
+		instructions.push_back(format("{}@true{}:", tab * tabsize, trueLabelsCount));
+		instructions.push_back(format("{}mov {}, 1", tab * tabsize, reservedBoolName));
+		instructions.push_back(format("{}@false{}:", tab * tabsize, trueLabelsCount++));
 
 		params.isResultInDefaultBool = true;
 		params.isResultComputed = true;
@@ -99,7 +99,10 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	else if (params.isMath)
 	{
 		auto v = generate_math_expressions(ids);
-		instructions.insert(instructions.end(), v.begin(), v.end());
+		for (const std::string& str : v)
+		{
+			instructions.push_back(tab * tabsize + str);
+		}
 		params.isSingleVariable = false;
 		params.isResultComputed = true;
 		params.isResultInEAX = true;
@@ -109,7 +112,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	{
 		std::string functionName = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[ids[0]].idxTI]);
 
-		parse_lexem(instructions, ids.front());
+		parse_lexem(instructions, ids.front(), tabsize);
 		params.isResultInEAX = true;
 		params.resultStorage = "eax";
 	}
