@@ -77,6 +77,7 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 		{
 			result_instructions.push_back(format("mov eax, {}", p.resultStorage));
 		}
+		result_instructions.push_back(format("jmp {}", currentFunction->endLabel));
 		break;
 	}
 	default:

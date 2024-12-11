@@ -76,8 +76,16 @@ namespace CD
 
 #ifdef _DEBUG
 		cout << "Compiling: \n\n";
-		system("compile_debug.bat");
-		system("program.exe");
+		int returnCode = system("compile_debug.bat");
+		if (returnCode != 0)
+		{
+			cout << "Компиляция не выполнена, код: " << returnCode << endl;
+		}
+		else
+		{
+			system("program.exe");
+		}
+		
 #endif // _DEBUG
 
 #ifdef _RELEASE

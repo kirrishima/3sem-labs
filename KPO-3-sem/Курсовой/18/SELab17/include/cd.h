@@ -34,6 +34,8 @@ namespace CD
 		std::ofstream OUT_ASM_FILE;
 		Parm::PARM parm;
 
+		UserDefinedFunctions* currentFunction = nullptr;
+
 		std::unordered_map<string, UserDefinedFunctions> user_functions;
 
 		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM& parm)
@@ -156,6 +158,7 @@ namespace CD
 	struct UserDefinedFunctions
 	{
 		string name;
+		string endLabel;
 		vector<IT::IDDATATYPE> params;
 		vector<string> code;
 

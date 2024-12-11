@@ -11,8 +11,8 @@
 
 namespace IT
 {
-	enum IDDATATYPE { INT = 1, STR = 2 };
-	enum IDTYPE { V = 10, F = 12, P = 13, L = 14 };
+	enum IDDATATYPE { INT = 1, STR, CHAR};
+	enum IDTYPE { V = 1024, F, P, L };
 
 	struct Entry		// строка таблицы идентификаторов
 	{

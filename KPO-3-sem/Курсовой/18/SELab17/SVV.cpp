@@ -84,8 +84,16 @@ namespace SVV
 	}
 
 #define R(c, x) FST::RELATION(c, x)
-#define HEX(x) R('a',x), R('b',x), R('c',x), R('d',x), R('e',x), R('f',x),\
-			   R('A', x), R('B', x), R('C', x), R('D', x), R('E', x), R('F', x)
+
+#define nums(state) \
+R('0', state), R('1', state), R('2', state),\
+R('3', state), R('4', state), R('5', state),\
+R('6', state), R('7', state), R('8', state),\
+R('9', state)
+
+#define HEX(x) \
+R('a',x), R('b',x), R('c',x), R('d',x), R('e',x), R('f',x),\
+R('A', x), R('B', x), R('C', x), R('D', x), R('E', x), R('F', x)
 
 	FST::FST* CreateIntHEXLiteralFST(const char* str)
 	{
@@ -153,28 +161,22 @@ namespace SVV
 	}
 
 	constexpr int NUM_LETTERS = 26 * 2;
-
+	
 #define relationsForState(state) \
-    FST::RELATION('a', state), FST::RELATION('b', state), FST::RELATION('c', state), \
-    FST::RELATION('d', state), FST::RELATION('e', state), FST::RELATION('f', state), \
-    FST::RELATION('g', state), FST::RELATION('h', state), FST::RELATION('i', state), \
-    FST::RELATION('j', state), FST::RELATION('k', state), FST::RELATION('l', state), \
-    FST::RELATION('m', state), FST::RELATION('n', state), FST::RELATION('o', state), \
-    FST::RELATION('p', state), FST::RELATION('q', state), FST::RELATION('r', state), \
-    FST::RELATION('s', state), FST::RELATION('t', state), FST::RELATION('u', state), \
-    FST::RELATION('v', state), FST::RELATION('w', state), FST::RELATION('x', state), \
-    FST::RELATION('y', state), FST::RELATION('z', state), \
-    FST::RELATION('A', state), FST::RELATION('B', state), FST::RELATION('C', state), \
-    FST::RELATION('D', state), FST::RELATION('E', state), FST::RELATION('F', state), \
-    FST::RELATION('G', state), FST::RELATION('H', state), FST::RELATION('I', state), \
-    FST::RELATION('J', state), FST::RELATION('K', state), FST::RELATION('L', state), \
-    FST::RELATION('M', state), FST::RELATION('N', state), FST::RELATION('O', state), \
-    FST::RELATION('P', state), FST::RELATION('Q', state), FST::RELATION('R', state), \
-    FST::RELATION('S', state), FST::RELATION('T', state), FST::RELATION('U', state), \
-    FST::RELATION('V', state), FST::RELATION('W', state), FST::RELATION('X', state), \
-    FST::RELATION('Y', state), FST::RELATION('Z', state)
+    R('a', state), R('b', state), R('c', state), R('d', state), \
+    R('e', state), R('f', state), R('g', state), R('h', state), \
+    R('i', state), R('j', state), R('k', state), R('l', state), \
+    R('m', state), R('n', state), R('o', state), R('p', state), \
+    R('q', state), R('r', state), R('s', state), R('t', state), \
+    R('u', state), R('v', state), R('w', state), R('x', state), \
+    R('y', state), R('z', state), R('A', state), R('B', state), \
+    R('C', state), R('D', state), R('E', state), R('F', state), \
+    R('G', state), R('H', state), R('I', state), R('J', state), \
+    R('K', state), R('L', state), R('M', state), R('N', state), \
+    R('O', state), R('P', state), R('Q', state), R('R', state), \
+    R('S', state), R('T', state), R('U', state), R('V', state), \
+    R('W', state), R('X', state), R('Y', state), R('Z', state)
 
-	//#define FRN(c, s) FST::RELATION(c, s)
 
 	FST::FST* CreateIdentifierFST(const char* str)
 	{

@@ -106,6 +106,7 @@ void CD::CodeGeneration::parse_function_body(UserDefinedFunctions& function, int
 			{
 				function.push_code(format("mov eax, {}", p.resultStorage));
 			}
+			function.push_code(format("jmp {}", function.endLabel));
 		}
 		default:
 			break;
@@ -116,6 +117,7 @@ void CD::CodeGeneration::parse_function_body(UserDefinedFunctions& function, int
 void CD::CodeGeneration::parse_function(int start_index, int end_index)
 {
 	UserDefinedFunctions function;
+	currentFunction = &function;
 	vector<string> instrs;
 
 	std::vector<std::string> params_names;
@@ -155,10 +157,13 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 			break;
 		}
 	}
+	function.endLabel = format("{}_END", function.name);
 	function.push_code(format("{} proc", function.name));
 	function.push_code("start:");
 	function.code.insert(function.code.end(), params_names.begin(), params_names.end());
 	parse_function_body(function, start_index, end_index);
+
+	function.push_code(format("{}:", function.endLabel));
 
 	if (isMain)
 	{
