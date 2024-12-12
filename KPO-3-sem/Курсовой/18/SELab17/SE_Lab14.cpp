@@ -162,14 +162,15 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 		int x = semantic::check(IdTable, LexTable);
 
-		if (x)
-		{
-			cout << x << " ошибок, выход...\n";
-			exit(1);
-		}
+		//if (x)
+		//{
+		//	cout << x << " ошибок, выход...\n";
+		//	exit(1);
+		//}
+		cout << "Ошибок: " << x << endl;
 
-		CD::CodeGeneration cd(IdTable, LexTable, parm);
-		cd.gen(parm.masmDest);
+		//CD::CodeGeneration cd(IdTable, LexTable, parm);
+		//cd.gen(parm.masmDest);
 
 
 		IT::Delete(IdTable);
@@ -194,8 +195,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 			Out::Close(out);
 #endif // !__DISABLE_LOGS
 
-		}
 	}
+}
 	catch (std::runtime_error& e)
 	{
 		cout << "Ошибка: " << e.what() << endl;

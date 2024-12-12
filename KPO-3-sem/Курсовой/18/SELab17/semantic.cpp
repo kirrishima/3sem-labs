@@ -1,11 +1,16 @@
 #include "stdafx.h"
 #include "semantic.h"
+#include <set>
 
 using namespace std;
 
 int errors = 0;
 
 #define ID_ENTRY_BY_LEX_ID(id) ID_Table.table[LEX_Table.table[id].idxTI]
+
+unordered_map <IT::Entry*, std::vector<IT::IDDATATYPE>> protos;
+unordered_map <IT::Entry*, std::vector<std::pair<IT::Entry*, int>>> references;
+IT::Entry* currentFunction;
 
 std::string iddatatype_to_str(IT::IDDATATYPE t)
 {
@@ -17,47 +22,69 @@ std::string iddatatype_to_str(IT::IDDATATYPE t)
 		return "str";
 	case IT::CHAR:
 		return "char";
+	case IT::ANY:
+		return "any";
 	default:
 		return "undefined";
 	}
 }
 
-std::string get_id_in_source(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int i) 
-{ return ID_Table.table[LEX_Table.table[i].idxTI].id; };
-
+std::string get_id_in_source(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int i)
+{
+	return ID_Table.table[LEX_Table.table[i].idxTI].id;
+};
 
 struct Expression
 {
 	IT::IDDATATYPE iddatatype;
-	IT::IDTYPE idtype;
-	bool isVarInitialiation = false;
 	bool isFunctionCallArg = false;
-	bool isMath = false;
 	bool isCompare = false;
 	bool isReturn = false;
 	std::vector<int> ids;
 	int firstLine;
-	int destId;
+	int dest_IT_index;
 	bool isInitialization;
 };
 
-void checkBraces(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table);
-void check_equal(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, Expression &expr);
+static std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int& start);
+void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table);
+void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, Expression& expr);
+void check_function_call(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int funcID, std::vector<std::vector<int>> params);
+void detect_cycles_in_references(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table);
 
 int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 {
-	checkBraces(ID_Table, LEX_Table);
-	
-	
-	for (size_t i = 0; i < LEX_Table.size; i++)
+	parse_functions(ID_Table, LEX_Table);
+	detect_cycles_in_references(ID_Table, LEX_Table);
+
+	for (int i = 0; i < LEX_Table.size; i++)
 	{
 		switch (LEX_Table.table[i].lexema[0])
 		{
+		case LEX_ID:
+			if (LEX_Table.table[i].lexema[0] == LEX_ID
+				&& LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
+				&& ID_Table.table[LEX_Table.table[i].idxTI].idtype == IT::F)
+			{
+				currentFunction = &ID_Table.table[LEX_Table.table[i].idxTI];
+				break;
+			}
+			if (LEX_Table.table[i + 1].lexema[0] == LEX_LEFTTHESIS && LEX_Table.table[i - 1].lexema[0] != LEX_TYPE)
+			{
+				Expression ex;
+				ex.dest_IT_index = LEX_Table.table[i].idxTI;
+				ex.firstLine = LEX_Table.table[i].sn;
+				ex.iddatatype = ID_Table.table[LEX_Table.table[i].idxTI].iddatatype;
+
+				int x = i;
+				i += 2;
+				check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, i));
+			}
+			break;
 		case LEX_EQUAL:
 		{
-
 			Expression ex;
-			ex.destId = i - 1;
+			ex.dest_IT_index = LEX_Table.table[i - 1].idxTI;
 			ex.firstLine = LEX_Table.table[i].sn;
 
 			if (LEX_Table.table[i - 2].lexema[0] == LEX_TYPE)
@@ -71,121 +98,475 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 			{
 				switch (LEX_Table.table[i].lexema[0])
 				{
-				case LEX_COMPARE:
-					ex.isCompare = true;
+				case LEX_ID:
+					ex.ids.push_back(i);
+					if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F && LEX_Table.table[i + 1].lexema[0] != LEX_LEFTTHESIS)
+					{
+						cout << format("Строка {}: Присваивание значения функции непосредственно переменной недопустимо",
+							LEX_Table.table[i].sn) << endl;
+						errors++;
+					}
+					else if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F)
+					{
+						int x = i;
+						i += 2;
+						check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, i));
+					}
 					break;
-				case LEX_MATH:
-					ex.isMath = true;
-
+				default:
+					ex.ids.push_back(i);
+					break;
 				}
-				ex.ids.push_back(i++);
+				i++;
 			}
-			check_equal(ID_Table, LEX_Table, ex);
+			check_expression(ID_Table, LEX_Table, ex);
+			break;
 		}
+
+		case LEX_IF:
+		{
+			Expression ex;
+			ex.dest_IT_index = -1;
+			ex.firstLine = LEX_Table.table[i].sn;
+			ex.isReturn = true;
+			ex.iddatatype = IT::ANY;
+			ex.isCompare = true;
+			i += 2;
+
+			while (LEX_Table.table[i].lexema[0] != LEX_LEFTBRACE)
+			{
+				switch (LEX_Table.table[i].lexema[0])
+				{
+				case LEX_ID:
+					ex.ids.push_back(i);
+					if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F && LEX_Table.table[i + 1].lexema[0] != LEX_LEFTTHESIS)
+					{
+						cout << format("Строка {}: Присваивание значения функции непосредственно переменной недопустимо",
+							LEX_Table.table[i].sn) << endl;
+						errors++;
+					}
+					else if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F)
+					{
+						int x = i;
+						i += 2;
+						check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, i));
+					}
+					break;
+				default:
+					ex.ids.push_back(i);
+					break;
+				}
+				i++;
+			}
+			ex.ids.pop_back();
+			check_expression(ID_Table, LEX_Table, ex);
+			break;
+		}
+		case LEX_PRINT:
+		{
+			Expression ex;
+			ex.dest_IT_index = -1;
+			ex.firstLine = LEX_Table.table[i].sn;
+			ex.isReturn = true;
+			ex.iddatatype = IT::ANY;
+			ex.isCompare = true;
+			i += 2;
+
+			while (LEX_Table.table[i].lexema[0] != LEX_SEMICOLON)
+			{
+				switch (LEX_Table.table[i].lexema[0])
+				{
+				case LEX_ID:
+					ex.ids.push_back(i);
+					if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F && LEX_Table.table[i + 1].lexema[0] != LEX_LEFTTHESIS)
+					{
+						cout << format("Строка {}: Присваивание значения функции непосредственно переменной недопустимо",
+							LEX_Table.table[i].sn) << endl;
+						errors++;
+					}
+					else if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F)
+					{
+						int x = i;
+						i += 2;
+						check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, i));
+					}
+					break;
+				default:
+					ex.ids.push_back(i);
+					break;
+				}
+				i++;
+			}
+			ex.ids.pop_back();
+			check_expression(ID_Table, LEX_Table, ex);
+			break;
+		}
+
+		case LEX_RETURN:
+			Expression ex;
+			ex.dest_IT_index = -1;
+			ex.firstLine = LEX_Table.table[i].sn;
+			ex.isReturn = true;
+			ex.iddatatype = currentFunction->iddatatype;
+
+			i++;
+			while (LEX_Table.table[i].lexema[0] != LEX_SEMICOLON)
+			{
+				switch (LEX_Table.table[i].lexema[0])
+				{
+				case LEX_ID:
+					ex.ids.push_back(i);
+					if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F && LEX_Table.table[i + 1].lexema[0] != LEX_LEFTTHESIS)
+					{
+						cout << format("Строка {}: Присваивание значения функции непосредственно переменной недопустимо",
+							LEX_Table.table[i].sn) << endl;
+						errors++;
+					}
+					else if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F)
+					{
+						int x = i;
+						i += 2;
+						check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, i));
+					}
+					break;
+				default:
+					ex.ids.push_back(i);
+					break;
+				}
+				i++;
+			}
+			check_expression(ID_Table, LEX_Table, ex);
 		}
 	}
 	return errors;
 }
 
-void checkBraces(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
-{
-	stack<char> braces;
+void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table) {
+	// Вспомогательная функция для извлечения параметров функции
+	auto extract_parameters = [&](size_t& index) -> std::vector<IT::IDDATATYPE> {
+		std::vector<IT::IDDATATYPE> parameters;
+		int counter = 1;
+		bool exit = false;
 
-	for (size_t i = 0; i < LEX_Table.size; i++)
-	{
-		switch (LEX_Table.table[i].lexema[0])
-		{
-		case LEX_LEFTTHESIS:
-		case LEX_LEFTBRACE:
-			braces.push(LEX_Table.table[i].lexema[0]);
-			break;
-
-		case LEX_BRACELET:
-			if (braces.top() != LEX_LEFTBRACE)
-			{
-				cout << format("Строка {}, встречена неверная лексема {}, хотя последней открывающей была {}",
-					LEX_Table.table[i].sn, LEX_Table.table[i].lexema[0], braces.top());
-				throw ERROR_THROW(700);
+		while (!exit) {
+			switch (LEX_Table.table[index].lexema[0]) {
+			case LEX_RIGHTTHESIS:
+				if (--counter == 0) {
+					exit = true;
+				}
+				break;
+			case LEX_ID:
+			case LEX_LITERAL:
+				parameters.push_back(ID_ENTRY_BY_LEX_ID(index).iddatatype);
+				break;
 			}
-			braces.pop();
-			break;
+			index++;
+		}
+		return parameters;
+		};
 
-		case LEX_RIGHTTHESIS:
-			if (braces.top() != LEX_LEFTTHESIS)
-			{
-				cout << format("Строка {}, встречена неверная лексема {}, хотя последней открывающей была {}",
-					LEX_Table.table[i].sn, LEX_Table.table[i].lexema[0], braces.top());
-				throw ERROR_THROW(700);
+	// Вспомогательная функция для извлечения ссылок внутри функции
+	auto extract_references = [&](size_t& index) -> std::vector<std::pair<IT::Entry*, int>> {
+		std::vector<std::pair<IT::Entry*, int>> refs;
+		int braces = 1;
+
+		while (LEX_Table.table[index].lexema[0] != LEX_LEFTBRACE) {
+			index++;
+		}
+		index++;
+
+		while (braces > 0) {
+			switch (LEX_Table.table[index].lexema[0]) {
+			case LEX_ID:
+				if (ID_ENTRY_BY_LEX_ID(index).idtype == IT::F) {
+					refs.push_back({ &ID_Table.table[LEX_Table.table[index].idxTI], LEX_Table.table[index].sn });
+				}
+				break;
+
+			case LEX_LEFTBRACE:
+				braces++;
+				break;
+
+			case LEX_BRACELET:
+				braces--;
+				break;
 			}
-			braces.pop();
+			index++;
+		}
+		return refs;
+		};
+
+	int start = 0;
+
+	// Обработка прототипов функций
+	for (size_t i = 0; i < LEX_Table.size; i++) {
+		if (LEX_Table.table[i].lexema[0] == LEX_ID
+			&& LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
+			&& ID_ENTRY_BY_LEX_ID(LEX_Table.table[i].idxTI).idtype == IT::F) {
+			int tmpI = i;
+			i += 2;
+			protos[&ID_Table.table[LEX_Table.table[tmpI].idxTI]] = extract_parameters(i);
 		}
 	}
 
-	if (!braces.empty())
-	{
-		throw ERROR_THROW(701);
+	// Обработка вызовов функций внутри других функций
+	for (size_t i = 0; i < LEX_Table.size; i++) {
+		if (LEX_Table.table[i].lexema[0] == LEX_ID
+			&& LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
+			&& ID_ENTRY_BY_LEX_ID(LEX_Table.table[i].idxTI).idtype == IT::F) {
+
+			int tmpI = i;
+			i += 2;
+			references[&ID_Table.table[LEX_Table.table[tmpI].idxTI]] = extract_references(i);
+		}
 	}
 }
 
-void check_equal(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, Expression& expr)
+std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int& start)
 {
-	if (expr.ids.size() == 1)
+	std::vector<std::vector<int>> params;
+	std::vector<int> tmp;
+
+	int counter = 1;
+	bool exit = false;
+
+	while (!exit)
 	{
-		if (expr.iddatatype != ID_ENTRY_BY_LEX_ID(expr.ids[0]).iddatatype)
+		switch (LEX_Table.table[start].lexema[0])
 		{
-			cout << format("Строка {}: тип {} идентификатора {} не совместим с {}",
-				LEX_Table.table[expr.ids[0]].sn, iddatatype_to_str(expr.iddatatype), get_id_in_source(ID_Table, LEX_Table, expr.ids[0]-2),
-				iddatatype_to_str(ID_Table.table[LEX_Table.table[expr.ids[0]].idxTI].iddatatype)) << endl;
+		case LEX_SEMICOLON:
+			exit = true;
+			break;
+
+		case LEX_COMMA:
+			params.push_back(tmp);
+			tmp.clear();
+			break;
+
+		case LEX_RIGHTTHESIS:
+			if (--counter == 0)
+			{
+				exit = true;
+				break;
+			}
+		default:
+			tmp.push_back(start);
+			break;
+		}
+		start++;
+	}
+	start--;
+	params.push_back(tmp);
+	return params;
+}
+
+void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, Expression& expr)
+{
+	if (expr.ids.empty()) return;
+	bool insideFunction = false;
+	int countBraces = 0;
+
+	// Проверка на один идентификатор
+	if (expr.ids.size() == 1) {
+		const auto& id_entry = ID_ENTRY_BY_LEX_ID(expr.ids[0]);
+		const int line_number = LEX_Table.table[expr.ids[0]].sn;
+		const std::string id_in_source = get_id_in_source(ID_Table, LEX_Table, expr.ids[0]);
+
+		if (expr.iddatatype != id_entry.iddatatype && expr.iddatatype != IT::ANY) {
+			if (expr.isFunctionCallArg) {
+				cout << format(
+					"Строка {}: аргумент функции {} имеет тип {}, но ожидается {}",
+					line_number,
+					ID_ENTRY_BY_LEX_ID(expr.dest_IT_index).id,
+					iddatatype_to_str(id_entry.iddatatype),
+					iddatatype_to_str(expr.iddatatype)) << endl;
+			}
+			else {
+				cout << format(
+					"Строка {}: тип {} не совместим с типом {}",
+					line_number,
+					id_entry.idtype == IT::L ? std::string("литерала") : "идентификатора",
+					iddatatype_to_str(expr.iddatatype)) << endl;
+			}
 			errors++;
 		}
 		return;
 	}
 
-	unordered_map< IT::IDDATATYPE, int> types = { 
+	unordered_map<IT::IDDATATYPE, int> types = {
 		{IT::CHAR, 0},
 		{IT::INT, 0},
 		{IT::STR, 0}
 	};
 
-	for (const int id : expr.ids)
-	{
-		switch (LEX_Table.table[id].lexema[0])
-		{
+	for (int id = expr.ids.front(); id <= expr.ids.back(); id++) {
+		const auto& lex_entry = LEX_Table.table[id];
+		switch (lex_entry.lexema[0]) {
 		case LEX_LITERAL:
 		case LEX_ID:
-			types[ID_ENTRY_BY_LEX_ID(id).iddatatype]++;
-			if (&ID_ENTRY_BY_LEX_ID(expr.destId) == &ID_ENTRY_BY_LEX_ID(id) && expr.isInitialization)
+			if (!insideFunction)
 			{
-				cout << format("Строка {}: переменная {} не может быть использована в выражении, так она неинициализированна.",
-					LEX_Table.table[id].sn, ID_ENTRY_BY_LEX_ID(expr.destId).id) << endl;
+				types[ID_ENTRY_BY_LEX_ID(id).iddatatype]++;
+			}
+			if (ID_ENTRY_BY_LEX_ID(id).idtype == IT::F)
+			{
+				insideFunction = true;
+			}
+			if (expr.isInitialization && expr.dest_IT_index == LEX_Table.table[id].idxTI) {
+				cout << format("Строка {}: переменная {} не может быть использована в выражении, так как она неинициализирована.",
+					lex_entry.sn, ID_Table.table[expr.dest_IT_index].id) << endl;
+
 				errors++;
 			}
+
 			break;
+
 		case LEX_MATH:
-			if (types[IT::STR] != 0 || types[IT::CHAR] != 0)
-			{
-				cout << format("Строка {}: выражение содержит тип(ы), которые не поддерживают операцию {}", 
-					LEX_Table.table[id].sn, LEX_Table.table[id].v) << endl;
+			if (types[IT::STR] != 0 || types[IT::CHAR] != 0 || (id != expr.ids.back() && ID_ENTRY_BY_LEX_ID(id + 1).iddatatype != IT::INT)) {
+				cout << format("Строка {}: выражение содержит тип(ы), которые не поддерживают операцию {}",
+					lex_entry.sn, lex_entry.v) << endl;
 				errors++;
 			}
 			break;
 
 		case LEX_COMPARE:
-			cout << format("Строка {}: нельзя сохранить результат сравнения.", LEX_Table.table[id].sn)<<endl;
-			errors++;
+			if (!expr.isCompare) {
+				cout << format("Строка {}: результат сравнения используется вне контекста сравнения.",
+					lex_entry.sn) << endl;
+				errors++;
+			}
+			else if (types[IT::STR] != 0 || types[IT::CHAR] != 0 || (id != expr.ids.back() && ID_ENTRY_BY_LEX_ID(id + 1).iddatatype != IT::INT))
+			{
+
+			}
 			break;
 
+		case LEX_PRINT:
+			cout << format("Строка {}: функция print не может учавствовать в выражениях.",
+				lex_entry.sn) << endl;
+			errors++;
+
+		case LEX_LEFTTHESIS:
+			if (insideFunction)
+			{
+				countBraces++;
+			}
+			break;
+		case LEX_RIGHTTHESIS:
+			if (insideFunction && --countBraces == 0)
+			{
+				insideFunction = false;
+			}
+			break;
 		default:
 			break;
 		}
 	}
 
-	for (const auto& t: types)
+	int non_zero_count = 0;
+	for (const auto& [type, count] : types) {
+		if (count > 0) {
+			if (++non_zero_count > 1) {
+				if (expr.isCompare)
+				{
+					cout << format("Строка {}: операции сравнения не могут быть применены к данным разных типов.",
+						LEX_Table.table[expr.ids[0]].sn) << endl;
+					errors++;
+				}
+				break;
+			}
+		}
+	}
+
+	//if (expr.isFunctionCallArg) {
+	//	const auto& proto = protos[&ID_Table.table[LEX_Table.table[expr.dest_IT_index].idxTI]];
+	//	const auto& func_entry = ID_ENTRY_BY_LEX_ID(expr.dest_IT_index);
+
+	//	for (size_t i = 0; i < expr.ids.size(); ++i) {
+	//		const auto& arg_id = expr.ids[i];
+	//		const auto& arg_entry = ID_ENTRY_BY_LEX_ID(arg_id);
+	//		IT::IDDATATYPE expected_type = (i < proto.size()) ? proto[i] : IT::INT; // default type fallback
+
+	//		if (i >= proto.size()) {
+	//			cout << format("Строка {}: вызов функции {} содержит лишний аргумент {}, тип {}",
+	//				expr.firstLine, func_entry.id,
+	//				get_id_in_source(ID_Table, LEX_Table, arg_id),
+	//				iddatatype_to_str(arg_entry.iddatatype)) << endl;
+	//			errors++;
+	//			continue;
+	//		}
+
+	//		if (expected_type != arg_entry.iddatatype) {
+	//			cout << format("Строка {}: в вызове функции {} тип {} аргумента {} (позиция {}) не совместим с ожидаемым типом {}",
+	//				expr.firstLine, func_entry.id,
+	//				iddatatype_to_str(arg_entry.iddatatype),
+	//				get_id_in_source(ID_Table, LEX_Table, arg_id), i + 1,
+	//				iddatatype_to_str(expected_type)) << endl;
+	//			errors++;
+	//		}
+	//	}
+
+	//	if (expr.ids.size() < proto.size()) {
+	//		cout << format("Строка {}: функция {} вызвана с недостаточным количеством аргументов. Ожидалось {}, но получено {}.",
+	//			expr.firstLine, func_entry.id, proto.size(), expr.ids.size()) << endl;
+	//		errors++;
+	//	}
+	/*}*/
+}
+
+void check_function_call(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int funcID, std::vector<std::vector<int>> params)
+{
+	const auto& entry = &ID_Table.table[LEX_Table.table[funcID].idxTI];
+
+	if (params.size() != protos[entry].size())
 	{
-		if (t.first != expr.iddatatype && t.second >0)
-		{
-			cout << format("Строка {}, выражение содержит ошибочный тип {}, когда ожидался {}\n",
-				expr.firstLine, iddatatype_to_str(t.first), iddatatype_to_str(expr.iddatatype));
+		cout << format("Строка {}, число передаваемых аргументов в функцию {} не соответствует ее прототипу\n",
+			LEX_Table.table[funcID].sn, entry->id);
+		errors++;
+	}
+
+	int size = params.size() > protos[entry].size() ? protos[entry].size() : params.size();
+
+	for (size_t i = 0; i < size; i++)
+	{
+		Expression ex;
+		ex.iddatatype = protos[entry][i];
+		ex.dest_IT_index = funcID;
+		ex.isFunctionCallArg = true;
+		ex.ids = params[i];
+
+		check_expression(ID_Table, LEX_Table, ex);
+	}
+}
+
+void detect_cycles_in_references(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table) {
+	std::set<IT::Entry*> visited;
+	std::set<IT::Entry*> recursion_stack;
+
+	// Лямбда для поиска цикла через DFS
+	auto has_cycle = [&](IT::Entry* node, auto& has_cycle_ref) -> bool {
+		recursion_stack.insert(node);
+		if (references.count(node)) {
+			for (const auto& callee : references.at(node)) {
+				if (recursion_stack.count(callee.first) || !visited.count(callee.first) && has_cycle_ref(callee.first, has_cycle_ref)) {
+					std::cout << format(
+						"Строка {}: Функция {} ссылается на {} и образует цикл.",
+						callee.second,
+						node->id,
+						callee.first->id) << std::endl;
+					errors++;
+					return true;
+				}
+			}
+		}
+		recursion_stack.erase(node);
+		visited.insert(node);
+		return false;
+		};
+
+	for (const auto& [func, calls] : references) {
+		if (!visited.count(func)) {
+			has_cycle(func, has_cycle);
 		}
 	}
 }
