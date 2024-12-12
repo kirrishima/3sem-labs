@@ -36,7 +36,9 @@ struct Expression
 	bool isCompare = false;
 	bool isReturn = false;
 	std::vector<int> ids;
-
+	int firstLine;
+	int destId;
+	bool isInitialization;
 };
 
 void checkBraces(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table);
@@ -53,7 +55,16 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 		{
 		case LEX_EQUAL:
 		{
+
 			Expression ex;
+			ex.destId = i - 1;
+			ex.firstLine = LEX_Table.table[i].sn;
+
+			if (LEX_Table.table[i - 2].lexema[0] == LEX_TYPE)
+			{
+				ex.isInitialization = true;
+			}
+
 			i++;
 			ex.iddatatype = ID_ENTRY_BY_LEX_ID(i - 2).iddatatype;
 			while (LEX_Table.table[i].lexema[0] != LEX_SEMICOLON)
@@ -106,6 +117,7 @@ void checkBraces(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 					LEX_Table.table[i].sn, LEX_Table.table[i].lexema[0], braces.top());
 				throw ERROR_THROW(700);
 			}
+			braces.pop();
 		}
 	}
 
@@ -142,11 +154,18 @@ void check_equal(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, Ex
 		case LEX_LITERAL:
 		case LEX_ID:
 			types[ID_ENTRY_BY_LEX_ID(id).iddatatype]++;
+			if (&ID_ENTRY_BY_LEX_ID(expr.destId) == &ID_ENTRY_BY_LEX_ID(id) && expr.isInitialization)
+			{
+				cout << format("Строка {}: переменная {} не может быть использована в выражении, так она неинициализированна.",
+					LEX_Table.table[id].sn, ID_ENTRY_BY_LEX_ID(expr.destId).id) << endl;
+				errors++;
+			}
 			break;
 		case LEX_MATH:
 			if (types[IT::STR] != 0 || types[IT::CHAR] != 0)
 			{
-				cout << format("Строка {}: выражение содержит тип(ы), которые не поддерживают арифметические операции.", LEX_Table.table[id].sn) << endl;
+				cout << format("Строка {}: выражение содержит тип(ы), которые не поддерживают операцию {}", 
+					LEX_Table.table[id].sn, LEX_Table.table[id].v) << endl;
 				errors++;
 			}
 			break;
@@ -165,7 +184,8 @@ void check_equal(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, Ex
 	{
 		if (t.first != expr.iddatatype && t.second >0)
 		{
-
+			cout << format("Строка {}, выражение содержит ошибочный тип {}, когда ожидался {}\n",
+				expr.firstLine, iddatatype_to_str(t.first), iddatatype_to_str(expr.iddatatype));
 		}
 	}
 }
