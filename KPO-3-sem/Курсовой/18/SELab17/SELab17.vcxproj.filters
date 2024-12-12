@@ -96,6 +96,9 @@
     <ClCompile Include="CodeGeneration\Lexems Parsing\parse_lexem.cpp">
       <Filter>Source Files\Code Generation\Lexems Parsing</Filter>
     </ClCompile>
+    <ClCompile Include="semantic.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\Error.h">
@@ -144,6 +147,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\cd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\semantic.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

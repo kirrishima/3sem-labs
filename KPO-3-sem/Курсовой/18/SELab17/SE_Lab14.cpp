@@ -8,6 +8,7 @@
 #include <chrono>
 #include "SVV.h"
 #include <map>
+#include "semantic.h"
 
 using namespace std;
 using namespace MFST;
@@ -159,8 +160,18 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Out::Close(out);
 #endif // !__DISABLE_LOGS
 
+		int x = semantic::check(IdTable, LexTable);
+
+		if (x)
+		{
+			cout << x << " ошибок, выход...\n";
+			exit(1);
+		}
+
 		CD::CodeGeneration cd(IdTable, LexTable, parm);
 		cd.gen(parm.masmDest);
+
+
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);
 	}

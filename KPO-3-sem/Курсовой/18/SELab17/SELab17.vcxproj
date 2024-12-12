@@ -169,6 +169,7 @@
     <ClCompile Include="MFST.cpp" />
     <ClCompile Include="Out.cpp" />
     <ClCompile Include="Parm.cpp" />
+    <ClCompile Include="semantic.cpp" />
     <ClCompile Include="SE_Lab14.cpp" />
     <ClCompile Include="stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
@@ -193,6 +194,7 @@
     <ClInclude Include="include\Out.h" />
     <ClInclude Include="include\Parm.h" />
     <ClInclude Include="include\Rule.h" />
+    <ClInclude Include="include\semantic.h" />
     <ClInclude Include="include\SVV.h" />
     <ClInclude Include="include\Utils.h" />
     <ClInclude Include="stdafx.h" />

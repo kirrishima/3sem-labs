@@ -426,7 +426,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
 
-			if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_ID)
+			/*if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_ID)
 			{
 				if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_EQUAL
 					&& LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID)
@@ -441,7 +441,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 						else ERROR_THROW(144)
 					}
 				}
-			}
+			}*/
 		}
 
 		switch (in.text[i])
