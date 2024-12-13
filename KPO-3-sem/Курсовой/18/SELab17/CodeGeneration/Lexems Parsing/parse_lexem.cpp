@@ -43,7 +43,12 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 				{
 					parenthesis.push(index_in_lex_table);
 				}
-
+				if (LEX_TABLE.table[index_in_lex_table].lexema[0] == LEX_ID 
+					&& ID_TABLE.table[LEX_TABLE.table[index_in_lex_table].idxTI].idtype == IT::F)
+				{
+					parse_lexem(result_instructions, index_in_lex_table, tabsize);
+					result_instructions.push_back(tab * tabsize + "push eax");
+				}
 				ids.push_back(index_in_lex_table++);
 			}
 			auto v = parse_function_call(user_functions[name], ids[0], ids.back());

@@ -120,8 +120,17 @@ std::string CD::CodeGeneration::lexems_vector_to_string(const vector<int>& ids)
 
 		switch (LEX_TABLE.table[lexId].lexema[0])
 		{
-		case LEX_ID:
 		case LEX_LITERAL:
+			if (ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].iddatatype == IT::INT)
+			{
+				result += to_string(ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].value.vint);
+			}
+			else
+			{
+				result += ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].value.vstr->str;
+			}
+			break;
+		case LEX_ID:
 			result += get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[lexId].idxTI]);
 			break;
 		case LEX_MATH:

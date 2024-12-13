@@ -703,7 +703,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 			LT_entry.lexema[0] = NULL;
 
-			i = index + 1;
+			i = index ;
 		}
 		break;
 

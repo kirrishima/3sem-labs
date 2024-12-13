@@ -87,7 +87,7 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 			i++;
 		}
 
-		if (!isCompare && !isReturn && dest_IT_index != -1) {
+		if (!isCompare && !isReturn || dest_IT_index == -1) {
 			ex.ids.pop_back();  // Убираем лишний элемент, если это не сравнение или возврат
 		}
 
@@ -108,7 +108,7 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 			break;
 
 		case LEX_EQUAL:
-			handle_expression(i, LEX_Table.table[i - 1].idxTI, false, false, ID_ENTRY_BY_LEX_ID(i - 2).iddatatype);
+			handle_expression(i, LEX_Table.table[i - 1].idxTI, false, false, ID_ENTRY_BY_LEX_ID(i - 1).iddatatype);
 			break;
 
 		case LEX_IF:
@@ -164,7 +164,7 @@ void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table
 		while (braces > 0) {
 			switch (LEX_Table.table[index].lexema[0]) {
 			case LEX_ID:
-				if (ID_ENTRY_BY_LEX_ID(index).idtype == IT::F) {
+				if (ID_Table.table[LEX_Table.table[index].idxTI].idtype == IT::F) {
 					refs.push_back({ &ID_Table.table[LEX_Table.table[index].idxTI], LEX_Table.table[index].sn });
 				}
 				break;
@@ -188,7 +188,7 @@ void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table
 	for (size_t i = 0; i < LEX_Table.size; i++) {
 		if (LEX_Table.table[i].lexema[0] == LEX_ID
 			&& LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
-			&& ID_ENTRY_BY_LEX_ID(LEX_Table.table[i].idxTI).idtype == IT::F) {
+			&& ID_ENTRY_BY_LEX_ID(i).idtype == IT::F) {
 			int tmpI = i;
 			i += 2;
 			protos[&ID_Table.table[LEX_Table.table[tmpI].idxTI]] = extract_parameters(i);
@@ -199,7 +199,7 @@ void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table
 	for (size_t i = 0; i < LEX_Table.size; i++) {
 		if (LEX_Table.table[i].lexema[0] == LEX_ID
 			&& LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
-			&& ID_ENTRY_BY_LEX_ID(LEX_Table.table[i].idxTI).idtype == IT::F) {
+			&& ID_ENTRY_BY_LEX_ID(i).idtype == IT::F) {
 
 			int tmpI = i;
 			i += 2;
@@ -220,6 +220,15 @@ std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, 
 	{
 		switch (LEX_Table.table[start].lexema[0])
 		{
+		case LEX_ID:
+			if (ID_ENTRY_BY_LEX_ID(start).idtype == IT::F)
+			{
+				tmp.push_back(start);
+				start += 2;
+				get_function_params(ID_Table, LEX_Table, start);
+			}
+			break;
+
 		case LEX_SEMICOLON:
 			exit = true;
 			break;
@@ -251,7 +260,8 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 	if (expr.ids.empty()) return;
 	bool insideFunction = false;
 	int countBraces = 0;
-
+	bool metCompare = false;
+	bool metMath = false;
 	// Проверка на один идентификатор
 	if (expr.ids.size() == 1) {
 		const auto& id_entry = ID_ENTRY_BY_LEX_ID(expr.ids[0]);
@@ -353,9 +363,15 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 	for (const auto& [type, count] : types) {
 		if (count > 0) {
 			if (++non_zero_count > 1) {
-				if (expr.isCompare)
+				if (expr.isCompare && metCompare)
 				{
 					cout << format("Строка {}: операции сравнения не могут быть применены к данным разных типов.",
+						LEX_Table.table[expr.ids[0]].sn) << endl;
+					errors++;
+				}
+				if (metMath)
+				{
+					cout << format("Строка {}: арифметические операции не могут быть применены к данным разных типов или сравнениям.",
 						LEX_Table.table[expr.ids[0]].sn) << endl;
 					errors++;
 				}
