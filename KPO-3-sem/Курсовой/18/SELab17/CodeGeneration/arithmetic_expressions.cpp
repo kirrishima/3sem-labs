@@ -23,13 +23,14 @@ namespace CD
 	}
 
 	// Проверка, является ли строка идентификатором
-	bool isIdentifier(const string& token) {
-		if (token.empty() || isdigit(token[0])) return false;
-		for (char ch : token) {
-			if (!isalnum(ch) && ch != '_' && token.front() != '[' && token.back() != '[') return false;
-		}
-		return true;
-	}
+	//bool isIdentifier(const string& token) {
+	//	//if (token.empty() || isdigit(token[0])) return false;
+	//	//for (char ch : token) {
+	//	//	if (!isalnum(ch) && ch != '_' && token.front() != '[' && token.back() != '[') return false;
+	//	//}
+	//	//return true;
+	//	/*return !isOperator()*/
+	//}
 
 	// Проверка, является ли строка литералом
 	bool isLiteral(const string& token) {
@@ -185,7 +186,7 @@ namespace CD
 		}
 
 		for (const string& token : rpn) {
-			if (isIdentifier(token) || isLiteral(token)) {
+			if (token.size() > 1/*isIdentifier(token) || isLiteral(token)*/) {
 				// Если токен — идентификатор или литерал, генерируем `push`
 				if (used_functions.find(token) != used_functions.end())
 				{

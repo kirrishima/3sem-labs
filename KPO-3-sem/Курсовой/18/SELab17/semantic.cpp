@@ -118,7 +118,16 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 			break;
 
 		case LEX_RETURN:
-			handle_expression(i, -1, true, false, currentFunction->iddatatype);
+			i++;
+			int z = -1;
+			for (size_t i = 0; i < LEX_Table.size; i++)
+			{
+				if (LEX_Table.table[i].lexema[0] == LEX_ID && &ID_Table.table[LEX_Table.table[i].idxTI] == currentFunction)
+				{
+					z = i;
+				}
+			}
+			handle_expression(i, z, true, false, currentFunction->iddatatype);
 			break;
 		}
 	}
@@ -221,11 +230,13 @@ std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, 
 		switch (LEX_Table.table[start].lexema[0])
 		{
 		case LEX_ID:
+			tmp.push_back(start);
 			if (ID_ENTRY_BY_LEX_ID(start).idtype == IT::F)
 			{
-				tmp.push_back(start);
+				int x = start;
 				start += 2;
-				get_function_params(ID_Table, LEX_Table, start);
+				check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, start));
+				//start--;
 			}
 			break;
 
@@ -236,6 +247,10 @@ std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, 
 		case LEX_COMMA:
 			params.push_back(tmp);
 			tmp.clear();
+			break;
+
+		case LEX_LEFTTHESIS:
+			counter++;
 			break;
 
 		case LEX_RIGHTTHESIS:
@@ -251,7 +266,10 @@ std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, 
 		start++;
 	}
 	start--;
-	params.push_back(tmp);
+	if (tmp.size())
+	{
+		params.push_back(tmp);
+	}
 	return params;
 }
 

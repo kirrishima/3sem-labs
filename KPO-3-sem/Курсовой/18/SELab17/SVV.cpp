@@ -171,7 +171,7 @@ R('A', x), R('B', x), R('C', x), R('D', x), R('E', x), R('F', x)
 		);
 	}
 
-	constexpr int NUM_LETTERS = 26 * 2;
+	constexpr int NUM_LETTERS = 26 * 2 + 1;
 
 #define relationsForState(state) \
     R('a', state), R('b', state), R('c', state), R('d', state), \
@@ -186,7 +186,7 @@ R('A', x), R('B', x), R('C', x), R('D', x), R('E', x), R('F', x)
     R('K', state), R('L', state), R('M', state), R('N', state), \
     R('O', state), R('P', state), R('Q', state), R('R', state), \
     R('S', state), R('T', state), R('U', state), R('V', state), \
-    R('W', state), R('X', state), R('Y', state), R('Z', state)
+    R('W', state), R('X', state), R('Y', state), R('Z', state), R('_', state)
 
 
 	FST::FST* CreateIdentifierFST(const char* str)

@@ -134,7 +134,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 	{
 
 		if (((in.text[i] >= 'A' && in.text[i] <= 'Z') || (in.text[i] >= 'a' && in.text[i] <= 'z') ||
-			(in.text[i] >= '0' && in.text[i] <= '9') || in.text[i] == '\'') && in.text[i] != ' ')
+			(in.text[i] >= '0' && in.text[i] <= '9') || in.text[i] == '_') && in.text[i] != ' ')
 		{
 			str[bufferIndex++] = in.text[i]; // Сохранение символа в буфер
 

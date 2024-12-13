@@ -3,20 +3,24 @@
 
 std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunctions* function, int params_start_index, int params_end_index)
 {
-	std::vector<std::string> params;
+	std::vector<vector<std::string>> params;
 	int params_pos = function->params.size() - 1;
 	vector<int> param;
-	for (int i = params_end_index; i >= params_start_index; i--)
+	bool isInsideFunctionCall = false;
+	int countBraces = 0;
+
+	vector< std::string> tmp;
+	for (int i = params_start_index; i <= params_end_index; i++)
 	{
 		LT::Entry* lex = &LEX_TABLE.table[i];
-		if (lex->lexema[0] == LEX_COMMA || params_start_index > i - 1)
+		if (lex->lexema[0] == LEX_COMMA && !isInsideFunctionCall || params_end_index < i + 1)
 		{
-			if (params_start_index == i)
+			if (params_end_index == i)
 			{
 				param.push_back(i);
 			}
-			std::reverse(param.begin(), param.end());
-			auto p = parse_expression(param, params);
+			//std::reverse(param.begin(), param.end());
+			auto p = parse_expression(param, tmp);
 
 			if (p.isINT && !(function->params[params_pos] == IT::IDDATATYPE::INT) ||
 				p.isSTR && !(function->params[params_pos] == IT::IDDATATYPE::STR))
@@ -26,29 +30,57 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 			params_pos--;
 			if (p.isSingleVariable)
 			{
-				params.push_back(format("push {}", p.resultStorage));
+				tmp.push_back(format("push {}", p.resultStorage));
 			}
 			else
 			{
 				if (p.isResultInEAX)
 				{
-					params.push_back("push eax");
+					tmp.push_back("push eax");
 				}
 				else if (p.isResultInEBX)
 				{
-					params.push_back("push ebx");
+					tmp.push_back("push ebx");
 				}
 				else
 				{
-					params.push_back(p.resultStorage);
+					tmp.push_back(p.resultStorage);
 				}
 			}
 			param.clear();
+			params.push_back(tmp);
+			tmp.clear();
 		}
-		else param.push_back(i);
+		else
+		{
+			param.push_back(i);
+			if (lex->lexema[0] == LEX_ID && ID_TABLE.table[lex->idxTI].idtype == IT::F)
+			{
+				isInsideFunctionCall = true;
+			}
+			if (isInsideFunctionCall && lex->lexema[0] == LEX_LEFTTHESIS)
+			{
+				countBraces++;
+			}
+			if (isInsideFunctionCall && lex->lexema[0] == LEX_RIGHTTHESIS)
+			{
+				countBraces--;
+				if (countBraces == 0)
+				{
+					isInsideFunctionCall = false;
+				}
+			}
+		}
 	}
-	params.push_back(format("call {}", function->name));
-	return params;
+
+	reverse(params.begin(), params.end());
+
+	for (const auto& pp : params)
+	{
+		tmp.insert(tmp.end(), pp.begin(), pp.end());
+	}
+	tmp.push_back(format("call {}", function->name));
+	return tmp;
 }
 
 void CD::CodeGeneration::parse_function_body(UserDefinedFunctions* function, int start_index, int end_index)

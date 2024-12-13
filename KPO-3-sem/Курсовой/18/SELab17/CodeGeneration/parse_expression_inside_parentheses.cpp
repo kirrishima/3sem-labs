@@ -120,7 +120,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	{
 		if (params.isINT)
 		{
-			params.resultStorage = params.stringRepresentation;
+			params.resultStorage = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[ids[0]].idxTI]);
 		}
 		else if (params.isSTR)
 		{
