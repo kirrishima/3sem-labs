@@ -43,7 +43,7 @@ struct Expression
 	std::vector<int> ids;
 	int firstLine;
 	int dest_IT_index;
-	bool isInitialization;
+	bool isInitialization = false;
 };
 
 static std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int& start);
