@@ -8,6 +8,7 @@
 #define LEX_TYPE		't'
 #define LEX_INTEGER		LEX_TYPE           // Целое число.
 #define LEX_STRING		LEX_TYPE           // Строка.
+#define LEX_CHAR		LEX_TYPE           // Символ.
 
 // Лексемы для идентификаторов и литералов.
 #define LEX_ID		'i'                // Идентификатор.

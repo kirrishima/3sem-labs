@@ -14,6 +14,17 @@ namespace SVV
 			FST::NODE()
 		);
 	}
+	FST::FST* CreateCharFST(const char* str)
+	{
+		return new FST::FST(str,
+			5,
+			FST::NODE(1, FST::RELATION('c', 1)),
+			FST::NODE(1, FST::RELATION('h', 2)),
+			FST::NODE(1, FST::RELATION('a', 3)),
+			FST::NODE(1, FST::RELATION('r', 4)),
+			FST::NODE()
+		);
+	}
 
 	FST::FST* CreateStringFST(const char* str)
 	{
@@ -161,7 +172,7 @@ R('A', x), R('B', x), R('C', x), R('D', x), R('E', x), R('F', x)
 	}
 
 	constexpr int NUM_LETTERS = 26 * 2;
-	
+
 #define relationsForState(state) \
     R('a', state), R('b', state), R('c', state), R('d', state), \
     R('e', state), R('f', state), R('g', state), R('h', state), \

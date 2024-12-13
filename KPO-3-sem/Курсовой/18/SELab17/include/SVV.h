@@ -4,6 +4,7 @@
 namespace SVV
 {
 	FST::FST* CreateIntegerFST(const char* str);
+	FST::FST* CreateCharFST(const char* str);
 	FST::FST* CreateStringFST(const char* str);
 	FST::FST* CreateMainFST(const char* str);
 	FST::FST* CreatePrintFST(const char* str);

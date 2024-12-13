@@ -19,83 +19,61 @@ namespace utils
 namespace LexAn::Utils
 {
 	void printToFile(const IT::ID_Table& ID_Table, const std::wstring& IT_filename,
-		const LT::LexTable& LexTable, const std::wstring& LT_filename, const In::IN& in)
-	{
-		IT::Entry IT_entry;
-		LT::Entry LT_entry;
-		int SETW_VALUE = 8;
+		const LT::LexTable& LexTable, const std::wstring& LT_filename, const In::IN& in) {
+		std::ofstream IT_file(IT_filename);
+		std::ofstream LT_file(LT_filename);
 
-		std::ofstream LT_file(LT_filename); // Файл для записи таблицы лексем
-		std::ofstream IT_file(IT_filename); // Файл для записи таблицы идентификаторов
-
-		if (!LT_file.is_open())
-		{
-			std::wcout << L"Не удалось открыть файл \"" << LT_filename << L"\"\n";
+		if (!IT_file.is_open()) {
+			std::wcerr << L"Не удалось открыть файл \"" << IT_filename << L"\"\n";
 			return;
 		}
 
-		if (!IT_file.is_open())
-		{
-			std::wcout << L"Не удалось открыть файл \"" << IT_filename << L"\"\n";
+		if (!LT_file.is_open()) {
+			std::wcerr << L"Не удалось открыть файл \"" << LT_filename << L"\"\n";
 			return;
 		}
 
-		// Начало HTML-документа
-		IT_file << "<!DOCTYPE html><html><head><title>Identifier Table</title></head><body>" << std::endl;
-		IT_file << "<pre><table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
+		// Запись таблицы идентификаторов
+		IT_file << "<!DOCTYPE html><html><head><title>Identifier Table</title></head><body>\n";
+		IT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">\n";
+		IT_file << "<tr><th>ID</th><th>Datatype</th><th>ID Type</th><th>Line</th><th>Value</th><th>Scope</th></tr>\n";
 
-		// Заголовок таблицы
-		IT_file << "<tr>"
-			<< "<th>ID</th>"
-			<< "<th>Datatype</th>"
-			<< "<th>ID Type</th>"
-			<< "<th>Line</th>"
-			<< "<th>Value</th>"
-			<< "<th>Scope</th>"
-			<< "</tr>" << std::endl;
-
-		// Заполнение таблицы данными
 		for (int i = 0; i < ID_Table.size; i++) {
-			IT_entry = IT::GetEntry(ID_Table, i);
+			const auto& entry = IT::GetEntry(ID_Table, i);
 
-			IT_file << "<tr>";
-
-			// ID
-			IT_file << "<td>" << IT_entry.id << "</td>";
+			IT_file << "<tr><td>" << entry.id << "</td>";
 
 			// Datatype
-			if (IT_entry.iddatatype == 1)
-				IT_file << "<td>INT</td>";
-			else if (IT_entry.iddatatype == 2)
-				IT_file << "<td>STR</td>";
-			else
-				IT_file << "<td>-</td>";
+			IT_file << "<td>";
+			switch (entry.iddatatype) {
+			case IT::INT:  IT_file << "INT"; break;
+			case IT::STR:  IT_file << "STR"; break;
+			case IT::CHAR: IT_file << "CHAR"; break;
+			default:       IT_file << "-"; break;
+			}
+			IT_file << "</td>";
 
 			// ID Type
 			IT_file << "<td>";
-			if (IT_entry.idtype == IT::V)
-				IT_file << "V";
-			else if (IT_entry.idtype == IT::L)
-				IT_file << "L";
-			else if (IT_entry.idtype == IT::F)
-				IT_file << "F";
-			else if (IT_entry.idtype == IT::P)
-				IT_file << "P";
-			else
-				IT_file << "-";
+			switch (entry.idtype) {
+			case IT::V: IT_file << "V"; break;
+			case IT::L: IT_file << "L"; break;
+			case IT::F: IT_file << "F"; break;
+			case IT::P: IT_file << "P"; break;
+			default:    IT_file << "-"; break;
+			}
 			IT_file << "</td>";
 
 			// Line
-			IT_file << "<td>" << IT_entry.idxfirstLE << "</td>";
+			IT_file << "<td>" << entry.idxfirstLE << "</td>";
 
 			// Value
 			IT_file << "<td>";
-			if (IT_entry.iddatatype == IT::INT) {
-				IT_file << IT_entry.value.vint;
+			if (entry.iddatatype == IT::INT) {
+				IT_file << entry.value.vint;
 			}
-			else if (IT_entry.iddatatype == IT::STR) {
-				std::string strValue(IT_entry.value.vstr->str);
-				IT_file << strValue;
+			else if (entry.iddatatype == IT::STR || entry.iddatatype == IT::CHAR) {
+				IT_file << entry.value.vstr->str;
 			}
 			else {
 				IT_file << "-";
@@ -104,63 +82,40 @@ namespace LexAn::Utils
 
 			// Scope
 			IT_file << "<td>";
-			if (IT_entry.scope != NULL) {
-				std::stack<IT::Entry*> scope;
-				bool isFirst = true;
-
-				auto tmp = IT_entry.scope;
-				scope.push(tmp);
-
-				while ((*tmp).scope != nullptr)
-				{
-					scope.push(tmp->scope);
-					tmp = (*tmp).scope;
+			if (entry.scope != nullptr) {
+				std::stack<IT::Entry*> scope_stack;
+				auto tmp = entry.scope;
+				while (tmp) {
+					scope_stack.push(tmp);
+					tmp = tmp->scope;
 				}
 
-				while (!scope.empty())
-				{
-					if (!isFirst)
-					{
-						IT_file << '.';
-					}
-					else
-					{
-						isFirst = false;
-					}
-					IT_file << scope.top()->id;
-					scope.pop();
+				bool first = true;
+				while (!scope_stack.empty()) {
+					if (!first) IT_file << '.';
+					IT_file << scope_stack.top()->id;
+					scope_stack.pop();
+					first = false;
 				}
-
 			}
 			else {
 				IT_file << "-";
 			}
-			IT_file << "</td>";
-
-			IT_file << "</tr>" << std::endl;
+			IT_file << "</td></tr>\n";
 		}
 
+		IT_file << "</table></body></html>\n";
 
-		// Закрытие таблицы и HTML-документа
-		IT_file << "</table></pre></body></html>" << std::endl;
-
-		IT_file.close();
-
-		LT_file << "<!DOCTYPE html><html><head><title>Lexem Table</title></head><body>" << std::endl;
-		LT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">" << std::endl;
-
-		// Заголовок таблицы
-		LT_file << "<tr>"
-			<< "<th>Line</th>"
-			<< "<th>Lexem</th>"
-			<< "</tr>" << std::endl;
+		// Запись таблицы лексем
+		LT_file << "<!DOCTYPE html><html><head><title>Lexem Table</title></head><body>\n";
+		LT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">\n";
+		LT_file << "<tr><th>Line</th><th>Lexem</th></tr>\n";
 
 		int currentLine = 1;
-
 		std::string tmp;
 		for (int i = 0; i < LexTable.size; i++)
 		{
-			LT_entry = LT::GetEntry(LexTable, i);
+			auto LT_entry = LT::GetEntry(LexTable, i);
 			if (currentLine != LT_entry.sn)
 			{
 				LT_file << "<tr><td>" << (currentLine > 9 ? std::to_string(currentLine) : ("0" + std::to_string(currentLine))) << "</td>";
@@ -220,5 +175,35 @@ namespace LexAn::Utils
 		}
 
 		return static_cast<short>(number);
+	}
+
+	bool isSingleCharacter(const unsigned char* input, std::size_t endPos) {
+		// Проверяем длину строки (должна быть 1 или 2 для символов с escape-последовательностью)
+		if (endPos == 0 || endPos > 1) {
+			return false;
+		}
+
+		// Если строка состоит из одного символа без экранирования
+		if (endPos == 1 && input[0] != '\\') {
+			return true;
+		}
+
+		// Если строка начинается с символа экранирования 
+		if (input[0] == '\\' && endPos == 1) {
+			unsigned char nextChar = input[1];
+			switch (nextChar) {
+			case 'n': // Новая строка
+			case 't': // Табуляция
+			case '\\': // Обратный слеш
+			case '"': // Двойная кавычка
+			case '\'': // Одинарная кавычка
+				return true;
+			default:
+				return false; // Некорректная escape-последовательность
+			}
+		}
+
+		// Если строка содержит более одного символа без корректного экранирования
+		return false;
 	}
 }

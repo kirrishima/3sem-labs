@@ -6,7 +6,6 @@
 namespace utils
 {
 	std::pair<int, int> trimmed_pos(const std::string& str);
-	std::string processEscapeSequences(const std::string& input);
 }
 
 namespace LexAn::Utils
@@ -15,4 +14,5 @@ namespace LexAn::Utils
 		const LT::LexTable& LexTable, const std::wstring& LT_filename, const In::IN& in);
 
 	int stringToNumber(const std::string& str);
+	bool isSingleCharacter(const unsigned char* input, std::size_t endPos);
 }

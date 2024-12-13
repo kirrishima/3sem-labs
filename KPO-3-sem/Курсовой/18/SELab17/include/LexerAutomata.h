@@ -5,6 +5,7 @@
 #include "Parm.h"
 
 constexpr int MAX_LEX_SIZE = 4096;
+constexpr char DOUBLE_QUOTES = '"';
 constexpr char MARK = '\'';
 constexpr char NEW_LINE = '|';
 constexpr char SEMICOLON = ';';
