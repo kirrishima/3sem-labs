@@ -85,16 +85,34 @@ namespace MFST
 					GRB::Rule::Chain chain;
 					if ((nrulechain = rule.getNextChain(lenta[lenta_position], chain, nrulechain + 1)) >= 0) // Поиск цепочки правил
 					{
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 						MFST_TRACE1 // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 							savestate(); // Сохранение текущего состояния
 						st.pop(); // Удаление нетерминала из стека
 						push_chain(chain); // Добавление цепочки в стек
 						rc = NS_OK; // Успешный шаг с нетерминалом
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 						MFST_TRACE2 // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 					}
 					else
 					{
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE") // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 							savediagnosis(NS_NORULECHAIN); // Сохранение диагноза ошибки
 						rc = resetstate() ? NS_NORULECHAIN : NS_NORULE; // Сброс состояния или ошибка
 					};
@@ -110,18 +128,36 @@ namespace MFST
 				st.pop(); // Удаление терминала из стека
 				nrulechain = -1; // Сброс индекса цепочки правила
 				rc = TS_OK; // Успешный шаг с терминалом
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 				MFST_TRACE3 // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 			}
 			else
 			{
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 				MFST_TRACE4("TS_NOK/NS_NORULECHAIN") // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 					rc = resetstate() ? TS_NOK : NS_NORULECHAIN; // Сброс состояния или ошибка
 			}
 		}
 		else
 		{
 			rc = LENTA_END; // Конец ленты
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("LENTA_END") // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 		};
 
 		return rc; // Возврат результата шага
@@ -140,7 +176,13 @@ namespace MFST
 	bool Mfst::savestate()
 	{
 		storestate.push(MfstState(lenta_position, st, nrule, nrulechain)); // Сохранение состояния в стек
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 		MFST_TRACE6("SAVESTATE:", storestate.size()); // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 		return true;
 	};
 
@@ -161,8 +203,14 @@ namespace MFST
 
 			storestate.pop(); // Удаление восстановленного состояния из стека
 
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE5("RESSTATE") // Отладочная информация
 				MFST_TRACE2 // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 
 				rc = true;
 		}
@@ -206,8 +254,14 @@ namespace MFST
 		{
 		case LENTA_END:
 		{
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>LENTA_END") // Отладочная информация
-				std::cout << "------------------------------------------------------------------------------------------   ------" << std::endl;
+				std::cout << "---------------------------------------------------------------------------------------------------" << std::endl;
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: всего строк %d, синтаксический анализ выполнен без ошибок", 0, lex.table[lex.size - 1].sn);
 			std::cout << std::setw(4) << std::left << 0 << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выпол без ошибок" << std::endl;
 			rc = true;
@@ -216,8 +270,14 @@ namespace MFST
 
 		case NS_NORULE:
 		{
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>NS_NORULE") // Отладочная информация
-				std::cout << "------------------------------------------------------------------------------------------   ------" << std::endl;
+				std::cout << "---------------------------------------------------------------------------------------------------" << std::endl;
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 			std::cout << getDiagnosis(0, buf) << std::endl; // Вывод диагностики
 			std::cout << getDiagnosis(1, buf) << std::endl; // Вывод диагностики
 			std::cout << getDiagnosis(2, buf) << std::endl; // Вывод диагностики
@@ -225,15 +285,33 @@ namespace MFST
 		}
 
 		case NS_NORULECHAIN:
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>NS_NORULECHAIN"); // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 			break;
 
 		case NS_ERROR:
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>NS_ERROR"); // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 			break;
 
 		case SURPRISE:
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>NS_SURPRISE"); // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 			break;
 		}
 
@@ -281,6 +359,7 @@ namespace MFST
 		return rc;
 	}
 
+
 	// Метод для вывода правил синтаксического анализа
 	void Mfst::printrules()
 	{
@@ -290,7 +369,13 @@ namespace MFST
 		{
 			state = storestate.c[i]; // Получение состояния
 			rule = grebach.getRule(state.nrule); // Получение правила
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE7 // Отладочная информация
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 		};
 	};
 

@@ -4,9 +4,10 @@
 #define _SILENCE_CXX17_CODECVT_HEADER_DEPRECATION_WARNING
 #define _CRT_SECURE_NO_WARNINGS
 
-#define _DISABLE_MFST__
+//#define _DISABLE_MFST__
 #define __DISABLE_LOGS
 //#define __DISABLE_IT_LT_TABLES_SAVE
+#define _DISABLE_MFST_DEBUG
 
 #include <iostream>
 #include <string>

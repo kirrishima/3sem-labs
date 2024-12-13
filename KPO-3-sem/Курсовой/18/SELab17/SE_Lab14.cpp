@@ -124,7 +124,13 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		cout << '\n';
 
 #ifndef _DISABLE_MFST__
+
+#ifdef _DEBUG
+#ifndef _DISABLE_MFST_DEBUG
 		MFST_TRACE_START
+#endif // !_DISABLE_MFST_DEBUG
+#endif // _DEBUG
+
 			MFST::Mfst mfst(LexTable, GRB::getGreibach());
 		mfst.start();
 		cout << '\n';
@@ -171,7 +177,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		}
 		//cout << "Ошибок: " << x << endl;
 
-			CD::CodeGeneration cd(IdTable, LexTable, parm);
+		CD::CodeGeneration cd(IdTable, LexTable, parm);
 		cd.gen(parm.masmDest);
 
 
@@ -197,8 +203,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 			Out::Close(out);
 #endif // !__DISABLE_LOGS
 
+		}
 	}
-}
 	catch (std::runtime_error& e)
 	{
 		cout << "Ошибка: " << e.what() << endl;
