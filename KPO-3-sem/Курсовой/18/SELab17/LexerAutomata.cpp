@@ -200,7 +200,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				while (index > 0 && isdigit(in.text[index])) index--;
 
 				if (in.text[index] == '-' && (in.text[index - 1] == EQUAL
-					|| in.text[index - 1] == LEFTTHESIS && in.text[index - 2] == STAR)
+					|| in.text[index - 1] == LEFTTHESIS)
 					)
 				{
 					IT_entry.value.vint *= -1;
@@ -703,7 +703,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 			LT_entry.lexema[0] = NULL;
 
-			i = index ;
+			i = index;
 		}
 		break;
 
