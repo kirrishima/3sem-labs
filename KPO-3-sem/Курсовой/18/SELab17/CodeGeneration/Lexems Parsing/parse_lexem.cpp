@@ -65,7 +65,7 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 
 		if (p.isResultInDefaultBool)
 		{
-			result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, reservedBoolName));
+			result_instructions.push_back(format("{}mov ax, {}", tab * tabsize, reservedBoolName));
 		}
 		else if (p.isResultInEAX)
 		{
@@ -73,11 +73,25 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 		}
 		else if (p.isResultInSTACK)
 		{
-			result_instructions.push_back(tab * tabsize + "pop eax");
+			if (p.isSTR)
+			{
+				result_instructions.push_back(format("{}pop eax, {}", tab * tabsize, p.resultStorage));
+			}
+			else
+			{
+				result_instructions.push_back(format("{}pop ax, {}", tab * tabsize, p.resultStorage));
+			}
 		}
 		else if (p.isSingleVariable)
 		{
-			result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, p.resultStorage));
+			if (p.isSTR)
+			{
+				result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, p.resultStorage));
+			}
+			else
+			{
+				result_instructions.push_back(format("{}movzx eax, {}", tab * tabsize, p.resultStorage));
+			}
 		}
 		result_instructions.push_back(format("{}jmp {}", tab * tabsize, currentFunction->endLabel));
 		break;

@@ -262,8 +262,8 @@ namespace MFST
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
 
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: всего строк %d, синтаксический анализ выполнен без ошибок", 0, lex.table[lex.size - 1].sn);
-			std::cout << std::setw(4) << std::left << 0 << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выпол без ошибок" << std::endl;
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "всего строк %d, синтаксический анализ выполнен без ошибок", lex.table[lex.size - 1].sn);
+			std::cout << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выпол без ошибок" << std::endl;
 			rc = true;
 			break;
 		}
@@ -370,11 +370,11 @@ namespace MFST
 			state = storestate.c[i]; // Получение состояния
 			rule = grebach.getRule(state.nrule); // Получение правила
 
-#ifdef _DEBUG
-#ifndef _DISABLE_MFST_DEBUG
+//#ifdef _DEBUG
+//#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE7 // Отладочная информация
-#endif // !_DISABLE_MFST_DEBUG
-#endif // _DEBUG
+//#endif // !_DISABLE_MFST_DEBUG
+//#endif // _DEBUG
 
 		};
 	};

@@ -200,7 +200,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				while (index > 0 && isdigit(in.text[index])) index--;
 
 				if (in.text[index] == '-' && (in.text[index - 1] == EQUAL
-					|| in.text[index - 1] == LEFTTHESIS)
+					|| in.text[index - 1] == LEFTTHESIS || in.text[index - 1] == COMMA
+					|| (LexTable.table[LexTable.size - 1].v == MINUS && LexTable.table[LexTable.size - 2].lexema[0] == LEX_RETURN))
 					)
 				{
 					IT_entry.value.vint *= -1;
@@ -226,15 +227,6 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				LT_entry.idxTI = ID_Table.size;
 				IT::Add(ID_Table, IT_entry);
-
-				if (LexTable.size > 3 && LexTable.table[LexTable.size - 4].lexema[0] == LEX_DECLARE
-					&& LexTable.table[LexTable.size - 3].lexema[0] == LEX_INTEGER
-					&& LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID
-					&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL
-					&& ID_Table.table[ID_Table.size - 1].iddatatype == IT::INT)
-				{
-					ID_Table.table[ID_Table.size - 2].value.vint = atoi(str);
-				}
 				break;
 			}
 			case LEX_IF:
@@ -690,13 +682,10 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			int pos = IT::search(ID_Table, IT_entry);
 
 			if (pos != -1)
-			{
 				LT_entry.idxTI = pos;
-			}
 			else
-			{
 				IT::Add(ID_Table, IT_entry);
-			}
+
 
 			LT::Add(LexTable, LT_entry);
 
@@ -724,7 +713,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				code_of_block->scope = NULL;
 				code_of_block->scope = scope.top();
 				scope.push(code_of_block);
-				sprintf_s(code_of_block->id, "block%d", block++);
+				sprintf_s(code_of_block->id, "IF%d", block++);
 			}
 
 			openningParentthesis++;

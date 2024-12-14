@@ -36,11 +36,11 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 			{
 				if (p.isResultInEAX)
 				{
-					tmp.push_back("push eax");
+					tmp.push_back("push ax");
 				}
 				else if (p.isResultInEBX)
 				{
-					tmp.push_back("push ebx");
+					tmp.push_back("push bx");
 				}
 				else
 				{
@@ -100,7 +100,7 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 	std::vector<std::string> params_names;
 	bool isMain = false;
 	bool f = false;
-	int a = 0;
+	int a = 4;
 	for (start_index; start_index < end_index && !f; start_index++)
 	{
 		switch (LEX_TABLE.table[start_index].lexema[0]) {
@@ -113,8 +113,9 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 
 			case IT::IDTYPE::P:
 				function->push_params(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype);
-				params_names.push_back(format("mov eax, [esp + {}]", a += 4));
-				params_names.push_back(format("mov {}, eax", get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI])));
+				params_names.push_back(format("mov ax, [esp + {}]", a));
+				params_names.push_back(format("mov {}, ax", get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI])));
+				a += get_id_size_in_bytes(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype);
 				break;
 
 			default:
@@ -149,7 +150,7 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 	}
 	else
 	{
-		function->push_code(format("ret {}", function->params.size() * 4));
+		function->push_code(format("ret {}", a - 4));
 	}
 
 	function->push_code(format("{} endp", function->name));

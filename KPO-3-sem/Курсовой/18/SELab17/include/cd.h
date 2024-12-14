@@ -15,6 +15,7 @@ string removeComment(const string& str);
 bool isValidIdentifier(const string& identifier);
 bool isFunctionStart(const string& line);
 bool isFunctionEnd(const string& line);
+int get_id_size_in_bytes(IT::IDDATATYPE type);
 
 string operator*(const string& str, int times);
 

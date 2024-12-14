@@ -96,11 +96,14 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table)
 
 	for (int i = 0; i < LEX_Table.size; i++) {
 		switch (LEX_Table.table[i].lexema[0]) {
+		case LEX_MAIN:
 		case LEX_ID:
-			if (LEX_Table.table[i - 1].lexema[0] == LEX_TYPE && ID_Table.table[LEX_Table.table[i].idxTI].idtype == IT::F) {
+			if (LEX_Table.table[i].lexema[0] == LEX_MAIN || LEX_Table.table[i - 1].lexema[0] == LEX_TYPE 
+				&& ID_Table.table[LEX_Table.table[i].idxTI].idtype == IT::F) {
 				currentFunction = &ID_Table.table[LEX_Table.table[i].idxTI];
 			}
-			else if (LEX_Table.table[i + 1].lexema[0] == LEX_LEFTTHESIS && LEX_Table.table[i - 1].lexema[0] != LEX_TYPE) {
+			else if (LEX_Table.table[i].lexema[0] != LEX_MAIN 
+				&& LEX_Table.table[i + 1].lexema[0] == LEX_LEFTTHESIS && LEX_Table.table[i - 1].lexema[0] != LEX_TYPE) {
 				int x = i;
 				i += 2;
 				check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, i));

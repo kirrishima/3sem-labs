@@ -157,6 +157,21 @@ std::string CD::CodeGeneration::lexems_vector_to_source_string(const vector<int>
 	return result;
 }
 
+int get_id_size_in_bytes(IT::IDDATATYPE type)
+{
+	switch (type)
+	{
+	case IT::INT:
+		return 2;
+	case IT::STR:
+		return 4;
+	case IT::CHAR:
+		return 2;
+	default:
+		throw "get_id_size_in_bytes: неверный тип данных";
+	}
+}
+
 std::string CD::CodeGeneration::lexem_to_source(LT::Entry& entry)
 {
 	switch (entry.lexema[0]) {

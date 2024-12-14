@@ -66,7 +66,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 				throw "parse_expression: установлен флаг isSTR, но число операндов не равно по 1 для каждой стороны";
 
 			ifElseGen.compare_strings(instructions, get_string_value(operands[0][0]), get_string_value(operands[1][0]));
-			instructions.push_back(tab * tabsize + "cmp eax, 0");
+			instructions.push_back(tab * tabsize + "cmp ax, 0");
 		}
 		else if (params.isINT)
 		{
@@ -77,7 +77,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 
 			ifElseGen.compare_ints(instructions, operands);
 			//ifElseGen.compare_ints(instructions, operands)
-			instructions.push_back(tab * tabsize + "cmp eax, ebx");
+			instructions.push_back(tab * tabsize + "cmp ax, bx");
 		}
 		else
 		{
@@ -106,7 +106,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 		params.isSingleVariable = false;
 		params.isResultComputed = true;
 		params.isResultInEAX = true;
-		params.resultStorage = "eax";
+		params.resultStorage = "ax";
 	}
 	else if (params.isSingleVariable && params.isFunctionCall)
 	{
@@ -114,7 +114,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 
 		parse_lexem(instructions, ids.front(), tabsize);
 		params.isResultInEAX = true;
-		params.resultStorage = "eax";
+		params.resultStorage = "ax";
 	}
 	else if (params.isSingleVariable)
 	{

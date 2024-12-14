@@ -25,15 +25,15 @@ void CD::CodeGeneration::parse_print_lexem__(std::vector<std::string>& result_in
 
 	if (p.isResultInDefaultBool)
 	{
-		result_instructions.push_back(format("{}movzx eax, {}", tab * tabsize, reservedBoolName));
-		result_instructions.push_back(tab * tabsize + "push eax");
+		result_instructions.push_back(format("{}movzx ax, {}", tab * tabsize, reservedBoolName));
+		result_instructions.push_back(tab * tabsize + "push ax");
 		result_instructions.push_back(tab * tabsize + "call __PrintBool");
 	}
 	else if (p.isMath)
 	{
 		if (p.isResultInEAX)
 		{
-			result_instructions.push_back(tab * tabsize + "push eax");
+			result_instructions.push_back(tab * tabsize + "push ax");
 			result_instructions.push_back(tab * tabsize + "call __PrintNumber");
 		}
 		else

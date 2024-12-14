@@ -64,8 +64,8 @@ void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>
 
 	if (math_instructionsRight.size() == 1 && math_instructionsLeft.size() == 1)
 	{
-		instructions.push_back(parent.tab * nestingLevel + "mov eax, " + parent.lexems_vector_to_string(operands[0]) + parent.tab + "; lefthand операнд");
-		instructions.push_back(parent.tab * nestingLevel + "mov ebx, " + parent.lexems_vector_to_string(operands[1]) + parent.tab + "; righthand операнд");
+		instructions.push_back(parent.tab * nestingLevel + "mov ax, " + parent.lexems_vector_to_string(operands[0]) + parent.tab + "; lefthand операнд");
+		instructions.push_back(parent.tab * nestingLevel + "mov bx, " + parent.lexems_vector_to_string(operands[1]) + parent.tab + "; righthand операнд");
 		instructions.push_back("");
 	}
 	else
@@ -75,9 +75,9 @@ void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>
 		{
 			instructions.push_back(parent.tab * nestingLevel + instr);
 		}
-		if (instructions.back() != parent.tab * nestingLevel + "push eax" && math_instructionsRight.size() != 1)
+		if (instructions.back() != parent.tab * nestingLevel + "push ax" && math_instructionsRight.size() != 1)
 		{
-			instructions.push_back(parent.tab * nestingLevel + "push eax");
+			instructions.push_back(parent.tab * nestingLevel + "push ax");
 		}
 
 		if (math_instructionsLeft.size() != 1)
@@ -91,10 +91,10 @@ void CD::CodeGeneration::IfElseGeneration::compare_ints(std::vector<std::string>
 		}
 		else
 		{
-			instructions.push_back("\n" + parent.tab * nestingLevel + "mov eax, " + parent.lexems_vector_to_string(operands[0]) + parent.tab + "; lefthand операнд");
+			instructions.push_back("\n" + parent.tab * nestingLevel + "mov ax, " + parent.lexems_vector_to_string(operands[0]) + parent.tab + "; lefthand операнд");
 		}
 
-		instructions.push_back(parent.tab * nestingLevel + "pop ebx ; загружаем значение righthand операнда");
+		instructions.push_back(parent.tab * nestingLevel + "pop bx ; загружаем значение righthand операнда");
 	}
 }
 

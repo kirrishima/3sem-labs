@@ -1,74 +1,57 @@
 .586
 .model flat, stdcall
 ExitProcess PROTO : DWORD
-
 .stack 4096
 
 .const
-    __INT_L0 SDWORD 10
-    __STR_L1 db "x меньше 10", 0
-    __STR_L2 db "x равно 10", 0
-    __STR_L3 db "x больше 10", 0
+    __INT_L0 sword 12
+    __INT_L1 sword 1
+    __INT_L2 sword 2
+    __INT_L3 sword -1
+    __INT_L4 sword -5
 
 .data
     _@bool byte ? 
-    _INT_PARAM_@get_str__x sdword 0
+    _INT_PARAM_@sum__x sword 0
+    _INT_PARAM_@sum__y sword 0
 
 
 .code
-get_str proc
+sum proc
 start:
-    mov eax, [esp + 4]
-    mov _INT_PARAM_@get_str__x, eax
-    mov eax, _INT_PARAM_@get_str__x    ; lefthand операнд
-    mov ebx, 10    ; righthand операнд
-    
-    cmp eax, ebx
-    mov _@bool, 0
-    jl @true0
-    jmp @false0
-    @true0:
-    mov _@bool, 1
-    @false0:
-    ; Начало if0 (x<10) 
-    cmp _@bool, 1
-    je IF_TRUE_0
-    jmp ELSE_0
-IF_TRUE_0:
-        mov eax, offset __STR_L1
-        jmp get_str_END
-        jmp IF_END_0    ; Переход к выходу из 0 if-else
-ELSE_0:
-        mov eax, _INT_PARAM_@get_str__x    ; lefthand операнд
-        mov ebx, 10    ; righthand операнд
-    
-        cmp eax, ebx
-        mov _@bool, 0
-        je @true1
-        jmp @false1
-        @true1:
-        mov _@bool, 1
-        @false1:
-        ; Начало if1 (x=10) 
-        cmp _@bool, 1
-        je IF_TRUE_1
-        jmp ELSE_1
-    IF_TRUE_1:
-            jmp IF_END_1    ; Переход к выходу из 1 if-else
-    ELSE_1:
-            jmp IF_END_1    ; Переход к выходу из 1 if-else
-    IF_END_1:
-        jmp IF_END_0    ; Переход к выходу из 0 if-else
-IF_END_0:
-get_str_END:
+    mov ax, [esp + 2]
+    mov _INT_PARAM_@sum__x, ax
+    mov ax, [esp + 4]
+    mov _INT_PARAM_@sum__y, ax
+    mov ax, _INT_PARAM_@sum__x
+    mov bx, _INT_PARAM_@sum__y
+    add ax, bx
+sum_END:
     ret 4
-get_str endp
+sum endp
 
 main proc
 start:
+    ; function call
+    push __INT_L1
     push __INT_L0
-    call get_str
-    push eax
+    call sum
+    push ax
+    push __INT_L2
+    pop bx
+    pop ax
+    imul bx
+    push ax
+    ; function call
+    push __INT_L4
+    push __INT_L3
+    call sum
+    push ax
+    pop bx
+    pop ax
+    sub ax, bx
+    push ax
+
 main_END:
     push 0
     call ExitProcess

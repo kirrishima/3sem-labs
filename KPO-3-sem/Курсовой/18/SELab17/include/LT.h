@@ -20,6 +20,7 @@
 #define LEX_RETURN		'r'          // Ключевое слово: возврат.
 #define LEX_PRINT		'p'          // Ключевое слово: печать.
 #define LEX_MAIN		'm'          // Ключевое слово: главная функция.
+#define LEX_STR_CMP
 
 // Лексемы для разделителей.
 #define LEX_SEMICOLON ';'         // Символ: точка с запятой.

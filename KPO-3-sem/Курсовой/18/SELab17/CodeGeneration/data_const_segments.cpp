@@ -12,7 +12,7 @@ void CD::CodeGeneration::__s_const()
 		{
 			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::INT)
 			{
-				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " SDWORD " << ID_TABLE.table[i].value.vint << '\n';
+				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " sword " << ID_TABLE.table[i].value.vint << '\n';
 			}
 			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::STR)
 			{
@@ -34,14 +34,18 @@ void CD::CodeGeneration::__s_data()
 			if (entry->iddatatype == IT::INT)
 			{
 				OUT_ASM_FILE << tab << get_id_name_in_data_segment(*entry)
-					<< " sdword "
+					<< " sword "
 					<< "0\n";
+			}
+			else if (entry->iddatatype == IT::CHAR)
+			{
+				OUT_ASM_FILE << tab << get_id_name_in_data_segment(*entry)
+					<< " dword ?\n";
 			}
 			else if (entry->iddatatype == IT::STR && entry->idtype == IT::IDTYPE::P)
 			{
 				OUT_ASM_FILE << tab << get_id_name_in_data_segment(*entry)
-					<< " dword "
-					<< "?\n";
+					<< " dword ?\n";
 			}
 			else if (entry->iddatatype == IT::STR)
 			{
@@ -81,6 +85,10 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 		{
 			ss << "__STR_" << entry.id;
 		}
+		else if (entry.iddatatype == IT::IDDATATYPE::CHAR)
+		{
+			ss << "__CHAR_" << entry.id;
+		}
 	}
 	else if (entry.idtype == IT::IDTYPE::V)
 	{
@@ -91,6 +99,10 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 		else if (entry.iddatatype == IT::IDDATATYPE::STR)
 		{
 			ss << "_STR_";
+		}
+		else if (entry.iddatatype == IT::IDDATATYPE::CHAR)
+		{
+			ss << "_CHAR_";
 		}
 		isLocal = true;
 	}
@@ -103,6 +115,11 @@ std::string CD::CodeGeneration::get_id_name_in_data_segment(const IT::Entry& ent
 	else if (entry.iddatatype == IT::IDDATATYPE::STR && entry.idtype == IT::IDTYPE::P)
 	{
 		ss << "_STR_PARAM_";
+		isLocal = true;
+	}
+	else if (entry.iddatatype == IT::IDDATATYPE::CHAR && entry.idtype == IT::IDTYPE::P)
+	{
+		ss << "_CHAR_PARAM_";
 		isLocal = true;
 	}
 	else if (entry.idtype == IT::IDTYPE::F)

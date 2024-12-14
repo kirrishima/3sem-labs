@@ -2,7 +2,7 @@
 #include "framework.h"
 #include <Windows.h>
 
-extern "C" void __stdcall __PrintNumber(int n)
+extern "C" void __stdcall __PrintNumber(short n)
 {
 	std::cout << "number: " << n << std::endl;
 }

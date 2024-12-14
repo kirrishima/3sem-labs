@@ -60,11 +60,11 @@ namespace GRB
 		),
 
 		Rule(NS('W'), GRB_ERROR_SERIES + 3,			// Подвыражение
-			6, // W → i,W | l,W | i | l
+			4, // W → i,W | l,W | i | l
 			Rule::Chain(3, TS('i'), TS(','), NS('W')),                  // W → i,W
 			Rule::Chain(3, TS('l'), TS(','), NS('W')),                  // W → l,W
-			Rule::Chain(3, TS('('), NS('E'), NS(')')),                  // W → l,W
-			Rule::Chain(4, TS('('), NS('E'), TS(')'), TS(','), NS('W')),                  // W → l,W
+			//Rule::Chain(3, TS('('), NS('E'), NS(')')),                  // W → l,W
+			//Rule::Chain(4, TS('('), NS('E'), TS(')'), TS(','), NS('W')),                  // W → l,W
 			Rule::Chain(1, TS('i')),                                    // W → i
 			Rule::Chain(1, TS('l'))                                     // W → l
 		),

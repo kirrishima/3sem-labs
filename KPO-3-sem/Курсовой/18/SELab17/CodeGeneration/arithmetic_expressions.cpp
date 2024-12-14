@@ -117,17 +117,17 @@ namespace CD
 	void generateOperation(std::vector<std::string>& masmCode, const std::string& operation)
 	{
 		if (operation == "+") {
-			masmCode.push_back("add eax, ebx");
+			masmCode.push_back("add ax, bx");
 		}
 		else if (operation == "-") {
-			masmCode.push_back("sub eax, ebx");
+			masmCode.push_back("sub ax, bx");
 		}
 		else if (operation == "*") {
-			masmCode.push_back("imul ebx");
+			masmCode.push_back("imul bx");
 		}
 		else if (operation == "/") {
 			masmCode.push_back("cdq");    // Расширение eax для деления
-			masmCode.push_back("idiv ebx");
+			masmCode.push_back("idiv bx");
 		}
 		else {
 			throw runtime_error("Неизвестный оператор: " + operation);
@@ -155,29 +155,29 @@ namespace CD
 			{
 				masmCode.push_back("; function call"); // правый операнд вычисляем и помещаем в стек, так как вызов функции может его перезаписать
 				masmCode.insert(masmCode.end(), used_functions[rpn[1]].begin(), used_functions[rpn[1]].end());
-				masmCode.push_back("push eax");
+				masmCode.push_back("push ax");
 
 				masmCode.push_back("; function call"); // левый вычисляется и остается результат в eax
 				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end());
-				masmCode.push_back("pop ebx"); // левый вычисляется и остается результат в eax
+				masmCode.push_back("pop bx"); // левый вычисляется и остается результат в eax
 			}
 			else if (used_functions.find(rpn[0]) != used_functions.end()) // если левый это рез функции
 			{
 				masmCode.push_back("; function call");
 				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end()); // оставляем его в eax
-				masmCode.push_back("mov ebx, " + rpn[1]); // правый в ebx
+				masmCode.push_back("mov bx, " + rpn[1]); // правый в ebx
 			}
 			else if (used_functions.find(rpn[1]) != used_functions.end()) // если правый функция
 			{
 				masmCode.push_back("; function call");
 				masmCode.insert(masmCode.end(), used_functions[rpn[1]].begin(), used_functions[rpn[1]].end());
-				masmCode.push_back("mov ebx, eax"); // сразу вычисляем его и в ebx
-				masmCode.push_back("mov eax, " + rpn[0]); // в eax левый копируем
+				masmCode.push_back("mov bx, ax"); // сразу вычисляем его и в ebx
+				masmCode.push_back("mov ax, " + rpn[0]); // в eax левый копируем
 			}
 			else
 			{
-				masmCode.push_back("mov eax, " + rpn[0]); // Первый операнд в eax
-				masmCode.push_back("mov ebx, " + rpn[1]); // Второй операнд в ebx
+				masmCode.push_back("mov ax, " + rpn[0]); // Первый операнд в eax
+				masmCode.push_back("mov bx, " + rpn[1]); // Второй операнд в ebx
 			}
 
 			generateOperation(masmCode, rpn[2]);
@@ -192,7 +192,7 @@ namespace CD
 				{
 					masmCode.push_back("; function call");
 					masmCode.insert(masmCode.end(), used_functions[token].begin(), used_functions[token].end());
-					masmCode.push_back("push eax");
+					masmCode.push_back("push ax");
 				}
 				else
 				{
@@ -201,20 +201,20 @@ namespace CD
 			}
 			else if (isOperator(token[0])) {
 				// Если токен — оператор, извлекаем два операнда из стека
-				masmCode.push_back("pop ebx"); // Второй операнд
-				masmCode.push_back("pop eax"); // Первый операнд
+				masmCode.push_back("pop bx"); // Второй операнд
+				masmCode.push_back("pop ax"); // Первый операнд
 
 				generateOperation(masmCode, token);
 
 				// Помещаем результат обратно в стек
-				masmCode.push_back("push eax");
+				masmCode.push_back("push ax");
 			}
 			else {
 				throw runtime_error("Неизвестный токен: " + token);
 			}
 		}
 
-		if (masmCode.back() == "push eax")
+		if (masmCode.back() == "push ax")
 		{
 			masmCode.pop_back(); // оставляем результат в eax, в стек не помещаем
 		}

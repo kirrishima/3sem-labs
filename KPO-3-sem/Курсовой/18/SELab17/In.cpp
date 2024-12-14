@@ -66,6 +66,7 @@ namespace In
 					in.text[in.size++] = ch;
 					break;
 
+				case IN::DoubleQuotes:
 				case IN::Mark:
 				{
 					in.text[in.size++] = ch;
@@ -78,7 +79,6 @@ namespace In
 					{
 						in.ignore += p.second - position;
 						position = p.second + 1;
-						/*in.text[in.size++]*/
 						break;
 					}
 				}
