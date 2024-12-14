@@ -2,6 +2,7 @@
 #include "Utils.h"
 #include <iomanip>
 #include <format>
+#include <bitset>
 
 namespace utils
 {
@@ -16,26 +17,19 @@ namespace utils
 
 
 	std::string wstring_to_string(const std::wstring& wstr) {
-		// Determine the length of the resulting multibyte string
 		size_t required_size;
 		wcstombs_s(&required_size, nullptr, 0, wstr.c_str(), _TRUNCATE);
 
-		// Create a buffer to hold the multibyte string
 		std::vector<char> buffer(required_size);
 
-		// Convert the wide string to a multibyte string
 		size_t converted_size;
 		wcstombs_s(&converted_size, buffer.data(), buffer.size(), wstr.c_str(), _TRUNCATE);
 
-		// Create a std::string from the buffer
-		std::string str(buffer.data(), converted_size - 1);  // Exclude the null terminator
+		std::string str(buffer.data(), converted_size - 1);
 
 		return str;
 	}
-
-
 }
-
 
 namespace LexAn::Utils
 {
@@ -54,7 +48,6 @@ namespace LexAn::Utils
 			return;
 		}
 
-		// Запись таблицы идентификаторов
 		IT_file << "<!DOCTYPE html><html><head><title>Identifier Table</title></head><body>\n";
 		IT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">\n";
 		IT_file << "<tr><th>ID</th><th>Datatype</th><th>ID Type</th><th>Line</th><th>Value</th><th>Scope</th></tr>\n";
@@ -64,7 +57,6 @@ namespace LexAn::Utils
 
 			IT_file << "<tr><td>" << entry.id << "</td>";
 
-			// Datatype
 			IT_file << "<td>";
 			switch (entry.iddatatype) {
 			case IT::INT:  IT_file << "INT"; break;
@@ -74,7 +66,6 @@ namespace LexAn::Utils
 			}
 			IT_file << "</td>";
 
-			// ID Type
 			IT_file << "<td>";
 			switch (entry.idtype) {
 			case IT::V: IT_file << "V"; break;
@@ -85,10 +76,8 @@ namespace LexAn::Utils
 			}
 			IT_file << "</td>";
 
-			// Line
 			IT_file << "<td>" << entry.idxfirstLE << "</td>";
 
-			// Value
 			IT_file << "<td>";
 			if (entry.iddatatype == IT::INT) {
 				IT_file << entry.value.vint;
@@ -101,7 +90,6 @@ namespace LexAn::Utils
 			}
 			IT_file << "</td>";
 
-			// Scope
 			IT_file << "<td>";
 			if (entry.scope != nullptr) {
 				std::stack<IT::Entry*> scope_stack;
@@ -127,7 +115,6 @@ namespace LexAn::Utils
 
 		IT_file << "</table></body></html>\n";
 
-		// Запись таблицы лексем
 		LT_file << "<!DOCTYPE html><html><head><title>Lexem Table</title></head><body>\n";
 		LT_file << "<table border=\"1\" cellpadding=\"5\" cellspacing=\"0\">\n";
 		LT_file << "<tr><th>Line</th><th>Lexem</th></tr>\n";
@@ -155,12 +142,34 @@ namespace LexAn::Utils
 		LT_file.close();
 	}
 
-	int stringToNumber(const std::string& str) {
-		if (str.empty()) {
-			throw std::invalid_argument("Input string is empty");
-		}
+	bool isValidShort(const std::string& str, short& result, int base = 10) {
+		try {
+			// Преобразуем строку в число с учетом основания
+			long long value = std::stoll(str, nullptr, base);
 
-		// Определяем базу (по умолчанию 10)
+			// Проверяем, входит ли число в диапазон short
+			if (value >= std::numeric_limits<short>::min() && value <= std::numeric_limits<short>::max()) {
+				result = static_cast<short>(value);
+				return true;
+			}
+			else {
+				throw std::out_of_range(std::format(
+					"Литерал выходит за границы числа. Диапазон допустимых значений: [{}; {}]",
+					std::numeric_limits<short>::min(),
+					std::numeric_limits<short>::max()
+				));
+			}
+		}
+		catch (const std::invalid_argument&) {
+			throw std::invalid_argument(std::format("Недопустимый формат числа: '{}'", str));
+		}
+		catch (const std::out_of_range&) {
+			throw std::out_of_range(std::format("Значение слишком большое для типа", str));
+		}
+	}
+
+	int stringToNumber(const std::string& str) {
+
 		int base = 10;
 		std::size_t startIndex = 0;
 
@@ -178,53 +187,35 @@ namespace LexAn::Utils
 				startIndex = 1;
 			}
 		}
+		short number;
+		bool isValid = isValidShort(str.substr(startIndex), number, base);
 
-		// Преобразуем строку в 64-битное число, чтобы избежать переполнения
-		int64_t number = std::stoll(str.substr(startIndex), nullptr, base);
-
-		// Приведение к знаковому значению, если используется 16-битное представление
-		if (base == 16) {
-			number &= 0xFFFF; // Ограничиваем до 16 бит
-			if (number > 0x7FFF) {
-				number -= 0x10000; // Преобразуем в отрицательное число
-			}
-		}
-
-		// Проверяем, помещается ли число в диапазон short
-		if (number < std::numeric_limits<short>::min() || number > std::numeric_limits<short>::max()) {
-			throw std::format("Литерал выходит за границы числа. диапазон допустимых значений: [{}; {}]", SHRT_MIN, SHRT_MAX);
-		}
-
-		return static_cast<short>(number);
+		return number;
 	}
 
 	bool isSingleCharacter(const unsigned char* input, std::size_t endPos) {
-		// Проверяем длину строки (должна быть 1 или 2 для символов с escape-последовательностью)
 		if (endPos == 0 || endPos > 1) {
 			return false;
 		}
 
-		// Если строка состоит из одного символа без экранирования
 		if (endPos == 1 && input[0] != '\\') {
 			return true;
 		}
 
-		// Если строка начинается с символа экранирования 
 		if (input[0] == '\\' && endPos == 1) {
 			unsigned char nextChar = input[1];
 			switch (nextChar) {
-			case 'n': // Новая строка
-			case 't': // Табуляция
-			case '\\': // Обратный слеш
-			case '"': // Двойная кавычка
-			case '\'': // Одинарная кавычка
+			case 'n':
+			case 't':
+			case '\\':
+			case '"':
+			case '\'':
 				return true;
 			default:
-				return false; // Некорректная escape-последовательность
+				return false;
 			}
 		}
 
-		// Если строка содержит более одного символа без корректного экранирования
 		return false;
 	}
 }

@@ -4,17 +4,7 @@
 #include "Error.h"
 #include <filesystem>
 #include <map>
-
-
-#ifdef _UNICODE
-#define tstring std::wstring
-#define tcout std::wcout
-#define tcerr std::wcerr
-#else
-#define tstring std::string
-#define tcout std::cout
-#define tcerr std::cerr
-#endif
+#include <algorithm>
 
 namespace fs = std::filesystem;
 
@@ -32,28 +22,37 @@ namespace Parm {
 		bool in = false, out = false, log = false;
 
 		// Карты для хранения параметров и флагов
-		std::map<tstring, tstring> namedParams;
-		std::map<tstring, bool> flags;
+		std::map<std::wstring, std::wstring> namedParams;
+		std::map<std::wstring, bool> flags;
 
 		// Перебор аргументов командной строки
 		for (int i = 1; i < argc; i++) {
-			tstring arg = argv[i];
+			std::wstring arg = argv[i];
 
 			// Проверяем формат "-название:значение"
-			if (arg[0] == _T('-') && arg.find(_T(':')) != tstring::npos) {
+			if (arg[0] == _T('-') && arg.find(_T(':')) != std::wstring::npos) {
 				size_t colonPos = arg.find(_T(':'));
-				tstring key = arg.substr(1, colonPos - 1);    // Убираем "-"
-				tstring value = arg.substr(colonPos + 1);     // Всё после ":"
+				std::wstring key = arg.substr(1, colonPos - 1);    // Убираем "-"
+
+				// Преобразуем ключ в нижний регистр
+				std::transform(key.begin(), key.end(), key.begin(),
+					[](TCHAR c) { return std::tolower(c, std::locale()); });
+
+				std::wstring value = arg.substr(colonPos + 1);     // Всё после ":"
 				namedParams[key] = value;
 			}
 			// Проверяем формат "/флаг"
 			else if (arg[0] == _T('/') && arg.length() > 1) {
-				tstring flag = arg.substr(1);                // Убираем "/"
+				std::wstring flag = arg.substr(1);                // Убираем "/"
+
+				std::transform(flag.begin(), flag.end(), flag.begin(),
+					[](TCHAR c) { return std::tolower(c, std::locale()); });
+
 				flags[flag] = true;
 			}
 			// Некорректный формат
 			else {
-				tcerr << _T("Неверный формат аргумента: ") << arg << std::endl;
+				std::wcout << L"Неверный формат аргумента: " << arg << std::endl;
 			}
 		}
 		if (namedParams.find(PARM_IN) == namedParams.end()) {

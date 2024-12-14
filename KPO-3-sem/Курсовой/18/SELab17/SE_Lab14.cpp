@@ -106,8 +106,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #ifndef TEST
 
 #ifndef __DISABLE_LOGS
-	Log::LOG log = Log::INIT_LOG;
-	Out::OUT out = Out::INIT_OUT;
+	Log::LOG log;
+	Out::OUT out;
 #endif // !__DISABLE_LOGS
 
 	try {
@@ -124,7 +124,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif // !__DISABLE_LOGS
 
 
-		auto [LexTable, IdTable] = LexAn::lexAnalize(parm, in);
+		auto [LexTable, IdTable] = LexAn::lexAnalize(parm, in, log);
 
 		cout << '\n';
 
@@ -132,12 +132,12 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
-		MFST_TRACE_START
+		MFST_TRACE_START;
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
 
-			MFST::Mfst mfst(LexTable, GRB::getGreibach());
-		if (!mfst.start())
+		MFST::Mfst mfst(LexTable, GRB::getGreibach());
+		if (!mfst.start(log))
 		{
 			exit(1);
 		}
@@ -149,37 +149,26 @@ int _tmain(int argc, _TCHAR* argv[]) {
 			mfst.printrules();
 		}
 
-		bool hasP = false;
+		//bool hasP = false;
 
-		MfstState state;
-		GRB::Rule rule;
-		char rbuf[300];
+		//MfstState state;
+		//GRB::Rule rule;
+		//char rbuf[300];
 
-		for (unsigned short i = 0; i < mfst.storestate.size(); i++) // Перебор всех сохраненных состояний
-		{
-			state = mfst.storestate.c[i]; // Получение состояния
-			rule = mfst.grebach.getRule(state.nrule); // Получение правила
-			rule.getCRule(rbuf, state.nrulechain);
-			if (std::find(rbuf, rbuf + strlen(rbuf), 'p') != rbuf + strlen(rbuf))
-			{
-				hasP = true;
-				break;
-			}
-		};
+		//for (unsigned short i = 0; i < mfst.storestate.size(); i++) // Перебор всех сохраненных состояний
+		//{
+		//	state = mfst.storestate.c[i]; // Получение состояния
+		//	rule = mfst.grebach.getRule(state.nrule); // Получение правила
+		//	rule.getCRule(rbuf, state.nrulechain);
+		//	if (std::find(rbuf, rbuf + strlen(rbuf), 'p') != rbuf + strlen(rbuf))
+		//	{
+		//		hasP = true;
+		//		break;
+		//	}
+		//};
 #endif // !_DISABLE_MFST__
 
-#ifdef _DISABLE_MFST__
-		bool hasP = true;
-#endif // _DISABLE_MFST__
-
-#ifndef __DISABLE_LOGS
-
-		Log::close(log);
-		Out::close(out);
-#endif // !__DISABLE_LOGS
-
-		int x = semantic::check(IdTable, LexTable);
-
+		int x = semantic::check(IdTable, LexTable, &log);
 		if (x)
 		{
 			cout << x << " ошибок, выход...\n";
@@ -191,7 +180,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 		CD::CodeGeneration cd(IdTable, LexTable, &parm);
 		cd.generateCode(parm.masmDest);
-
 
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);
@@ -206,16 +194,18 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	}
 	catch (Error::ERROR e)
 	{
-		cout << "Ошибка " << e.id << ':' << endl << e.message << endl;
-		if (e.inext.line >= 0) {
-#ifndef __DISABLE_LOGS
-			Log::writeError(log, e);
-			Out::writeError(out, e);
-			Log::close(log);
-			Out::close(out);
-#endif // !__DISABLE_LOGS
-
+		cout << "Ошибка " << e.id << ": " << e.message;
+		if (e.sourceLine > 0)
+		{
+			cout << ". Строка: " << e.sourceLine;
 		}
+		cout << endl;
+#ifndef __DISABLE_LOGS
+		Log::writeError(log, e);
+		Out::writeError(out, e);
+		Log::close(log);
+		Out::close(out);
+#endif // !__DISABLE_LOGS
 	}
 	catch (std::runtime_error& e)
 	{

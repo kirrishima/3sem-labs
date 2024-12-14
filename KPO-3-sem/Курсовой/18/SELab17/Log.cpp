@@ -2,7 +2,7 @@
 #include "Log.h"
 #include <Utils.h>
 #include <iomanip>
-
+#include <string>
 #pragma warning(disable:4996)
 
 using namespace std;
@@ -13,16 +13,18 @@ namespace Log
 
 	LOG getlog(const std::wstring& logfile) {
 		LOG log;
-		log.stream = new ofstream;
-		log.stream->open(logfile);
+		log.stream = std::make_unique<std::ofstream>(logfile); // создаем объект через unique_ptr
+		//log.stream->open();
+
 		if (!log.stream->is_open()) {
-			throw ERROR_THROW(112);
+			throw ERROR_THROW(112); // обработка ошибки
 		}
+
 		log.logfile = logfile;
 		return log;
 	}
 
-	void WriteLine(LOG log, char* c, ...) {
+	void writeLine(LOG& log, char* c, ...) {
 		char** currentArg = &c;
 		while (*currentArg != nullptr && *currentArg != "") {
 			*log.stream << *currentArg;
@@ -30,7 +32,17 @@ namespace Log
 		}
 	}
 
-	void WriteLine(LOG log, wchar_t* c, ...) {
+	void writeLine(LOG& log, const std::string& str)
+	{
+		(*log.stream) << str << std::endl;
+	}
+
+	void writeLine(LOG& log, const std::wstring& str)
+	{
+		*log.stream << utils::wstring_to_string(str) << '\n';
+	}
+
+	void writeLine(LOG& log, wchar_t* c, ...) {
 		wchar_t** currentArg = &c;
 
 		while (*currentArg != nullptr && *currentArg != L"") {
@@ -49,16 +61,16 @@ namespace Log
 		}
 	}
 
-	void writeLog(LOG log) {
+	void writeLog(LOG& log) {
 		char date[100];
 		tm local;
 		time_t currentTime = time(NULL);
 		localtime_s(&local, &currentTime);
-		strftime(date, 100, "	%d.%m.%Y %H:%M:%S	----", &local);
-		*log.stream << " ----	Протокол" << date << endl;
+		strftime(date, 100, " %d.%m.%Y %H:%M:%S    ----", &local);
+		*log.stream << " ----    Протокол" << date << endl;
 	}
 
-	void writeParm(LOG log, Parm::PARM parm) {
+	void writeParm(LOG& log, Parm::PARM parm) {
 		*log.stream << " ----    Параметры    ---- " << std::endl;
 
 		*log.stream << std::left;
@@ -75,32 +87,29 @@ namespace Log
 		*log.stream << std::setw(fieldWidth) << "/cst:" << (parm.CST ? "True" : "False") << std::endl << std::endl;
 	}
 
-	void writeIn(LOG log, In::IN in) {
-		*log.stream << " ----	Исходные данные	---- " << endl;
+	void writeIn(LOG& log, In::IN& in) {
+		*log.stream << " ----    Исходные данные    ---- " << endl;
 		*log.stream << "Количество символов : " << in.size << endl;
 		*log.stream << "Проигнорировано     : " << in.ignore << endl;
-		*log.stream << "Количество строк    : " << in.lines << endl;
+		*log.stream << "Количество строк    : " << in.lines << endl << endl;
 	}
 
-	void writeError(LOG log, Error::ERROR error) {
+	void writeError(LOG& log, Error::ERROR& error) {
 		if (log.stream) {
-			*log.stream << " ----	Ошибка	---- " << endl;
-			*log.stream << "Ошибка " << error.id << ": " << error.message << endl;
+			*log.stream << " ----    Ошибка    ---- " << endl;
+			*log.stream << "Ошибка " << error.id << ": " << error.message;
 			if (error.inext.col >= 0 && error.inext.line >= 0) {
-				*log.stream << "Строка: " << error.inext.line << endl << "Столбец: " << error.inext.col << endl << endl;
+				*log.stream << ". Строка: " << error.inext.line << ", cтолбец: " << error.inext.col << endl << endl;
 			}
-		}
-		else {
-			cout << "Ошибка " << error.id << ": " << error.message;
-			if (error.inext.col >= 0 && error.inext.line >= 0) {
-				cout << ", строка " << error.inext.line << ", позиция " << error.inext.col;
+			else if (error.sourceLine > 0)
+			{
+				*log.stream << ". Строка: " << error.sourceLine;
 			}
-			cout << " \n\n";
+			*log.stream << endl;
 		}
 	}
 
-	void close(LOG log) {
+	void close(LOG& log) {
 		log.stream->close();
-		delete log.stream;
 	}
 }

@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "MFST.h" 
+#include <format>
 
 namespace MFST
 {
@@ -85,13 +86,11 @@ namespace MFST
 					GRB::Rule::Chain chain;
 					if ((nrulechain = rule.getNextChain(lenta[lenta_position], chain, nrulechain + 1)) >= 0) // Поиск цепочки правил
 					{
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 						MFST_TRACE1 // Отладочная информация
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
-
 							savestate(); // Сохранение текущего состояния
 						st.pop(); // Удаление нетерминала из стека
 						push_chain(chain); // Добавление цепочки в стек
@@ -106,7 +105,6 @@ namespace MFST
 					}
 					else
 					{
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 						MFST_TRACE4("TNS_NORULECHAIN/NS_NORULE") // Отладочная информация
@@ -134,11 +132,9 @@ namespace MFST
 				MFST_TRACE3 // Отладочная информация
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
-
 			}
 			else
 			{
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 				MFST_TRACE4("TS_NOK/NS_NORULECHAIN") // Отладочная информация
@@ -151,7 +147,6 @@ namespace MFST
 		else
 		{
 			rc = LENTA_END; // Конец ленты
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("LENTA_END") // Отладочная информация
@@ -203,14 +198,12 @@ namespace MFST
 
 			storestate.pop(); // Удаление восстановленного состояния из стека
 
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE5("RESSTATE") // Отладочная информация
 				MFST_TRACE2 // Отладочная информация
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
-
 
 				rc = true;
 		}
@@ -240,7 +233,7 @@ namespace MFST
 	};
 #pragma warning(pop)
 	// Метод для начала синтаксического анализа
-	bool Mfst::start()
+	bool Mfst::start(Log::LOG& log)
 	{
 		bool rc = false;
 		RC_STEP rc_step = SURPRISE;
@@ -254,7 +247,6 @@ namespace MFST
 		{
 		case LENTA_END:
 		{
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>LENTA_END") // Отладочная информация
@@ -263,6 +255,7 @@ namespace MFST
 #endif // _DEBUG
 
 			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "всего строк %d, синтаксический анализ выполнен без ошибок", lex.table[lex.size - 1].sn);
+			Log::writeLine(log, buf, nullptr);
 			std::cout << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выпол без ошибок" << std::endl;
 			rc = true;
 			break;
@@ -270,17 +263,25 @@ namespace MFST
 
 		case NS_NORULE:
 		{
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>NS_NORULE") // Отладочная информация
 				std::cout << "---------------------------------------------------------------------------------------------------" << std::endl;
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
+			char* diagnosis1 = getDiagnosis(0, buf);
+			char* diagnosis2 = getDiagnosis(1, buf);
+			char* diagnosis3 = getDiagnosis(2, buf);
 
-			std::cout << getDiagnosis(0, buf) << std::endl; // Вывод диагностики
-			std::cout << getDiagnosis(1, buf) << std::endl; // Вывод диагностики
-			std::cout << getDiagnosis(2, buf) << std::endl; // Вывод диагностики
+			std::cout << diagnosis1 << std::endl; // Вывод диагностики
+			std::cout << diagnosis2 << std::endl; // Вывод диагностики
+			std::cout << diagnosis3 << std::endl; // Вывод диагностики
+
+			Log::writeLine(log, "----    Ошибка    ----");
+			Log::writeLine(log, diagnosis1, "\n", nullptr);
+			Log::writeLine(log, diagnosis2, "\n", nullptr);
+			Log::writeLine(log, diagnosis3, "\n", nullptr);
+
 			break;
 		}
 
@@ -291,27 +292,22 @@ namespace MFST
 			MFST_TRACE4("------>NS_NORULECHAIN"); // Отладочная информация
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
-
 			break;
 
 		case NS_ERROR:
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>NS_ERROR"); // Отладочная информация
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
-
 			break;
 
 		case SURPRISE:
-
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE4("------>NS_SURPRISE"); // Отладочная информация
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
-
 			break;
 		}
 
@@ -352,7 +348,7 @@ namespace MFST
 		{
 			errid = grebach.getRule(diagnosis[n].nrule).iderror; // Получение идентификатора ошибки
 			Error::ERROR err = Error::geterror(errid); // Получение сообщения об ошибке
-			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "%d: строка %d,%s", err.id, lex.table[lpos].sn, err.message);
+			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "Ошибка %d: строка %d, %s", err.id, lex.table[lpos].sn, err.message);
 			rc = buf; // Формирование текста ошибки
 		}
 

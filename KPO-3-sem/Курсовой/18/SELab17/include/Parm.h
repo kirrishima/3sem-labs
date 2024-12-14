@@ -9,8 +9,8 @@
 #define PARM_LT L"lt" // ключ для таблицы лексем
 #define PARM_IT L"it" // ключ для таблицы id
 #define PARM_STACK L"stack" // ключ для таблицы id
-#define PARM_LEX L"lex" // отключение сохранения таблицы id
-#define PARM_CST L"CST" // отключение сохранения таблицы id
+#define PARM_LEX L"lex" // включение сохранения таблицы id
+#define PARM_CST L"cst" // включение вывода конкретного синтаксического дерева
 #define PARM_OUT_DEFAULT_EXT L".out" // расширение файла объектного кода по умолчанию
 #define PARM_LOG_DEFAULT_EXT L".log" // расширение файла объектного кода по умолчанию
 #define PARM_LT_TABLE_DEFAULT L".LT.html" // расширение файла объектного кода по умолчанию

@@ -6,7 +6,7 @@ namespace Out
 	OUT getout(const std::wstring& outfile)
 	{
 		OUT a;
-		a.stream = new std::ofstream;
+		a.stream = std::make_unique<std::ofstream>();
 		a.stream->open(outfile);
 		if (a.stream->fail()) {
 			throw ERROR_THROW(113);
@@ -15,12 +15,12 @@ namespace Out
 		return a;
 	}
 
-	void writeOut(OUT out, In::IN in)
+	void writeOut(OUT& out, In::IN& in)
 	{
 		*out.stream << in.text << std::endl;
 	}
 
-	void writeError(OUT out, Error::ERROR error)
+	void writeError(OUT& out, Error::ERROR& error)
 	{
 		if (out.stream)
 		{
@@ -33,11 +33,10 @@ namespace Out
 		}
 	}
 
-	void close(OUT out)
+	void close(OUT& out)
 	{
 		if (out.stream) {
 			out.stream->close();
-			delete out.stream;
 			out.stream = NULL;
 		}
 	}

@@ -24,5 +24,5 @@ constexpr int ID_SIZE = ID_MAXSIZE - 1;
 namespace LexAn
 {
 	char determineLexeme();
-	std::pair<LT::LexTable, IT::ID_Table> lexAnalize(Parm::PARM param, In::IN in);
+	std::pair<LT::LexTable, IT::ID_Table> lexAnalize(Parm::PARM param, In::IN in, Log::LOG& log);
 }

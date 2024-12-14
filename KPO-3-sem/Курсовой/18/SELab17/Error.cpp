@@ -61,13 +61,14 @@ namespace Error
 	ERROR_ENTRY_NODEF50(710),ERROR_ENTRY_NODEF10(760),ERROR_ENTRY_NODEF10(770),ERROR_ENTRY_NODEF10(780),ERROR_ENTRY_NODEF10(790),
 	ERROR_ENTRY_NODEF100(800), ERROR_ENTRY_NODEF100(900)
 	};
-	ERROR geterror(int id) {
+	ERROR geterror(int id, int sourceLine) {
 
 		if (id < 0 || id > ERROR_MAX_ENTRY) {   //если код вне диапазона таблицы ошибок
 			return errors[0];
 		}
 
 		else {
+			errors[id].sourceLine = sourceLine;
 			return errors[id];
 		}
 	}

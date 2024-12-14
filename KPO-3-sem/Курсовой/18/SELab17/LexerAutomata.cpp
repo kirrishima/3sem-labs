@@ -106,7 +106,7 @@ char LexAn::determineLexeme()
 }
 
 
-std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN in)
+std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN in, Log::LOG& log)
 {
 	int indexIT; // Индекс для таблицы идентификаторов
 
@@ -162,8 +162,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				if (indexIT != -1)
 				{
-					std::cout << "Вторая точка входа определена в строке " << currentLine << std::endl;
-					throw ERROR_THROW(140);
+					//std::cout << "Вторая точка входа определена в строке " << currentLine << std::endl;
+					throw ERROR_THROW_LINE(140, currentLine);
 				}
 
 				LT_entry.idxTI = ID_Table.size;
@@ -182,18 +182,18 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				}
 				catch (const std::out_of_range& ex)
 				{
-					std::cout << "Ошибка в числовом литерале '" << str << "': слишком большое значение" << ". Строка: " << currentLine << std::endl;
-					throw ERROR_THROW(149);
+					std::cout << "Ошибка в числовом литерале '" << str << "': " << ex.what() << std::endl;
+					throw ERROR_THROW_LINE(149, currentLine);
 				}
 				catch (const std::string& ex) {
-					std::cout << "Ошибка в числовом литерале '" << str << "'. " << ex << ". Строка: " << currentLine << std::endl;
-					throw ERROR_THROW(149);
+					std::cout << "Ошибка в числовом литерале '" << str << "'. " << ex << currentLine << std::endl;
+					throw ERROR_THROW_LINE(149, currentLine);
 				}
 				catch (const std::exception& ex) {
-					std::cout << "Ошибка в числовом литерале '" << str << "'. Строка: " << currentLine << std::endl;
+					std::cout << "Ошибка в числовом литерале '" << str << "'" << std::endl;
 					std::cout << "Допустимые значения: " << format("[{}; {}]", SHRT_MIN, SHRT_MAX)
 						<< ". Допустимые форматы записи: десятичная, двоичная (префикс '0b'), шестнадцатеричная (префикс '0x'), восьмеричная (префикс '0')" << std::endl;
-					throw ERROR_THROW(149);
+					throw ERROR_THROW_LINE(149, currentLine);
 				}
 
 				int index = i - 1;
@@ -255,8 +255,8 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			{
 				if (isdigit(str[0]))
 				{
-					std::cout << "Строка " << currentLine << std::endl;
-					throw ERROR_THROW(150);
+					//std::cout << "Строка " << currentLine << std::endl;
+					throw ERROR_THROW_LINE(150, currentLine);
 				}
 
 				if (scope.empty())
@@ -302,7 +302,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					if (indexIT != -1) //Если идентификатор уже существует
 					{
 						std::cout << "Ошибка в строке " << currentLine << std::endl;
-						throw ERROR_THROW(148);
+						throw ERROR_THROW_LINE(148, currentLine);
 					}
 
 					LT_entry.idxTI = ID_Table.size;
@@ -316,7 +316,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					{
 						std::cout << "Идентификатор " << IT_entry.id
 							<< " использован до объявления в строке " << currentLine << std::endl;
-						throw ERROR_THROW(142);
+						throw ERROR_THROW_LINE(142, currentLine);
 					}
 				}
 				//if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_FUNCTION) // если предыдущая лексема была фукнция (f, в коде function)
@@ -409,7 +409,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 					else
 					{
 						std::cout << "Ошибка в строке " << currentLine << std::endl;
-						throw ERROR_THROW(142);
+						throw ERROR_THROW_LINE(142, currentLine);
 					}
 				}
 
@@ -542,7 +542,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 				if (ID_Table.table[ID_Table.size - 1].iddatatype != IT::STR)
 				{
 					std::cout << "Ошибка в строке " << currentLine << std::endl;
-					throw ERROR_THROW(143);
+					throw ERROR_THROW_LINE(143, currentLine);
 				}
 				if (in.text[index] == DOUBLE_QUOTES /*&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL*/) // если была найдена вторая кавычка
 				{
@@ -585,7 +585,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			if (IT_entry.value.vstr->len <= 0)
 			{
 				std::cout << "Пустой литерал в строке " << currentLine << std::endl;
-				ERROR_THROW(141);
+				ERROR_THROW_LINE(141, currentLine);
 			}
 
 			LT_entry.sn = currentLine;
@@ -629,7 +629,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 				if (!Utils::isSingleCharacter(in.text + i + 1, index - 1 - i))
 				{
-					throw ERROR_THROW(151);
+					throw ERROR_THROW_LINE(151, currentLine);
 				}
 			}
 
@@ -667,7 +667,7 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			if (IT_entry.value.vstr->len <= 0)
 			{
 				std::cout << "Пустой литерал в строке " << currentLine << std::endl;
-				ERROR_THROW(141);
+				ERROR_THROW_LINE(141, currentLine);
 			}
 
 			LT_entry.sn = currentLine;
@@ -803,16 +803,21 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 	delete[] str;
 
-	delete elseFST;
-	delete ifFST;
 	delete IntegerFST;
+	delete StringFST;
+	delete CharFST;
 	delete PrintFST;
 	delete MainFST;
-	delete IntHEXLiteralFST;
-	delete IntOCTALLiteralFST;
-	delete IntBINARYLiteralFST;
+	delete ReturnFST;
 	delete IntDECIMALLiteralFST;
+	delete IntBINARYLiteralFST;
+	delete IntOCTALLiteralFST;
+	delete IntHEXLiteralFST;
 	delete IdentifierFST;
+	delete ifFST;
+	delete elseFST;
+
+	long_ids.clear();
 
 	return std::make_pair(LexTable, ID_Table);
 }

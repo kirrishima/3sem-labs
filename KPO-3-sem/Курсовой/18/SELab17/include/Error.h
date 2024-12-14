@@ -1,5 +1,6 @@
 #pragma once
 #define ERROR_THROW(id) Error::geterror(id);  //throw ERROR_THROW(id)
+#define ERROR_THROW_LINE(id, line) Error::geterror(id, line);  //throw ERROR_THROW(id)
 #define ERROR_THROW_IN(id, l, c) Error::geterrorin(id, l, c);  //throw ERROR_THROW(id, строка, колонка)
 #define ERROR_ENTRY(id, m)   {id, m, {-1, 1}} // Ёлемент таблицы ошибок
 #define ERROR_MAXSIZE_MESSAGE 200 //максимальна€ длина сообщени€ об ошибке
@@ -31,7 +32,8 @@ namespace Error
 			short line;							// номер строки (0, 1, 2, ...) 
 			short col;							// номер позиции в строке (0, 1, 2, ...)
 		} inext;
+		int sourceLine = -1;
 	};
-	ERROR geterror(int id);						  // сформировать ERROR дл€ ERROR_THROW
+	ERROR geterror(int id, int sourceLine = -1);						  // сформировать ERROR дл€ ERROR_THROW
 	ERROR geterrorin(int id, int line, int col);  // сформировать ERROR дл€ ERROR_THROW_IN
 };
