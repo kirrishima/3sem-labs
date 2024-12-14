@@ -23,7 +23,7 @@
 
 #include "Out.h"
 #include "Error.h"		//обработка ошибок
-#include "Parm.h"		//обработка параметров
+//#include "Parm.h"		//обработка параметров
 #include "Log.h"		//работа с протоколом
 #include "In.h"			//ввод исходного файла
 #include "FST.h"

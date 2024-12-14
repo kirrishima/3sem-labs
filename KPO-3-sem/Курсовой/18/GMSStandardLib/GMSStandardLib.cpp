@@ -4,18 +4,18 @@
 
 extern "C" void __stdcall __PrintNumber(short n)
 {
-	std::cout << "number: " << n << std::endl;
+	std::cout << "Number: " << n << std::endl;
 }
 
 extern "C" void __stdcall __PrintBool(bool b)
 {
-	std::cout << (b ? "True" : "False") << std::endl;
+	std::cout << "Condition is: " << (b ? "True" : "False") << std::endl;
 }
 
 extern "C" void __stdcall __Print(char* arr)
 {
 	SetConsoleOutputCP(1251);
-
+	std::cout << "Str: ";
 	int n = strlen(arr);
 	for (int i = 0; i < n; ++i) {
 		if (arr[i] == '\\' && i + 1 < n) {
@@ -36,6 +36,12 @@ extern "C" void __stdcall __Print(char* arr)
 		}
 	}
 	std::cout << std::endl;
+}
+
+extern "C" void __stdcall __PrintChar(char* arr)
+{
+	SetConsoleOutputCP(1251);
+	std::cout << "Char: " << arr[0] << "\n";
 }
 
 //extern "C" void __stdcall __PrintArray(void* arr, int n, int type)

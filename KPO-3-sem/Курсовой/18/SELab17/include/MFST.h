@@ -46,7 +46,7 @@ static char rbuf[205], sbuf[205], lbuf[1024];
 #define MFST_TRACE6(c, k) std::cout << std::setw(4) << std::left << FST_TRACE_n << ": " << std::setw(20) << std::left << c << k << std::endl;
 #define MFST_TRACE7 std::cout << std::setw(4) << std::left << state.lenta_position << ": " \
                                << std::setw(20) << std::left << rule.getCRule(rbuf, state.nrulechain) \
-                               << std::endl;
+                               << '\n';
 
 typedef my_stack_SHORT MFSTSTSTACK;
 

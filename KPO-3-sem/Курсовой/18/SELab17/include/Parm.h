@@ -9,7 +9,8 @@
 #define PARM_LT L"lt" // ключ для таблицы лексем
 #define PARM_IT L"it" // ключ для таблицы id
 #define PARM_STACK L"stack" // ключ для таблицы id
-#define PARM_F_LEX L"lex" // отключение сохранения таблицы id
+#define PARM_LEX L"lex" // отключение сохранения таблицы id
+#define PARM_CST L"CST" // отключение сохранения таблицы id
 #define PARM_OUT_DEFAULT_EXT L".out" // расширение файла объектного кода по умолчанию
 #define PARM_LOG_DEFAULT_EXT L".log" // расширение файла объектного кода по умолчанию
 #define PARM_LT_TABLE_DEFAULT L".LT.html" // расширение файла объектного кода по умолчанию
@@ -28,10 +29,9 @@ namespace Parm // обработка входных параметров
 		std::wstring it;
 		std::wstring lt;
 		std::wstring masmDest;
-		std::wstring obj;
-		std::wstring exe;
 		size_t stackSize;
 		bool enableLexAnSave = false;
+		bool CST = false;
 	};
 
 	PARM getparm(int argc, _TCHAR* argv[]); // сформировать struct PARM на основе параметров функции main

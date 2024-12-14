@@ -64,7 +64,12 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 	setlocale(LC_ALL, "rus");
 
-
+	cout << R"(
+*************************************************************
+*                    Compiler GM-2024                       *
+*     Course project for Software Engineering at BSTU       *
+*************************************************************
+)" << '\n';
 #ifdef _DEBUG
 	if (argc == 1)
 	{
@@ -132,10 +137,17 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif // _DEBUG
 
 			MFST::Mfst mfst(LexTable, GRB::getGreibach());
-		mfst.start();
+		if (!mfst.start())
+		{
+			exit(1);
+		}
 		cout << '\n';
-		mfst.savededucation();
-		mfst.printrules();
+
+		if (parm.CST)
+		{
+			mfst.savededucation();
+			mfst.printrules();
+		}
 
 		bool hasP = false;
 

@@ -20,6 +20,9 @@ namespace fs = std::filesystem;
 
 bool validatePath(const std::wstring& filePath);
 bool validateHtmlPath(const std::filesystem::path& path);
+void validatePaths(const Parm::PARM& parameters);
+bool areDirectoriesValid(const fs::path& path);
+
 namespace Parm {
 
 	PARM getparm(int argc, _TCHAR* argv[]) {
@@ -65,7 +68,7 @@ namespace Parm {
 			parm.log = parm.in + PARM_LOG_DEFAULT_EXT;
 		}
 		else {
-			if (!validatePath(namedParams[PARM_LOG])) {
+			if (!areDirectoriesValid(namedParams[PARM_LOG])) {
 				throw ERROR_THROW(116); // Ошибка: некорректный путь для log
 			}
 			parm.log = namedParams[PARM_LOG];
@@ -76,7 +79,7 @@ namespace Parm {
 			parm.out = parm.in + PARM_OUT_DEFAULT_EXT;
 		}
 		else {
-			if (!validatePath(namedParams[PARM_OUT])) {
+			if (!areDirectoriesValid(namedParams[PARM_OUT])) {
 				throw ERROR_THROW(117); // Ошибка: некорректный путь для out
 			}
 			parm.out = namedParams[PARM_OUT];
@@ -116,7 +119,6 @@ namespace Parm {
 				}
 
 				parm.stackSize = stackSize; // Установка значения в параметр
-				std::cout << "stack : " << stackSize << std::endl;
 			}
 			catch (const std::exception&) {
 				throw ERROR_THROW(121); // Ошибка: некорректный формат значения размера стека
@@ -126,8 +128,12 @@ namespace Parm {
 			parm.stackSize = PARM_STACK_DEFAULT_SIZE; // Установка значения по умолчанию, если параметр отсутствует
 		}
 
-		if (flags.find(PARM_F_LEX) != flags.end()) {
+		if (flags.find(PARM_LEX) != flags.end()) {
 			parm.enableLexAnSave = true;
+		}
+
+		if (flags.find(PARM_CST) != flags.end()) {
+			parm.CST = true;
 		}
 
 		/*	if (flags.find(PARM_LEX) != flags.end()) {
@@ -138,18 +144,7 @@ namespace Parm {
 		//parm.obj = (fs::path(fs::absolute(parm.out)).parent_path() / (fs::path(parm.in).filename().string() + ".obj")).wstring();
 		//parm.exe = (fs::path(fs::absolute(parm.out)).parent_path() / (fs::path(parm.in).filename().string() + ".exe")).wstring();
 
-		if (parm.in == parm.log)
-		{
-			throw (L"Параметры -in и -log не могут иметь одинаковых значений (было передано " + parm.in + L")");
-		}
-		if (parm.in == parm.out)
-		{
-			throw (L"Параметры -in и -out не могут иметь одинаковых значений (было передано " + parm.in + L")");
-		}
-		if (parm.out == parm.log)
-		{
-			throw (L"Параметры -out и -log не могут иметь одинаковых значений (было передано " + parm.out + L")");
-		}
+		validatePaths(parm);
 
 		return parm;
 	}
@@ -198,4 +193,32 @@ bool validateHtmlPath(const std::filesystem::path& path) {
 	}
 
 	return false; // Неверный путь
+}
+
+void validatePaths(const Parm::PARM& parameters) {
+	std::unordered_map<std::wstring, std::vector<std::wstring>> pathMap;
+
+	// Поместим пути в map с метками их полей
+	pathMap[parameters.in].push_back(L"in");
+	pathMap[parameters.out].push_back(L"out");
+	pathMap[parameters.log].push_back(L"log");
+	pathMap[parameters.it].push_back(L"it");
+	pathMap[parameters.lt].push_back(L"lt");
+
+	// Проверяем, есть ли совпадения
+	bool hasDuplicates = false;
+	for (const auto& [path, fields] : pathMap) {
+		if (fields.size() > 1) { // Если одно значение связано с несколькими полями
+			hasDuplicates = true;
+			std::wcout << L"Ошибка: путь '" << path << L"' совпадает в параметрах: ";
+			for (const auto& field : fields) {
+				std::wcout << field << L" ";
+			}
+			std::wcout << std::endl;
+		}
+	}
+
+	if (hasDuplicates) {
+		throw ERROR_THROW(121);
+	}
 }

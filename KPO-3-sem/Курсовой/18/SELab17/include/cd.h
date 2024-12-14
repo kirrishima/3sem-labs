@@ -185,5 +185,6 @@ __PrintNumber PROTO :SDWORD
 __PrintBool PROTO :BYTE
 __PrintArray PROTO :DWORD, :DWORD, :DWORD
 __Print PROTO :DWORD
-__StrCmp PROTO :DWORD, :DWORD)";
+__StrCmp PROTO :DWORD, :DWORD
+__PrintChar PROTO :DWORD)";
 }

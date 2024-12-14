@@ -52,4 +52,9 @@ void CD::CodeGeneration::parse_print_lexem__(std::vector<std::string>& result_in
 		result_instructions.push_back(format("{}push {}", tab * tabsize, p.resultStorage));
 		result_instructions.push_back(tab * tabsize + "call __PrintNumber");
 	}
+	else if (p.isCHAR)
+	{
+		result_instructions.push_back(format("{}push offset {}", tab * tabsize, p.resultStorage));
+		result_instructions.push_back(tab * tabsize + "call __PrintChar");
+	}
 }

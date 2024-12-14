@@ -370,8 +370,8 @@ namespace MFST
 			state = storestate.c[i]; // Получение состояния
 			rule = grebach.getRule(state.nrule); // Получение правила
 
-//#ifdef _DEBUG
-//#ifndef _DISABLE_MFST_DEBUG
+			//#ifdef _DEBUG
+			//#ifndef _DISABLE_MFST_DEBUG
 			MFST_TRACE7 // Отладочная информация
 //#endif // !_DISABLE_MFST_DEBUG
 //#endif // _DEBUG
