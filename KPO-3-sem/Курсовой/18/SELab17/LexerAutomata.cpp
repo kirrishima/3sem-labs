@@ -1,7 +1,7 @@
 ﻿#include "stdafx.h"
 #include "FST.h"
 #include "LexerAutomata.h"
-#include "SVV.h"
+#include "regex.h"
 #include <memory>
 #include <stack>
 #include <string>
@@ -9,7 +9,7 @@
 #include "IT.h"
 #include <format>
 
-using namespace SVV;
+using namespace REGEX;
 using FST::execute;
 using LexAn::Utils::printToFile;
 

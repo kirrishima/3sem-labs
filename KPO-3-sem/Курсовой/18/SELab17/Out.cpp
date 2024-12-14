@@ -15,12 +15,12 @@ namespace Out
 		return a;
 	}
 
-	void WriteOut(OUT out, In::IN in)
+	void writeOut(OUT out, In::IN in)
 	{
 		*out.stream << in.text << std::endl;
 	}
 
-	void WriteError(OUT out, Error::ERROR error)
+	void writeError(OUT out, Error::ERROR error)
 	{
 		if (out.stream)
 		{
@@ -33,7 +33,7 @@ namespace Out
 		}
 	}
 
-	void Close(OUT out)
+	void close(OUT out)
 	{
 		if (out.stream) {
 			out.stream->close();

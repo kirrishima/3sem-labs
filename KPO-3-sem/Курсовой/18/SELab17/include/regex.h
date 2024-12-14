@@ -1,7 +1,7 @@
 ﻿#pragma once
 #include "FST.h"
 
-namespace SVV
+namespace REGEX
 {
 	FST::FST* CreateIntegerFST(const char* str);
 	FST::FST* CreateCharFST(const char* str);

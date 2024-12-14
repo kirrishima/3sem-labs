@@ -6,7 +6,7 @@
 #include <set>
 #include <locale>
 #include <chrono>
-#include "SVV.h"
+#include "regex.h"
 #include <map>
 #include "semantic.h"
 
@@ -117,10 +117,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		out = Out::getout(parm.out);
 		log = Log::getlog(parm.log);
 
-		Log::WriteLog(log);
-		Log::WriteParm(log, parm);
-		Out::WriteOut(out, in);
-		Log::WriteIn(log, in);
+		Log::writeLog(log);
+		Log::writeParm(log, parm);
+		Out::writeOut(out, in);
+		Log::writeIn(log, in);
 #endif // !__DISABLE_LOGS
 
 
@@ -174,8 +174,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 
 #ifndef __DISABLE_LOGS
 
-		Log::Close(log);
-		Out::Close(out);
+		Log::close(log);
+		Out::close(out);
 #endif // !__DISABLE_LOGS
 
 		int x = semantic::check(IdTable, LexTable);
@@ -189,8 +189,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		}
 		//cout << "Ошибок: " << x << endl;
 
-		CD::CodeGeneration cd(IdTable, LexTable, parm);
-		cd.gen(parm.masmDest);
+		CD::CodeGeneration cd(IdTable, LexTable, &parm);
+		cd.generateCode(parm.masmDest);
 
 
 		IT::Delete(IdTable);
@@ -209,10 +209,10 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		cout << "Ошибка " << e.id << ':' << endl << e.message << endl;
 		if (e.inext.line >= 0) {
 #ifndef __DISABLE_LOGS
-			Log::WriteError(log, e);
-			Out::WriteError(out, e);
-			Log::Close(log);
-			Out::Close(out);
+			Log::writeError(log, e);
+			Out::writeError(out, e);
+			Log::close(log);
+			Out::close(out);
 #endif // !__DISABLE_LOGS
 
 		}

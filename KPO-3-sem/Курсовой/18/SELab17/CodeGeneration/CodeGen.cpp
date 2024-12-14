@@ -46,7 +46,7 @@ bool executeCommand(const std::string& command) {
 
 namespace CD
 {
-	void CodeGeneration::gen(const std::wstring& OUT_FILEPATH)
+	void CodeGeneration::generateCode(const std::wstring& OUT_FILEPATH)
 	{
 		if (!OUT_ASM_FILE.is_open() || OUT_ASM_FILE.fail() || OUT_ASM_FILE.bad()) {
 			cout << "Не удалось открыть файл\n";
@@ -54,7 +54,7 @@ namespace CD
 		}
 
 		OUT_ASM_FILE << BASE;
-		OUT_ASM_FILE << '\n' << ".stack " << parm.stackSize;
+		OUT_ASM_FILE << '\n' << ".stack " << parm->stackSize;
 		OUT_ASM_FILE << "\n\n";
 		__s_const();
 		OUT_ASM_FILE << '\n';

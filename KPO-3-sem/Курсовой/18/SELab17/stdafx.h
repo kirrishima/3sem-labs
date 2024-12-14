@@ -29,7 +29,7 @@
 #include "FST.h"
 #include "IT.h"
 #include "LT.h"
-#include "SVV.h"
+#include "regex.h"
 #include "LexerAutomata.h"
 
 #endif // !STDAFX_H

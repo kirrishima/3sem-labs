@@ -49,7 +49,7 @@ namespace Log
 		}
 	}
 
-	void WriteLog(LOG log) {
+	void writeLog(LOG log) {
 		char date[100];
 		tm local;
 		time_t currentTime = time(NULL);
@@ -58,7 +58,7 @@ namespace Log
 		*log.stream << " ----	Протокол" << date << endl;
 	}
 
-	void WriteParm(LOG log, Parm::PARM parm) {
+	void writeParm(LOG log, Parm::PARM parm) {
 		*log.stream << " ----    Параметры    ---- " << std::endl;
 
 		*log.stream << std::left;
@@ -75,14 +75,14 @@ namespace Log
 		*log.stream << std::setw(fieldWidth) << "/cst:" << (parm.CST ? "True" : "False") << std::endl << std::endl;
 	}
 
-	void WriteIn(LOG log, In::IN in) {
+	void writeIn(LOG log, In::IN in) {
 		*log.stream << " ----	Исходные данные	---- " << endl;
 		*log.stream << "Количество символов : " << in.size << endl;
 		*log.stream << "Проигнорировано     : " << in.ignore << endl;
 		*log.stream << "Количество строк    : " << in.lines << endl;
 	}
 
-	void WriteError(LOG log, Error::ERROR error) {
+	void writeError(LOG log, Error::ERROR error) {
 		if (log.stream) {
 			*log.stream << " ----	Ошибка	---- " << endl;
 			*log.stream << "Ошибка " << error.id << ": " << error.message << endl;
@@ -99,7 +99,7 @@ namespace Log
 		}
 	}
 
-	void Close(LOG log) {
+	void close(LOG log) {
 		log.stream->close();
 		delete log.stream;
 	}

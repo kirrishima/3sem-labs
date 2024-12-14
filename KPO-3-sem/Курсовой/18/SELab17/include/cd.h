@@ -19,7 +19,7 @@ int get_id_size_in_bytes(IT::IDDATATYPE type);
 
 string operator*(const string& str, int times);
 
-namespace GMS2024::CD
+namespace CD
 {
 	bool is_assignment(const string& expr);
 
@@ -27,23 +27,23 @@ namespace GMS2024::CD
 
 	struct CodeGeneration {
 		string tab = "    ";
-		const string reservedBoolName = "_@bool";
+		const string reservedBoolName = "@bool_RESERVED";
 		int trueLabelsCount = 0;
 
 		IT::ID_Table ID_TABLE;
 		LT::LexTable LEX_TABLE;
 		std::ofstream OUT_ASM_FILE;
-		Parm::PARM parm;
+		const Parm::PARM* parm;
 
 		UserDefinedFunctions* currentFunction = nullptr;
 
 		std::unordered_map<string, UserDefinedFunctions*> user_functions;
 		std::vector<UserDefinedFunctions*> __user_functions;
 
-		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM& parm)
+		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM* parm)
 			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), parm(parm), ifElseGen(*this)
 		{
-			this->OUT_ASM_FILE.open(parm.masmDest);
+			this->OUT_ASM_FILE.open(parm->masmDest);
 		}
 
 		static string get_id_name_in_data_segment(const IT::Entry& entry);
@@ -112,7 +112,7 @@ namespace GMS2024::CD
 		/// <returns></returns>
 		string lexems_vector_to_string(const vector<int>& ids);
 
-		void gen(const std::wstring& OUT_FILEPATH);
+		void generateCode(const std::wstring& OUT_FILEPATH);
 
 		/// <summary>
 		/// Генератор условных операторов

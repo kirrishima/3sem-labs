@@ -18,11 +18,11 @@ namespace Log	// Работа с протоколом
 	LOG getlog(const std::wstring& logfile);// сформировать структуру LOG
 	void WriteLine(LOG log, char* c, ...);// вывести в протокол конкатенацию строк
 	void WriteLine(LOG log, wchar_t* с, ...); //вывести в протокол конкатенацию строк
-	void WriteLog(LOG log);// вывести в протокол заголовок
-	void WriteParm(LOG log, Parm::PARM parm); // вывести в протокол информацию о входных параметрах
-	void WriteIn(LOG log, In::IN in);// вывести в протокол информацию о входном потоке
-	void WriteError(LOG log, Error::ERROR error); // вывести в протокол информацию об ошибке
-	void Close(LOG log);
+	void writeLog(LOG log);// вывести в протокол заголовок
+	void writeParm(LOG log, Parm::PARM parm); // вывести в протокол информацию о входных параметрах
+	void writeIn(LOG log, In::IN in);// вывести в протокол информацию о входном потоке
+	void writeError(LOG log, Error::ERROR error); // вывести в протокол информацию об ошибке
+	void close(LOG log);
 };
 
 #endif // !LOG_H

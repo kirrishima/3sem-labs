@@ -1,8 +1,8 @@
 ﻿#include "stdafx.h"
-#include "SVV.h"
+#include "regex.h"
 #include "FST.h"
 
-namespace SVV
+namespace REGEX
 {
 	FST::FST* CreateIntegerFST(const char* str)
 	{
@@ -96,15 +96,14 @@ namespace SVV
 
 #define R(c, x) FST::RELATION(c, x)
 
-#define nums(state) \
-R('0', state), R('1', state), R('2', state),\
-R('3', state), R('4', state), R('5', state),\
-R('6', state), R('7', state), R('8', state),\
-R('9', state)
+#define nums(state) R('0', state), R('1', state), R('2', state),\
+					R('3', state), R('4', state), R('5', state),\
+					R('6', state), R('7', state), R('8', state),\
+					R('9', state)
 
-#define HEX(x) \
-R('a',x), R('b',x), R('c',x), R('d',x), R('e',x), R('f',x),\
-R('A', x), R('B', x), R('C', x), R('D', x), R('E', x), R('F', x)
+#define HEX(x)	R('a',x), R('b',x), R('c',x), R('d',x), R('e',x), R('f',x),\
+				R('A', x), R('B', x), R('C', x), R('D', x), R('E', x), R('F', x)
+
 
 	FST::FST* CreateIntHEXLiteralFST(const char* str)
 	{
