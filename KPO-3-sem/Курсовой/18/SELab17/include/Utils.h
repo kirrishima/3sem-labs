@@ -6,6 +6,7 @@
 namespace utils
 {
 	std::pair<int, int> trimmed_pos(const std::string& str);
+	std::string wstring_to_string(const std::wstring& wstr);
 }
 
 namespace LexAn::Utils

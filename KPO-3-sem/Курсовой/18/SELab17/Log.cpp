@@ -1,11 +1,16 @@
 ﻿#include "stdafx.h"
 #include "Log.h"
+#include <Utils.h>
+#include <iomanip>
+
 #pragma warning(disable:4996)
 
 using namespace std;
 
 namespace Log
 {
+	const int fieldWidth = 8;
+
 	LOG getlog(const std::wstring& logfile) {
 		LOG log;
 		log.stream = new ofstream;
@@ -49,15 +54,25 @@ namespace Log
 		tm local;
 		time_t currentTime = time(NULL);
 		localtime_s(&local, &currentTime);
-		strftime(date, 100, "%d.%m.%Y %H:%M:%S ----", &local);
-		*log.stream << " ----	Протокол	---- " << date << endl;
+		strftime(date, 100, "	%d.%m.%Y %H:%M:%S	----", &local);
+		*log.stream << " ----	Протокол" << date << endl;
 	}
 
 	void WriteParm(LOG log, Parm::PARM parm) {
-		*log.stream << " ----	Параметры	---- " << endl;
-		*log.stream << "-log: \"" << std::string(parm.log.begin(), parm.log.end()) << "\"\n";
-		*log.stream << "-out: \"" << std::string(parm.out.begin(), parm.out.end()) << "\"\n";
-		*log.stream << "-in : \"" << std::string(parm.in.begin(), parm.in.end()) << "\"\n";
+		*log.stream << " ----    Параметры    ---- " << std::endl;
+
+		*log.stream << std::left;
+		*log.stream << std::setw(fieldWidth) << "-log:" << "\"" << utils::wstring_to_string(parm.log) << "\"" << std::endl;
+		*log.stream << std::setw(fieldWidth) << "-out:" << "\"" << utils::wstring_to_string(parm.out) << "\"" << std::endl;
+		*log.stream << std::setw(fieldWidth) << "-in:" << "\"" << utils::wstring_to_string(parm.in) << "\"" << std::endl;
+		*log.stream << std::setw(fieldWidth) << "-lt:" << "\"" << utils::wstring_to_string(parm.lt) << "\"" << std::endl;
+		*log.stream << std::setw(fieldWidth) << "-it:" << "\"" << utils::wstring_to_string(parm.it) << "\"" << std::endl;
+		*log.stream << std::setw(fieldWidth) << "-stack:" << parm.stackSize << std::endl;
+
+		*log.stream << "\n ----    Опции    ---- " << std::endl;
+
+		*log.stream << std::setw(fieldWidth) << "/lex:" << (parm.enableLexAnSave ? "True" : "False") << std::endl;
+		*log.stream << std::setw(fieldWidth) << "/cst:" << (parm.CST ? "True" : "False") << std::endl << std::endl;
 	}
 
 	void WriteIn(LOG log, In::IN in) {

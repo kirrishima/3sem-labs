@@ -15,7 +15,7 @@
 #define PARM_LOG_DEFAULT_EXT L".log" // расширение файла объектного кода по умолчанию
 #define PARM_LT_TABLE_DEFAULT L".LT.html" // расширение файла объектного кода по умолчанию
 #define PARM_IT_TABLE_DEFAULT L".IT.html" // расширение файла объектного кода по умолчанию
-#define PARM_STACK_DEFAULT_SIZE 4096 // расширение файла объектного кода по умолчанию
+#define PARM_STACK_DEFAULT_SIZE 8192 // расширение файла объектного кода по умолчанию
 #define STACK_MIN_SIZE 1024
 #define STACK_MAX_SIZE STACK_MIN_SIZE * STACK_MIN_SIZE
 

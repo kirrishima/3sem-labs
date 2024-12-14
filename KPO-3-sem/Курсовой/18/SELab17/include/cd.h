@@ -19,7 +19,7 @@ int get_id_size_in_bytes(IT::IDDATATYPE type);
 
 string operator*(const string& str, int times);
 
-namespace CD
+namespace GMS2024::CD
 {
 	bool is_assignment(const string& expr);
 

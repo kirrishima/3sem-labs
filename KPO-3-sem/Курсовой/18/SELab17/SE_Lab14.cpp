@@ -61,7 +61,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	// asasasasasa
 	// asasasasasa
 	// asasasasasa
-
+	int returnCode = 0;
 	setlocale(LC_ALL, "rus");
 
 	cout << R"(

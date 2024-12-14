@@ -13,6 +13,27 @@ namespace utils
 		size_t last = str.find_last_not_of(' ');
 		return std::make_pair<int, int>(first, last);
 	}
+
+
+	std::string wstring_to_string(const std::wstring& wstr) {
+		// Determine the length of the resulting multibyte string
+		size_t required_size;
+		wcstombs_s(&required_size, nullptr, 0, wstr.c_str(), _TRUNCATE);
+
+		// Create a buffer to hold the multibyte string
+		std::vector<char> buffer(required_size);
+
+		// Convert the wide string to a multibyte string
+		size_t converted_size;
+		wcstombs_s(&converted_size, buffer.data(), buffer.size(), wstr.c_str(), _TRUNCATE);
+
+		// Create a std::string from the buffer
+		std::string str(buffer.data(), converted_size - 1);  // Exclude the null terminator
+
+		return str;
+	}
+
+
 }
 
 

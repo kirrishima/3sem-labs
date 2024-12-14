@@ -5,7 +5,7 @@
 #define _CRT_SECURE_NO_WARNINGS
 
 //#define _DISABLE_MFST__
-#define __DISABLE_LOGS
+//#define __DISABLE_LOGS
 //#define __DISABLE_IT_LT_TABLES_SAVE
 #define _DISABLE_MFST_DEBUG
 
