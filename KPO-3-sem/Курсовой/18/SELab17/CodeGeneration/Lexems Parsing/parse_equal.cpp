@@ -26,10 +26,15 @@ void CD::CodeGeneration::parse_lexem_equal__(std::vector<std::string>& result_in
 			result_instructions.push_back(format("{}mov ax, {}", tab * tabsize, p.resultStorage));
 			result_instructions.push_back(format("{}mov {}, ax", tab * tabsize, destName)); // -2 от литерала/id
 		}
-		else
+		else if(p.isSTR)
 		{
 			result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, p.resultStorage));
 			result_instructions.push_back(format("{}mov {}, eax", tab * tabsize, destName)); // -2 от литерала/id
+		}
+		else if (p.isCHAR)
+		{
+			result_instructions.push_back(format("{}mov al, {}", tab * tabsize, p.resultStorage));
+			result_instructions.push_back(format("{}mov {}, al", tab * tabsize, destName)); // -2 от литерала/id
 		}
 	}
 	else if (p.isResultInEAX)

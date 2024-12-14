@@ -18,6 +18,10 @@ void CD::CodeGeneration::__s_const()
 			{
 				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " db \"" << ID_TABLE.table[i].value.vstr->str << "\", 0\n";
 			}
+			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::CHAR)
+			{
+				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " db \'" << ID_TABLE.table[i].value.vstr->str << "\'\n";
+			}
 		}
 	}
 }
@@ -40,7 +44,7 @@ void CD::CodeGeneration::__s_data()
 			else if (entry->iddatatype == IT::CHAR)
 			{
 				OUT_ASM_FILE << tab << get_id_name_in_data_segment(*entry)
-					<< " dword ?\n";
+					<< " byte ?\n";
 			}
 			else if (entry->iddatatype == IT::STR && entry->idtype == IT::IDTYPE::P)
 			{

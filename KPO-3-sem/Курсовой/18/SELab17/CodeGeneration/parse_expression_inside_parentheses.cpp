@@ -24,6 +24,9 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 			case IT::IDDATATYPE::STR:
 				params.isSTR = true;
 				break;
+			case IT::IDDATATYPE::CHAR:
+				params.isCHAR = true;
+				break;
 			}
 			if (ID_TABLE.table[lt_entry.idxTI].idtype == IT::IDTYPE::F)
 				params.isFunctionCall = true;

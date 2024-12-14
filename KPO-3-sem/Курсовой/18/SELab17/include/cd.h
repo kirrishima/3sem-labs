@@ -81,6 +81,7 @@ namespace CD
 			bool isMath = false;
 			bool isINT = false;
 			bool isSTR = false;
+			bool isCHAR = false;
 			bool isFunctionCall = false;
 
 			IT::IDDATATYPE returnDataType;
