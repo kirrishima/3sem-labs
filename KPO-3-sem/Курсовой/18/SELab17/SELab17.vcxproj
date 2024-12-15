@@ -181,7 +181,7 @@
     <ClCompile Include="Utils.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="include\cd.h" />
+    <ClInclude Include="include\code_gen.h" />
     <ClInclude Include="include\Error.h" />
     <ClInclude Include="include\FST.h" />
     <ClInclude Include="include\GRB.h" />

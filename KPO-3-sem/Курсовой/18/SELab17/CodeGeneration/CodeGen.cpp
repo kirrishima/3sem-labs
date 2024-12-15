@@ -1,5 +1,5 @@
 #include "stdafx.h"
-#include "cd.h"
+#include "code_gen.h"
 #include "vector"
 #include "sstream"
 #include "filesystem"
@@ -61,7 +61,7 @@ namespace CD
 		__s_data();
 		OUT_ASM_FILE << "\n\n.code";
 
-		int count = 0;
+		int bracesCount = 0;
 
 		//OUT_ASM_FILE << "\nmain proc\nstart:\n";
 		int start = 0;
@@ -73,11 +73,11 @@ namespace CD
 		{
 			if (LEX_TABLE.table[i].lexema[0] == LEX_LEFTBRACE)
 			{
-				count++;
+				bracesCount++;
 			}
 			else if (LEX_TABLE.table[i].lexema[0] == LEX_BRACELET)
 			{
-				if (--count == 0)
+				if (--bracesCount == 0)
 				{
 
 					functions.push_back({ start, i });

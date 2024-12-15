@@ -273,9 +273,9 @@ namespace MFST
 			char* diagnosis2 = getDiagnosis(1, buf);
 			char* diagnosis3 = getDiagnosis(2, buf);
 
-			std::cout << diagnosis1 << std::endl; // Вывод диагностики
-			std::cout << diagnosis2 << std::endl; // Вывод диагностики
-			std::cout << diagnosis3 << std::endl; // Вывод диагностики
+			std::cout << diagnosis1 << std::endl;
+			std::cout << diagnosis2 << std::endl;
+			std::cout << diagnosis3 << std::endl;
 
 			Log::writeLine(log, "----    Ошибка    ----");
 			Log::writeLine(log, diagnosis1, "\n", nullptr);
@@ -289,7 +289,7 @@ namespace MFST
 
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
-			MFST_TRACE4("------>NS_NORULECHAIN"); // Отладочная информация
+			MFST_TRACE4("------>NS_NORULECHAIN");
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
 			break;
@@ -297,7 +297,7 @@ namespace MFST
 		case NS_ERROR:
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
-			MFST_TRACE4("------>NS_ERROR"); // Отладочная информация
+			MFST_TRACE4("------>NS_ERROR");
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
 			break;
@@ -305,7 +305,7 @@ namespace MFST
 		case SURPRISE:
 #ifdef _DEBUG
 #ifndef _DISABLE_MFST_DEBUG
-			MFST_TRACE4("------>NS_SURPRISE"); // Отладочная информация
+			MFST_TRACE4("------>NS_SURPRISE");
 #endif // !_DISABLE_MFST_DEBUG
 #endif // _DEBUG
 			break;

@@ -146,7 +146,7 @@
     <ClInclude Include="include\Rule.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="include\cd.h">
+    <ClInclude Include="include\code_gen.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\semantic.h">
