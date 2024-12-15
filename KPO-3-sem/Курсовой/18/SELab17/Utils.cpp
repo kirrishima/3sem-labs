@@ -194,11 +194,11 @@ namespace LexAn::Utils
 	}
 
 	bool isSingleCharacter(const unsigned char* input, std::size_t endPos) {
-		if (endPos == 0 || endPos > 1) {
+		if (endPos < 0 || endPos > 1) {
 			return false;
 		}
 
-		if (endPos == 1 && input[0] != '\\') {
+		if (endPos == 0 && input[0] != '\\') {
 			return true;
 		}
 

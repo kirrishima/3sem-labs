@@ -16,6 +16,7 @@ bool isValidIdentifier(const string& identifier);
 bool isFunctionStart(const string& line);
 bool isFunctionEnd(const string& line);
 int get_id_size_in_bytes(IT::IDDATATYPE type);
+int getEscapeCode(const std::string& input);
 
 string operator*(const string& str, int times);
 

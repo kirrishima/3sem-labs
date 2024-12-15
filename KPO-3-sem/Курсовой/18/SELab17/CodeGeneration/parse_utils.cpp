@@ -252,3 +252,25 @@ bool CD::is_assignment(const std::string& expr) {
 	}
 	return true;
 }
+
+int getEscapeCode(const std::string& input) {
+	// Проверяем, что строка начинается с '\'
+	if (input.size() < 2 || input[0] != '\\') {
+		return (int)input[0]; // Возвращаем -1, если это не escape-символ
+	}
+
+	// Карта для отображения escape-последовательностей в их ASCII-коды
+	static const std::unordered_map<char, int> escapeCodes = {
+		{'n', (int)'\n'}, // Новая строка
+		{'t', (int)'\t'},  // Табуляция
+		{'r', (int)'\r'}  // Возврат каретки
+	};
+
+	// Проверяем наличие второго символа в карте
+	auto it = escapeCodes.find(input[1]);
+	if (it != escapeCodes.end()) {
+		return it->second; // Возвращаем соответствующий ASCII-код
+	}
+
+	return -1; // Если символ не найден, возвращаем -1
+}

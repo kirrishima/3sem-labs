@@ -20,7 +20,7 @@ void CD::CodeGeneration::__s_const()
 			}
 			if (ID_TABLE.table[i].iddatatype == IT::IDDATATYPE::CHAR)
 			{
-				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " db \'" << ID_TABLE.table[i].value.vstr->str << "\'\n";
+				OUT_ASM_FILE << tab << get_id_name_in_data_segment(ID_TABLE.table[i]) << " db " << getEscapeCode(ID_TABLE.table[i].value.vstr->str) << "\n";
 			}
 		}
 	}

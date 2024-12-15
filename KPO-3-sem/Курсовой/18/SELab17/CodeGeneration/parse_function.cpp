@@ -10,82 +10,86 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 	int countBraces = 0;
 
 	vector< std::string> tmp;
-	for (int i = params_start_index; i <= params_end_index; i++)
+	if (params_start_index > 0 && params_start_index < params_end_index)
 	{
-		LT::Entry* lex = &LEX_TABLE.table[i];
-		if (lex->lexema[0] == LEX_COMMA && !isInsideFunctionCall || params_end_index < i + 1)
+		for (int i = params_start_index; i <= params_end_index; i++)
 		{
-			if (params_end_index == i)
+			LT::Entry* lex = &LEX_TABLE.table[i];
+			if (lex->lexema[0] == LEX_COMMA && !isInsideFunctionCall || params_end_index < i + 1)
 			{
-				param.push_back(i);
-			}
-			//std::reverse(param.begin(), param.end());
-			auto p = parse_expression(param, tmp);
-
-			if (p.isINT && !(function->params[params_pos] == IT::IDDATATYPE::INT) ||
-				p.isSTR && !(function->params[params_pos] == IT::IDDATATYPE::STR))
-			{
-				throw "parse_function_call: неверный параметр в вызове функции";
-			}
-			params_pos++;
-			if (p.isSingleVariable)
-			{
-				if (p.isCHAR)
+				if (params_end_index == i)
 				{
-					tmp.push_back(format("movzx eax, {}", p.resultStorage));
-					tmp.push_back("push eax");
+					param.push_back(i);
+				}
+				//std::reverse(param.begin(), param.end());
+				auto p = parse_expression(param, tmp);
+
+				if (p.isINT && !(function->params[params_pos] == IT::IDDATATYPE::INT) ||
+					p.isSTR && !(function->params[params_pos] == IT::IDDATATYPE::STR) ||
+					p.isCHAR && !(function->params[params_pos] == IT::IDDATATYPE::CHAR))
+				{
+					throw "parse_function_call: неверный параметр в вызове функции";
+				}
+				params_pos++;
+				if (p.isSingleVariable)
+				{
+					if (p.isCHAR)
+					{
+						tmp.push_back(format("movzx eax, {}", p.resultStorage));
+						tmp.push_back("push eax");
+					}
+					else
+					{
+						tmp.push_back(format("push {}", p.resultStorage));
+					}
 				}
 				else
 				{
-					tmp.push_back(format("push {}", p.resultStorage));
+					if (p.isResultInEAX)
+					{
+						tmp.push_back("push ax");
+					}
+					else if (p.isResultInEBX)
+					{
+						tmp.push_back("push bx");
+					}
+					else
+					{
+						tmp.push_back(p.resultStorage);
+					}
 				}
+				param.clear();
+				params.push_back(tmp);
+				tmp.clear();
 			}
 			else
 			{
-				if (p.isResultInEAX)
+				param.push_back(i);
+				if (lex->lexema[0] == LEX_ID && ID_TABLE.table[lex->idxTI].idtype == IT::F)
 				{
-					tmp.push_back("push ax");
+					isInsideFunctionCall = true;
 				}
-				else if (p.isResultInEBX)
+				if (isInsideFunctionCall && lex->lexema[0] == LEX_LEFTTHESIS)
 				{
-					tmp.push_back("push bx");
+					countBraces++;
 				}
-				else
+				if (isInsideFunctionCall && lex->lexema[0] == LEX_RIGHTTHESIS)
 				{
-					tmp.push_back(p.resultStorage);
+					countBraces--;
+					if (countBraces == 0)
+					{
+						isInsideFunctionCall = false;
+					}
 				}
 			}
-			param.clear();
-			params.push_back(tmp);
-			tmp.clear();
 		}
-		else
+
+		reverse(params.begin(), params.end());
+
+		for (const auto& pp : params)
 		{
-			param.push_back(i);
-			if (lex->lexema[0] == LEX_ID && ID_TABLE.table[lex->idxTI].idtype == IT::F)
-			{
-				isInsideFunctionCall = true;
-			}
-			if (isInsideFunctionCall && lex->lexema[0] == LEX_LEFTTHESIS)
-			{
-				countBraces++;
-			}
-			if (isInsideFunctionCall && lex->lexema[0] == LEX_RIGHTTHESIS)
-			{
-				countBraces--;
-				if (countBraces == 0)
-				{
-					isInsideFunctionCall = false;
-				}
-			}
+			tmp.insert(tmp.end(), pp.begin(), pp.end());
 		}
-	}
-
-	reverse(params.begin(), params.end());
-
-	for (const auto& pp : params)
-	{
-		tmp.insert(tmp.end(), pp.begin(), pp.end());
 	}
 	tmp.push_back(format("call {}", function->name));
 	return tmp;

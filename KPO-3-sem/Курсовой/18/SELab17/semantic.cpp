@@ -47,6 +47,7 @@ struct Expression
 	int firstLine;
 	int dest_IT_index;
 	bool isInitialization = false;
+	std::string funcName = "";
 };
 
 std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int& start);
@@ -79,6 +80,8 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 		expression.isCompare = isCompare;
 		expression.iddatatype = iddatatype;
 
+		int bracesCount = 0;
+
 		while (LEX_Table.table[i].lexema[0] != LEX_SEMICOLON && LEX_Table.table[i].lexema[0] != LEX_LEFTBRACE) {
 			if (LEX_Table.table[i].lexema[0] == LEX_ID) {
 				expression.ids.push_back(i);
@@ -95,15 +98,27 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 					}
 				}
 			}
-			else {
+			else if (LEX_Table.table[i].lexema[0] == LEX_STRCMP)
+			{
 				expression.ids.push_back(i);
+				i += 2;
+				check_function_call(ID_Table, LEX_Table, -1, get_function_params(ID_Table, LEX_Table, i));
 			}
+			else
+				expression.ids.push_back(i);
+
+			if (LEX_Table.table[i].lexema[0] == LEX_LEFTTHESIS)
+				bracesCount++;
+			else if (LEX_Table.table[i].lexema[0] == LEX_RIGHTTHESIS)
+				bracesCount--;
+
 			i++;
 		}
 
-		//if (!isCompare || (dest_IT_index == -1 && !isReturn)) {
-		//	expression.ids.pop_back();  // Убираем лишний элемент, если это не сравнение или возврат
-		//}
+		if ((bracesCount != 0 && LEX_Table.table[expression.ids.back()].lexema[0] == LEX_RIGHTTHESIS) ||
+			LEX_Table.table[expression.ids.back()].lexema[0] == LEX_LEFTBRACE) {
+			expression.ids.pop_back();  // Убираем лишний элемент, если это не сравнение или возврат
+		}
 
 		check_expression(ID_Table, LEX_Table, expression);
 		};
@@ -151,6 +166,11 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 		case LEX_PRINT:
 			i += 2;
 			handle_expression(i, -1, false, true, IT::ANY);
+			break;
+		case LEX_STRCMP:
+			i += 2;
+			check_function_call(ID_Table, LEX_Table, -1, get_function_params(ID_Table, LEX_Table, i));
+			//handle_expression(i, -1, false, true, IT::STR);
 			break;
 		case LEX_WRITE:
 			i += 1;
@@ -241,6 +261,13 @@ void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table
 			i += 2;
 			protos[&ID_Table.table[LEX_Table.table[tmpI].idxTI]] = extract_parameters(i);
 		}
+		//else if (LEX_Table.table[i].lexema[0] == LEX_STRCMP && protos.find)
+		//{
+		//	IT::Entry* strcmp = new IT::Entry();
+		//	strcpy(strcmp->id, "strcmp");
+		//	strcmp->iddatatype = IT::INT;
+		//	protos[strcmp] = { IT::IDDATATYPE::STR, IT::IDDATATYPE::STR };
+		//}
 	}
 
 	// Обработка вызовов функций внутри других функций
@@ -330,7 +357,7 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 				printError(format(
 					"Строка {}: аргумент функции {} имеет тип {}, но ожидается {}",
 					line_number,
-					ID_ENTRY_BY_LEX_ID(expr.dest_IT_index).id,
+					expr.funcName,
 					iddatatype_to_str(id_entry.iddatatype),
 					iddatatype_to_str(expr.iddatatype)));
 			}
@@ -374,7 +401,6 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 					lex_entry.sn, ID_Table.table[LEX_Table.table[id].idxTI].id));
 				errors++;
 			}
-
 			break;
 
 		case LEX_MATH:
@@ -406,12 +432,19 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 				countBraces++;
 			}
 			break;
+
 		case LEX_RIGHTTHESIS:
 			if (insideFunction && --countBraces == 0)
 			{
 				insideFunction = false;
 			}
 			break;
+
+		case LEX_STRCMP:
+			types[IT::IDDATATYPE::INT]++;
+			insideFunction = true;
+			break;
+
 		default:
 			break;
 		}
@@ -448,26 +481,55 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 
 void check_function_call(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table, int funcID, std::vector<std::vector<int>> params)
 {
-	const auto& entry = &ID_Table.table[LEX_Table.table[funcID].idxTI];
+	IT::Entry* entry;
+	int paramsCount = 0;
 
-	if (params.size() != protos[entry].size())
+	if (funcID >= 0)
+	{
+		entry = &ID_Table.table[LEX_Table.table[funcID].idxTI];
+		paramsCount = protos[entry].size();
+	}
+	else
+	{
+		entry = new IT::Entry();
+		strcpy(entry->id, "strcmp");
+		entry->iddatatype = IT::INT;
+		paramsCount = 2;
+	}
+
+	if (params.size() != paramsCount)
 	{
 		printError(format("Строка {}, число передаваемых аргументов в функцию {} не соответствует ее прототипу\n",
 			LEX_Table.table[funcID].sn, entry->id));
 		errors++;
 	}
 
-	int size = params.size() > protos[entry].size() ? protos[entry].size() : params.size();
+
+	int size = params.size() > paramsCount ? paramsCount : params.size();
 
 	for (size_t i = 0; i < size; i++)
 	{
 		Expression expression;
-		expression.iddatatype = protos[entry][i];
+
+		if (funcID >= 0)
+		{
+			expression.iddatatype = protos[entry][i];
+		}
+		else
+		{
+			expression.iddatatype = IT::STR;
+		}
+
 		expression.dest_IT_index = funcID;
 		expression.isFunctionCallArg = true;
 		expression.ids = params[i];
-
+		expression.funcName = entry->id;
 		check_expression(ID_Table, LEX_Table, expression);
+	}
+
+	if (funcID < 0)
+	{
+		delete entry;
 	}
 }
 

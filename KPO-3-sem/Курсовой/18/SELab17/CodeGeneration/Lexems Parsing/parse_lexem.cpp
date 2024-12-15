@@ -46,7 +46,7 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 				}
 				ids.push_back(index_in_lex_table++);
 			}
-			auto v = parse_function_call(user_functions[name], ids[0], ids.back());
+			auto v = parse_function_call(user_functions[name], ids.size() ? ids.front() : -1, ids.size() ? ids.back() : -1);
 			for (const std::string& str : v)
 			{
 				result_instructions.push_back(tab * tabsize + str);

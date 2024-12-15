@@ -117,6 +117,7 @@ char LexAn::determineLexeme()
 	return '\0';
 }
 
+void processLiteral(int& i, unsigned char* text, int& currentLine, char delimiter, int& literalsCount, IT::Entry& IT_entry, LT::Entry& LT_entry, In::IN& in);
 
 std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN in, Log::LOG& log)
 {
@@ -548,175 +549,13 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 			LT_entry.lexema[0] = NULL;
 			break;
 
-		case DOUBLE_QUOTES: // отдельно для кавычек
-		{
-			int index = i + 1; // индекс второго символа "'" (конец строкового литерала)
+		case DOUBLE_QUOTES: // Обработка строкового литерала
+			processLiteral(i, in.text, currentLine, DOUBLE_QUOTES, literalsCount, IT_entry, LT_entry, in);
+			break;
 
-			while (index < MAX_LEX_SIZE - 1 && in.size > index && (in.text[index++] != DOUBLE_QUOTES || (in.text[index - 1] == DOUBLE_QUOTES && in.text[index - 2] == '\\')));
-
-			index--; // цикл находит индекс символа за ковычкой
-
-			if (ID_Table.size > 0 // если это строковой литерал инициализирует переменную
-				&& ID_Table.table[ID_Table.size - 1].idtype == IT::V && LexTable.size > 2
-				&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL)
-			{
-
-				if (ID_Table.table[ID_Table.size - 1].iddatatype != IT::STR)
-				{
-					std::cout << "Ошибка в строке " << currentLine << std::endl;
-					throw ERROR_THROW_LINE(143, currentLine);
-				}
-				if (in.text[index] == DOUBLE_QUOTES /*&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL*/) // если была найдена вторая кавычка
-				{
-					sprintf(ID_Table.table[ID_Table.size - 1].value.vstr->str, "L%d\0", literalsCount); // сохраняем не значение, а номер литерала. e.g L3 или L0
-					// чтобы сохранить значение 
-					// strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i), index - i + 1);
-					//if (ID_Table.table[ID_Table.size - 1].value.vstr->len <= 0)
-					//{
-					//	strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i + 1), index - i - 1);
-					//	ID_Table.table[ID_Table.size - 1].value.vstr->str[index - i - 1] = '\0';
-					//	int len = strlen(ID_Table.table[ID_Table.size - 1].value.vstr->str);
-					//	ID_Table.table[ID_Table.size - 1].value.vstr->len = len;
-
-					//	i = index;
-
-					//	break;
-					//}
-				}
-			}
-			// и добавляем сам литерал (в любом случае)
-			LT_entry.idxTI = ID_Table.size;
-
-			str[bufferIndex] = '\0';
-			LT_entry.lexema[0] = LEX_LITERAL;
-
-			sprintf_s(IT_entry.id, "L%d", literalsCount++);
-
-			IT_entry.iddatatype = IT::STR;
-			IT_entry.idtype = IT::L;
-			// копирует значение литерала (включая кавычки)
-			strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(in.text + i + 1), index - i - 1);
-
-			IT_entry.value.vstr->str[index - i - 1] = '\0';
-
-			//std::string escapedString = utils::processEscapeSequences(IT_entry.value.vstr->str);
-			//strcpy(IT_entry.value.vstr->str, escapedString.c_str());
-
-			IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
-
-			if (IT_entry.value.vstr->len <= 0)
-			{
-				std::cout << "Пустой литерал в строке " << currentLine << std::endl;
-				ERROR_THROW_LINE(141, currentLine);
-			}
-
-			LT_entry.sn = currentLine;
-			IT_entry.scope = NULL;
-			IT_entry.idxfirstLE = currentLine;
-
-
-			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_STRING)
-			{
-				IT_entry.idxfirstLE = LexTable.size - 1;
-			}
-
-			int pos = IT::search(ID_Table, IT_entry);
-
-			if (pos != -1)
-			{
-				LT_entry.idxTI = pos;
-			}
-			else
-			{
-				IT::Add(ID_Table, IT_entry);
-			}
-
-			LT::Add(LexTable, LT_entry);
-
-
-			LT_entry.lexema[0] = NULL;
-
-			i = index;
-		}
-		break;
-		case MARK:
-		{
-			int index = i + 1; // индекс второго символа "'" (конец строкового литерала)
-
-			while (index < MAX_LEX_SIZE - 1 && in.size > index && (in.text[index] != MARK
-				|| (in.text[index - 1] == MARK && in.text[index - 2] == '\\')))index++;
-
-			if (in.text[index] == MARK)
-			{
-
-				if (!Utils::isSingleCharacter(in.text + i + 1, index - 1 - i))
-				{
-					throw ERROR_THROW_LINE(151, currentLine);
-				}
-			}
-
-			//if (ID_Table.size > 0 // если это строковой литерал инициализирует переменную
-			//	&& ID_Table.table[ID_Table.size - 1].idtype == IT::V && LexTable.size > 2
-			//	&& LexTable.table[LexTable.size - 1].lexema[0] == LEX_EQUAL)
-			//{
-			//	if (ID_Table.table[ID_Table.size - 1].iddatatype == IT::CHAR)
-			//	{
-			//		ID_Table.table[ID_Table.size - 1].value.vstr->len = 1;
-			//		strncpy(ID_Table.table[ID_Table.size - 1].value.vstr->str, reinterpret_cast<const char*>(in.text + i + 1), index - 1 - i);
-			//		ID_Table.table[ID_Table.size - 1].value.vstr->str[index - 1 - i] = '\0';
-			//		i = index + 1;
-			//	}
-			//}
-			LT_entry.idxTI = ID_Table.size;
-
-			str[bufferIndex] = '\0';
-			LT_entry.lexema[0] = LEX_LITERAL;
-
-			sprintf_s(IT_entry.id, "L%d", literalsCount++);
-
-			IT_entry.iddatatype = IT::CHAR;
-			IT_entry.idtype = IT::L;
-			// копирует значение литерала (включая кавычки)
-			strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(in.text + i + 1), index - i - 1);
-
-			IT_entry.value.vstr->str[index - i - 1] = '\0';
-
-			//std::string escapedString = utils::processEscapeSequences(IT_entry.value.vstr->str);
-			//strcpy(IT_entry.value.vstr->str, escapedString.c_str());
-
-			IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
-
-			if (IT_entry.value.vstr->len <= 0)
-			{
-				std::cout << "Пустой литерал в строке " << currentLine << std::endl;
-				ERROR_THROW_LINE(141, currentLine);
-			}
-
-			LT_entry.sn = currentLine;
-			IT_entry.scope = NULL;
-			IT_entry.idxfirstLE = currentLine;
-
-			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_STRING)
-			{
-				IT_entry.idxfirstLE = LexTable.size - 1;
-			}
-
-			int pos = IT::search(ID_Table, IT_entry);
-
-			if (pos != -1)
-				LT_entry.idxTI = pos;
-			else
-				IT::Add(ID_Table, IT_entry);
-
-
-			LT::Add(LexTable, LT_entry);
-
-
-			LT_entry.lexema[0] = NULL;
-
-			i = index;
-		}
-		break;
+		case MARK: // Обработка символьного литерала
+			processLiteral(i, in.text, currentLine, MARK, literalsCount, IT_entry, LT_entry, in);
+			break;
 
 		case NEW_LINE:
 		{
@@ -847,4 +686,58 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 	}
 
 	return std::make_pair(LexTable, ID_Table);
+}
+
+void processLiteral(int& i, unsigned char* text, int& currentLine, char delimiter, int& literalsCount, IT::Entry& IT_entry, LT::Entry& LT_entry, In::IN& in)
+
+{
+	int index = i + 1; // индекс символа за начальной кавычкой/апострофом
+
+	// Поиск закрывающего символа с учётом экранирования
+	while (index < MAX_LEX_SIZE - 1 && in.size > index &&
+		(text[index] != delimiter || (text[index - 1] == '\\' && text[index - 2] != '\\')))
+	{
+		index++;
+	}
+
+	if (text[index] != delimiter) // Проверка на закрывающий символ
+	{
+		throw ERROR_THROW_LINE(151, currentLine);
+	}
+
+	// Копирование литерала (без кавычек) в таблицу идентификаторов
+	strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(text + i + 1), index - i - 1);
+	IT_entry.value.vstr->str[index - i - 1] = '\0';
+	IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
+
+	if (IT_entry.value.vstr->len <= 0) // Проверка на пустой литерал
+	{
+		std::cout << "Пустой литерал в строке " << currentLine << std::endl;
+		throw ERROR_THROW_LINE(141, currentLine);
+	}
+
+	// Настройка записи идентификатора
+	sprintf_s(IT_entry.id, "L%d", literalsCount++);
+	IT_entry.iddatatype = (delimiter == DOUBLE_QUOTES) ? IT::STR : IT::CHAR;
+	IT_entry.idtype = IT::L;
+
+	// Добавление записи в таблицу идентификаторов
+	int pos = IT::search(ID_Table, IT_entry);
+	if (pos != -1)
+	{
+		LT_entry.idxTI = pos;
+	}
+	else
+	{
+		IT::Add(ID_Table, IT_entry);
+		LT_entry.idxTI = ID_Table.size - 1;
+	}
+
+	// Добавление записи в таблицу лексем
+	LT_entry.lexema[0] = LEX_LITERAL;
+	LT_entry.sn = currentLine;
+	LT::Add(LexTable, LT_entry);
+
+	// Обновление индекса
+	i = index;
 }

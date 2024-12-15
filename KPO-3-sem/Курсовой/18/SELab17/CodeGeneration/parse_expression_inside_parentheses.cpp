@@ -11,6 +11,8 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	// что нам дали?
 	int countBraces = 0;
 	bool insideFunction = false;
+	bool isStrCmp = false;
+
 	for (int id : ids)
 	{
 		LT::Entry& lt_entry = LEX_TABLE.table[id];
@@ -50,6 +52,13 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 			params.isSingleVariable = false;
 			break;
 
+		case LEX_STRCMP:
+			insideFunction = true;
+			params.isFunctionCall = true;
+			params.isSTR = true;
+			isStrCmp = true;
+			break;
+
 		case LEX_LEFTTHESIS:
 			if (insideFunction)
 				countBraces++;
@@ -87,10 +96,42 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 		{
 			params.isStringCompare = true;
 			if (operands[0].size() != 1 || operands[1].size() != 1)
-				throw "parse_expression: установлен флаг isSTR, но число операндов не равно по 1 для каждой стороны";
+				/*throw "parse_expression: установлен флаг isSTR, но число операндов не равно по 1 для каждой стороны";*/
+			{
+				auto ps1 = parse_expression(operands[0], instructions, tabsize);
+				if (ps1.isResultInEAX)
+				{
+					instructions.push_back(format("{}push {}", tab * tabsize, ps1.resultStorage));
+				}
+				else if (ps1.isINT && ps1.isSingleVariable)
+				{
+					instructions.push_back(format("{}movzx eax, {}", tab * tabsize, ps1.resultStorage));
+					instructions.push_back(format("{}push eax", tab * tabsize));
+				}
 
-			ifElseGen.compare_strings(instructions, get_string_value(operands[0][0]), get_string_value(operands[1][0]));
-			instructions.push_back(tab * tabsize + "cmp ax, 0");
+				auto ps2 = parse_expression(operands[1], instructions, tabsize);
+
+				if (ps2.isResultInEAX)
+				{
+					instructions.push_back(format("{}push {}", tab * tabsize, ps2.resultStorage));
+				}
+				else if (ps2.isINT && ps2.isSingleVariable && !ps2.isResultInEAX)
+				{
+					instructions.push_back(format("{}movzx eax, {}", tab * tabsize, ps2.resultStorage));
+					instructions.push_back(format("{}push eax", tab * tabsize));
+				}
+
+				instructions.push_back(format("{}pop ebx", tab * tabsize));
+				instructions.push_back(format("{}pop eax", tab * tabsize));
+
+				/*ifElseGen.compare_strings(instructions, "eax", "ebx");*/
+				instructions.push_back(tab * tabsize + "cmp eax, ebx");
+			}
+			else
+			{
+				ifElseGen.compare_strings(instructions, get_string_value(operands[0][0]), get_string_value(operands[1][0]));
+				instructions.push_back(tab * tabsize + "cmp ax, 0");
+			}
 		}
 		else if (params.isINT)
 		{
@@ -134,18 +175,83 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	}
 	else if (params.isSingleVariable && params.isFunctionCall)
 	{
-		std::string functionName = get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[ids[0]].idxTI]);
-
-		parse_lexem(instructions, ids.front(), tabsize);
-		params.isResultInEAX = true;
-		if (params.isCHAR || params.isSTR)
+		if (isStrCmp)
 		{
-			params.resultStorage = "eax";
+			if (ids.size() > 6)
+			{
+				vector<vector<int>> operands(2, vector<int>());
+				int pos = 0;
+				int operationID = 0;
+
+				int countBraces = 0;
+				insideFunction = false;
+				for (int id = ids[2]; id <= ids.back(); id++) // слева и справа от оператора сравнения
+				{
+					switch (LEX_TABLE.table[id].lexema[0])
+					{
+					case LEX_COMMA:
+						if (!insideFunction)
+						{
+							operationID = id;
+							pos++;
+							continue;
+						}
+						break;
+
+					case LEX_ID:
+						if (ID_TABLE.table[LEX_TABLE.table[id].idxTI].idtype == IT::F)
+							insideFunction = true;
+						break;
+
+					case LEX_LEFTTHESIS:
+						if (insideFunction)
+							countBraces++;
+						break;
+
+					case LEX_RIGHTTHESIS:
+						if (insideFunction && --countBraces == 0)
+							insideFunction = false;
+						break;
+
+					default:
+						break;
+					}
+					operands[pos].push_back(id);
+				}
+				operands[pos].pop_back();
+
+				auto ps1 = parse_expression(operands[0], instructions, tabsize);
+				if (ps1.isResultInEAX || ps1.isSingleVariable)
+				{
+					instructions.push_back(format("{}push {}", tab * tabsize, ps1.resultStorage));
+				}
+
+				auto ps2 = parse_expression(operands[1], instructions, tabsize);
+				if (ps2.isResultInEAX || ps2.isSingleVariable)
+				{
+					instructions.push_back(format("{}push {}", tab * tabsize, ps2.resultStorage));
+				}
+				instructions.push_back(format("{}call __StrCmp", tab * tabsize, ps2.resultStorage));
+			}
+			else
+			{
+				ifElseGen.compare_strings(instructions, get_string_value(ids[2]), get_string_value(ids[4]));
+			}
 		}
 		else
 		{
-			params.resultStorage = "ax";
+			parse_lexem(instructions, ids.front(), tabsize);
 		}
+
+		params.isResultInEAX = true;
+		//if (params.isCHAR || params.isSTR)
+		//{
+		params.resultStorage = "eax";
+		//}
+		//else
+		//{
+		//	params.resultStorage = "ax";
+		//}
 	}
 	else if (params.isSingleVariable)
 	{

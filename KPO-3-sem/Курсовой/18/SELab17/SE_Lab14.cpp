@@ -137,18 +137,18 @@ int _tmain(int argc, _TCHAR* argv[]) {
 #endif // _DEBUG
 
 		MFST::Mfst mfst(LexTable, GRB::getGreibach());
+
+		cout << '\n';
+
 		if (!mfst.start(log))
 		{
 			exit(1);
 		}
-		cout << '\n';
-
 		if (parm.CST)
 		{
 			mfst.savededucation();
 			mfst.printrules();
 		}
-
 		//bool hasP = false;
 
 		//MfstState state;
