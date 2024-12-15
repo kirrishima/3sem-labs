@@ -19,6 +19,8 @@
 #define LEX_DECLARE		'd'          // Ключевое слово: объявление переменной.
 #define LEX_RETURN		'r'          // Ключевое слово: возврат.
 #define LEX_PRINT		'p'          // Ключевое слово: печать.
+#define LEX_WRITE		'w'          // Ключевое слово: печать.
+#define LEX_STRCMP		's'          // Ключевое слово: печать.
 #define LEX_MAIN		'm'          // Ключевое слово: главная функция.
 #define LEX_STR_CMP
 
@@ -87,6 +89,7 @@ namespace LT              // таблица лексем
 		int n               // номер получаемой строки
 	);
 
+	bool hasMainLexem(const LexTable& table);
 	void Delete(LexTable& lextable); // удалить таблицу лексем (освободить память)
 }
 

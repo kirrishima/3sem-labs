@@ -31,6 +31,8 @@ FST::FST* StringFST(CreateStringFST(str));
 FST::FST* CharFST(CreateCharFST(str));
 
 FST::FST* PrintFST(CreatePrintFST(str));
+FST::FST* WriteFST(CreateWriteFST(str));
+FST::FST* StrcmpFST(CreateStrcmpFST(str));
 FST::FST* MainFST(CreateMainFST(str));
 FST::FST* ReturnFST(CreateReturnFST(str));
 
@@ -40,7 +42,6 @@ FST::FST* IntOCTALLiteralFST(CreateIntOCTALLiteralFST(str));
 FST::FST* IntHEXLiteralFST(CreateIntHEXLiteralFST(str));
 
 FST::FST* IdentifierFST(CreateIdentifierFST(str));
-
 
 FST::FST* ifFST(CreateIfFST(str));
 FST::FST* elseFST(CreateElseFST(str));
@@ -54,16 +55,16 @@ char LexAn::determineLexeme()
 		return LEX_INTEGER;
 	}
 
-	if (execute(*CharFST))
-	{
-		charFlag = true;
-		return LEX_CHAR;
-	}
-
 	if (execute(*StringFST))
 	{
 		stringFlag = true;
 		return LEX_STRING;
+	}
+
+	if (execute(*IntDECIMALLiteralFST) || execute(*IntHEXLiteralFST)
+		|| execute(*IntOCTALLiteralFST) || execute(*IntBINARYLiteralFST))
+	{
+		return LEX_LITERAL;
 	}
 
 	if (execute(*PrintFST))
@@ -71,15 +72,9 @@ char LexAn::determineLexeme()
 		return LEX_PRINT;
 	}
 
-	if (execute(*MainFST))
+	if (execute(*WriteFST))
 	{
-		return LEX_MAIN;
-	}
-
-	if (execute(*IntDECIMALLiteralFST) || execute(*IntHEXLiteralFST)
-		|| execute(*IntOCTALLiteralFST) || execute(*IntBINARYLiteralFST))
-	{
-		return LEX_LITERAL;
+		return LEX_WRITE;
 	}
 
 	if (execute(*ifFST))
@@ -90,6 +85,23 @@ char LexAn::determineLexeme()
 	if (execute(*elseFST))
 	{
 		return LEX_ELSE;
+	}
+
+	if (execute(*StrcmpFST))
+	{
+		return LEX_STRCMP;
+	}
+
+	if (execute(*CharFST))
+	{
+		charFlag = true;
+		return LEX_CHAR;
+	}
+
+
+	if (execute(*MainFST))
+	{
+		return LEX_MAIN;
 	}
 
 	if (execute(*ReturnFST))
@@ -151,6 +163,16 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 
 			case LEX_MAIN:
 			{
+				if (LexTable.size > 0 && LexTable.table[LexTable.size - 1].lexema[0] == LEX_TYPE)
+				{
+					throw ERROR_THROW_LINE(153, currentLine);
+				}
+
+				if (in.text[i] == LEFTTHESIS)
+				{
+					throw ERROR_THROW_LINE(154, currentLine);
+				}
+
 				memcpy(IT_entry.id, str, ID_SIZE);
 				IT_entry.id[ID_SIZE] = '\0';
 				IT_entry.iddatatype = IT::INT;
@@ -797,9 +819,9 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 		{
 			printToFile(ID_Table, param.it, LexTable, param.lt, in);
 		}
-
 	}
-	catch (...) {}
+
+	catch (...) { cout << "Внимание: не удалось сохранить таблицу лексем и/или идентификаторов."; }
 
 	delete[] str;
 
@@ -818,6 +840,11 @@ std::pair<LT::LexTable, IT::ID_Table> LexAn::lexAnalize(Parm::PARM param, In::IN
 	delete elseFST;
 
 	long_ids.clear();
+
+	if (!hasMainLexem(LexTable))
+	{
+		throw ERROR_THROW(152);
+	}
 
 	return std::make_pair(LexTable, ID_Table);
 }

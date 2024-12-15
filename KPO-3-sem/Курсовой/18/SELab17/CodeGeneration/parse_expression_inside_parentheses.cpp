@@ -9,6 +9,8 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 	ParseExpressionReturnParms params;
 	params.stringRepresentation = lexems_vector_to_string(ids);
 	// что нам дали?
+	int countBraces = 0;
+	bool insideFunction = false;
 	for (int id : ids)
 	{
 		LT::Entry& lt_entry = LEX_TABLE.table[id];
@@ -16,29 +18,48 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 		{
 		case LEX_LITERAL:
 		case LEX_ID:
-			switch (ID_TABLE.table[lt_entry.idxTI].iddatatype)
+			if (!insideFunction)
 			{
-			case IT::IDDATATYPE::INT:
-				params.isINT = true;
-				break;
-			case IT::IDDATATYPE::STR:
-				params.isSTR = true;
-				break;
-			case IT::IDDATATYPE::CHAR:
-				params.isCHAR = true;
-				break;
+				switch (ID_TABLE.table[lt_entry.idxTI].iddatatype)
+				{
+				case IT::IDDATATYPE::INT:
+					params.isINT = true;
+					break;
+				case IT::IDDATATYPE::STR:
+					params.isSTR = true;
+					break;
+				case IT::IDDATATYPE::CHAR:
+					params.isCHAR = true;
+					break;
+				}
 			}
 			if (ID_TABLE.table[lt_entry.idxTI].idtype == IT::IDTYPE::F)
+			{
 				params.isFunctionCall = true;
+				insideFunction = true;
+			}
 			break;
+
 		case LEX_COMPARE:
 			params.isCompare = true;
 			params.isSingleVariable = false;
 			break;
+
 		case LEX_MATH:
 			params.isMath = true;
 			params.isSingleVariable = false;
 			break;
+
+		case LEX_LEFTTHESIS:
+			if (insideFunction)
+				countBraces++;
+			break;
+
+		case LEX_RIGHTTHESIS:
+			if (insideFunction && --countBraces == 0)
+				insideFunction = false;
+			break;
+
 		default:
 			break;
 		}
@@ -117,7 +138,14 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 
 		parse_lexem(instructions, ids.front(), tabsize);
 		params.isResultInEAX = true;
-		params.resultStorage = "ax";
+		if (params.isCHAR || params.isSTR)
+		{
+			params.resultStorage = "eax";
+		}
+		else
+		{
+			params.resultStorage = "ax";
+		}
 	}
 	else if (params.isSingleVariable)
 	{

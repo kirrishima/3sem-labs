@@ -255,7 +255,7 @@ namespace MFST
 #endif // _DEBUG
 
 			sprintf_s(buf, MFST_DIAGN_MAXSIZE, "всего строк %d, синтаксический анализ выполнен без ошибок", lex.table[lex.size - 1].sn);
-			Log::writeLine(log, buf, nullptr);
+			Log::writeLine(log, buf, "\n", nullptr);
 			std::cout << "всего строк " << lex.table[lex.size - 1].sn << ", синтаксический анализ выпол без ошибок" << std::endl;
 			rc = true;
 			break;

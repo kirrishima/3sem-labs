@@ -32,10 +32,6 @@ namespace CD
 	//	/*return !isOperator()*/
 	//}
 
-	// Проверка, является ли строка литералом
-	bool isLiteral(const string& token) {
-		return token.size() > 2 && token[0] == '_' && token[1] == '_';
-	}
 
 	// Функция для разбора выражения с учетом приоритета операций
 	vector<string> CD::CodeGeneration::__parse_math_expression(const std::vector<int>& expression) {

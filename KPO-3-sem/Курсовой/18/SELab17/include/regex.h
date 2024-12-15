@@ -8,6 +8,8 @@ namespace REGEX
 	FST::FST* CreateStringFST(const char* str);
 	FST::FST* CreateMainFST(const char* str);
 	FST::FST* CreatePrintFST(const char* str);
+	FST::FST* CreateWriteFST(const char* str);
+	FST::FST* CreateStrcmpFST(const char* str);
 	FST::FST* CreateReturnFST(const char* str);
 	FST::FST* CreateIntDECIMALLiteralFST(const char* str);
 	FST::FST* CreateIntHEXLiteralFST(const char* str);

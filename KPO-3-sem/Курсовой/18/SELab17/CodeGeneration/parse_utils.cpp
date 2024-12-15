@@ -125,9 +125,13 @@ std::string CD::CodeGeneration::lexems_vector_to_string(const vector<int>& ids)
 			{
 				result += to_string(ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].value.vint);
 			}
-			else
+			else if (ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].iddatatype == IT::STR)
 			{
-				result += ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].value.vstr->str;
+				result += format("\"{}\"", ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].value.vstr->str);
+			}
+			else if (ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].iddatatype == IT::CHAR)
+			{
+				result += format("'{}'", ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].value.vstr->str);
 			}
 			break;
 		case LEX_ID:
@@ -166,7 +170,7 @@ int get_id_size_in_bytes(IT::IDDATATYPE type)
 	case IT::STR:
 		return 4;
 	case IT::CHAR:
-		return 2;
+		return 4;
 	default:
 		throw "get_id_size_in_bytes: неверный тип данных";
 	}

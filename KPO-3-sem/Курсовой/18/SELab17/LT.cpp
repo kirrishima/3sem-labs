@@ -37,6 +37,18 @@ namespace LT
 		return lextable.table[n];
 	}
 
+	bool hasMainLexem(const LexTable& table)
+	{
+		for (int i = 0; i < table.size; i++)
+		{
+			if (table.table[i].lexema[0] == LEX_MAIN)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	void Delete(LexTable& lextable)
 	{
 		delete[] lextable.table;

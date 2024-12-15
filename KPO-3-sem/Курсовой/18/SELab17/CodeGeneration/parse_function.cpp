@@ -4,7 +4,7 @@
 std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunctions* function, int params_start_index, int params_end_index)
 {
 	std::vector<vector<std::string>> params;
-	int params_pos = function->params.size() - 1;
+	int params_pos = 0;
 	vector<int> param;
 	bool isInsideFunctionCall = false;
 	int countBraces = 0;
@@ -27,10 +27,18 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 			{
 				throw "parse_function_call: неверный параметр в вызове функции";
 			}
-			params_pos--;
+			params_pos++;
 			if (p.isSingleVariable)
 			{
-				tmp.push_back(format("push {}", p.resultStorage));
+				if (p.isCHAR)
+				{
+					tmp.push_back(format("movzx eax, {}", p.resultStorage));
+					tmp.push_back("push eax");
+				}
+				else
+				{
+					tmp.push_back(format("push {}", p.resultStorage));
+				}
 			}
 			else
 			{
@@ -113,8 +121,23 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 
 			case IT::IDTYPE::P:
 				function->push_params(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype);
-				params_names.push_back(format("mov ax, [esp + {}]", a));
-				params_names.push_back(format("mov {}, ax", get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI])));
+
+				if (ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype == IT::CHAR)
+				{
+					params_names.push_back(format("mov al, byte ptr [esp + {}]", a));
+					params_names.push_back(format("mov {}, al", get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI])));
+				}
+				else if (ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype == IT::INT)
+				{
+					params_names.push_back(format("mov ax, [esp + {}]", a));
+					params_names.push_back(format("mov {}, ax", get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI])));
+				}
+				else if (ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype == IT::STR)
+				{
+					params_names.push_back(format("mov eax, [esp + {}]", a));
+					params_names.push_back(format("mov {}, eax", get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI])));
+				}
+
 				a += get_id_size_in_bytes(ID_TABLE.table[LEX_TABLE.table[start_index].idxTI].iddatatype);
 				break;
 
@@ -141,11 +164,15 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 	function->code.insert(function->code.end(), params_names.begin(), params_names.end());
 	parse_function_body(function, start_index, end_index);
 
+	if (isMain)
+	{
+		function->push_code("push 0");
+	}
+
 	function->push_code(format("{}:", function->endLabel));
 
 	if (isMain)
 	{
-		function->push_code("push 0");
 		function->push_code("call ExitProcess");
 	}
 	else

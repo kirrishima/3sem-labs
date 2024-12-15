@@ -120,7 +120,7 @@ namespace CD
 
 #ifdef _DEBUG
 		// Линковка
-		if (!executeCommand(R"(cmd /c "link /nologo /DEBUG /subsystem:console program.obj GMSStandardLib.lib libucrt.lib libcmt.lib libvcruntime.lib kernel32.lib /NODEFAULTLIB:libcmtd /NODEFAULTLIB:MSVCRTD /OPT:NOREF /OPT:ICF")")) {
+		if (!executeCommand(R"(cmd /c "link /nologo /DEBUG /subsystem:console program.obj GMSStandardLib.lib libucrt.lib libcmt.lib libvcruntime.lib kernel32.lib /NODEFAULTLIB:libcmtd /NODEFAULTLIB:MSVCRTD /OPT:NOREF")")) {
 			cout << "Линковка не удалась. Проверьте пути к библиотекам и их совместимость." << std::endl;
 			return;
 		}

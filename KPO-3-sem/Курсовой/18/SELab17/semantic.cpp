@@ -9,6 +9,8 @@ int errors = 0;
 #define ID_ENTRY_BY_LEX_ID(id) ID_Table.table[LEX_Table.table[id].idxTI]
 
 unordered_map <IT::Entry*, std::vector<IT::IDDATATYPE>> protos;
+unordered_map <IT::Entry*, bool> isInitialized;
+
 unordered_map <IT::Entry*, std::vector<std::pair<IT::Entry*, int>>> references;
 IT::Entry* currentFunction;
 Log::LOG* logObject = nullptr;
@@ -99,9 +101,9 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 			i++;
 		}
 
-		if (!isCompare && !isReturn || dest_IT_index == -1) {
-			expression.ids.pop_back();  // ”бираем лишний элемент, если это не сравнение или возврат
-		}
+		//if (!isCompare || (dest_IT_index == -1 && !isReturn)) {
+		//	expression.ids.pop_back();  // ”бираем лишний элемент, если это не сравнение или возврат
+		//}
 
 		check_expression(ID_Table, LEX_Table, expression);
 		};
@@ -110,28 +112,50 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 		switch (LEX_Table.table[i].lexema[0]) {
 		case LEX_MAIN:
 		case LEX_ID:
-			if (LEX_Table.table[i].lexema[0] == LEX_MAIN || LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
+			if (LEX_Table.table[i].lexema[0] == LEX_MAIN)
+			{
+				currentFunction = &ID_Table.table[LEX_Table.table[i].idxTI];
+			}
+			else if (LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
 				&& ID_Table.table[LEX_Table.table[i].idxTI].idtype == IT::F) {
 				currentFunction = &ID_Table.table[LEX_Table.table[i].idxTI];
 			}
-			else if (LEX_Table.table[i].lexema[0] != LEX_MAIN
-				&& LEX_Table.table[i + 1].lexema[0] == LEX_LEFTTHESIS && LEX_Table.table[i - 1].lexema[0] != LEX_TYPE) {
+			else if (LEX_Table.table[i + 1].lexema[0] == LEX_LEFTTHESIS && LEX_Table.table[i - 1].lexema[0] != LEX_TYPE) {
 				int x = i;
 				i += 2;
 				check_function_call(ID_Table, LEX_Table, x, get_function_params(ID_Table, LEX_Table, i));
 			}
+			if (ID_Table.table[LEX_Table.table[i].idxTI].idtype == IT::V)
+			{
+				if (LEX_Table.table[i - 1].lexema[0] == LEX_TYPE && LEX_Table.table[i + 1].lexema[0] != LEX_EQUAL)
+				{
+					isInitialized[&ID_Table.table[LEX_Table.table[i].idxTI]] = false;
+				}
+			}
+			else if (ID_Table.table[LEX_Table.table[i].idxTI].idtype == IT::P
+				|| ID_Table.table[LEX_Table.table[i].idxTI].idtype == IT::F)
+			{
+				isInitialized[&ID_Table.table[LEX_Table.table[i].idxTI]] = true;
+			}
 			break;
 
 		case LEX_EQUAL:
+		{
+			int tmpIDindex = i - 1;
 			handle_expression(i, LEX_Table.table[i - 1].idxTI, false, false, ID_ENTRY_BY_LEX_ID(i - 1).iddatatype);
+			isInitialized[&ID_Table.table[LEX_Table.table[tmpIDindex].idxTI]] = true;
 			break;
+		}
 
 		case LEX_IF:
 		case LEX_PRINT:
 			i += 2;
 			handle_expression(i, -1, false, true, IT::ANY);
 			break;
-
+		case LEX_WRITE:
+			i += 1;
+			handle_expression(i, -1, false, true, IT::ANY);
+			break;
 		case LEX_RETURN:
 			i++;
 			int z = -1;
@@ -341,10 +365,13 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 			{
 				insideFunction = true;
 			}
-			if (expr.isInitialization && expr.dest_IT_index == LEX_Table.table[id].idxTI) {
+			if (LEX_Table.table[id].lexema[0] != LEX_LITERAL
+				&& (isInitialized.find(&ID_Table.table[LEX_Table.table[id].idxTI]) == isInitialized.end()
+					|| (isInitialized.find(&ID_Table.table[LEX_Table.table[id].idxTI]) != isInitialized.end() &&
+						isInitialized[&ID_Table.table[LEX_Table.table[id].idxTI]] == false)))
+			{
 				printError(format("—трока {}: переменна€ {} не может быть использована в выражении, так как она неинициализирована.",
-					lex_entry.sn, ID_Table.table[expr.dest_IT_index].id));
-
+					lex_entry.sn, ID_Table.table[LEX_Table.table[id].idxTI].id));
 				errors++;
 			}
 
@@ -391,7 +418,14 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 	}
 
 	int non_zero_count = 0;
+	int charCount = 0;
 	for (const auto& [type, count] : types) {
+		if (type == IT::CHAR && count && metCompare)
+		{
+			printError(format("—трока {}: операции сравнени€ не могут быть применены данным типа char",
+				LEX_Table.table[expr.ids[0]].sn));
+			errors++;
+		}
 		if (count > 0) {
 			if (++non_zero_count > 1) {
 				if (expr.isCompare && metCompare)

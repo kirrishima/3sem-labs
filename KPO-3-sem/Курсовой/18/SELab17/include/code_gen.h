@@ -184,7 +184,14 @@ ExitProcess PROTO : DWORD
 __PrintNumber PROTO :SDWORD
 __PrintBool PROTO :BYTE
 __PrintArray PROTO :DWORD, :DWORD, :DWORD
-__Print PROTO :DWORD
-__StrCmp PROTO :DWORD, :DWORD
-__PrintChar PROTO :DWORD)";
+__PrintStr PROTO :DWORD
+__PrintChar PROTO :DWORD
+
+__StreamWriteNumber PROTO :SDWORD
+__StreamWriteBool PROTO :BYTE
+__StreamWriteArray PROTO :DWORD, :DWORD, :DWORD
+__StreamWriteStr PROTO :DWORD
+__StreamWriteChar PROTO :DWORD
+
+__StrCmp PROTO :DWORD, :DWORD)";
 }

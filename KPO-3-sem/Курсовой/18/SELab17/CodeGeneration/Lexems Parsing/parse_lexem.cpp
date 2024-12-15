@@ -8,12 +8,13 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 {
 	switch (LEX_TABLE.table[index_in_lex_table].lexema[0])
 	{
-	case '=':
+	case LEX_EQUAL:
 	{
 		parse_lexem_equal__(result_instructions, index_in_lex_table, tabsize);
 		break;
 	}
-	case 'p':
+	case LEX_PRINT:
+	case LEX_WRITE:
 	{
 		parse_print_lexem__(result_instructions, index_in_lex_table, tabsize);
 		break;
@@ -73,14 +74,7 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 		}
 		else if (p.isResultInSTACK)
 		{
-			if (p.isSTR)
-			{
-				result_instructions.push_back(format("{}pop eax, {}", tab * tabsize, p.resultStorage));
-			}
-			else
-			{
-				result_instructions.push_back(format("{}pop ax, {}", tab * tabsize, p.resultStorage));
-			}
+			result_instructions.push_back(format("{}pop eax", tab * tabsize));
 		}
 		else if (p.isSingleVariable)
 		{
@@ -88,10 +82,18 @@ void CD::CodeGeneration::parse_lexem(std::vector<std::string>& result_instructio
 			{
 				result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, p.resultStorage));
 			}
+			else if (p.isCHAR)
+			{
+				result_instructions.push_back(format("{}mov eax, offset {}", tab * tabsize, p.resultStorage));
+			}
 			else
 			{
 				result_instructions.push_back(format("{}movzx eax, {}", tab * tabsize, p.resultStorage));
 			}
+		}
+		if (currentFunction->name == "main")
+		{
+			result_instructions.push_back(format("{}push eax", tab * tabsize));
 		}
 		result_instructions.push_back(format("{}jmp {}", tab * tabsize, currentFunction->endLabel));
 		break;
