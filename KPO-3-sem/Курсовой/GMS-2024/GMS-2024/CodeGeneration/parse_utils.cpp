@@ -13,36 +13,28 @@ std::string operator*(const std::string& str, int times) {
 	return new_str;
 }
 
-// Удаляет комментарии, начиная с символа ';'
 std::string removeComment(const std::string& str) {
 	size_t commentPos = str.find(';');
 	return (commentPos == std::string::npos) ? str : str.substr(0, commentPos);
 }
 
-// Проверяет, является ли строка меткой в MASM
 bool isMASMLabel(const std::string& line) {
-	// Убираем комментарии и обрезаем пробелы
 	std::string cleanLine = utils::trim(removeComment(line));
 
-	// Проверяем, что строка не пуста и заканчивается двоеточием
 	if (cleanLine.empty() || cleanLine.back() != ':') {
 		return false;
 	}
 
-	// Убираем двоеточие для проверки идентификатора
 	std::string identifier = cleanLine.substr(0, cleanLine.size() - 1);
 
-	// Проверяем, что идентификатор не пуст и состоит из допустимых символов
 	if (identifier.empty()) {
 		return false;
 	}
 
-	// Первый символ должен быть буквой или подчеркиванием
 	if (!std::isalpha(identifier[0]) && identifier[0] != '_') {
 		return false;
 	}
 
-	// Остальные символы могут быть буквами, цифрами или подчеркиваниями
 	for (size_t i = 1; i < identifier.size(); ++i) {
 		if (!std::isalnum(identifier[i]) && identifier[i] != '_') {
 			return false;
@@ -52,18 +44,15 @@ bool isMASMLabel(const std::string& line) {
 	return true;
 }
 
-// Проверяет, является ли идентификатор допустимым именем функции в MASM
 bool isValidIdentifier(const std::string& identifier) {
 	if (identifier.empty()) {
 		return false;
 	}
 
-	// Первый символ должен быть буквой или подчеркиванием
 	if (!std::isalpha(identifier[0]) && identifier[0] != '_') {
 		return false;
 	}
 
-	// Остальные символы могут быть буквами, цифрами или подчеркиваниями
 	for (size_t i = 1; i < identifier.size(); ++i) {
 		if (!std::isalnum(identifier[i]) && identifier[i] != '_') {
 			return false;
@@ -73,33 +62,25 @@ bool isValidIdentifier(const std::string& identifier) {
 	return true;
 }
 
-// Проверяет, является ли строка началом функции (оканчивается на PROC)
 bool isFunctionStart(const std::string& line) {
-	// Убираем комментарии и обрезаем пробелы
 	std::string cleanLine = utils::trim(removeComment(line));
 
-	// Проверяем, что строка оканчивается на "PROC"
 	if (cleanLine.size() < 4 || cleanLine.substr(cleanLine.size() - 4) != "proc") {
 		return false;
 	}
 
-	// Убираем "PROC" для проверки идентификатора
 	std::string identifier = utils::trim(cleanLine.substr(0, cleanLine.size() - 4));
 
 	return isValidIdentifier(identifier);
 }
 
-// Проверяет, является ли строка завершением функции (оканчивается на ENDP)
 bool isFunctionEnd(const std::string& line) {
-	// Убираем комментарии и обрезаем пробелы
 	std::string cleanLine = utils::trim(removeComment(line));
 
-	// Проверяем, что строка оканчивается на "ENDP"
 	if (cleanLine.size() < 4 || cleanLine.substr(cleanLine.size() - 4) != "endp") {
 		return false;
 	}
 
-	// Убираем "ENDP" для проверки идентификатора
 	std::string identifier = utils::trim(cleanLine.substr(0, cleanLine.size() - 4));
 
 	return isValidIdentifier(identifier);
@@ -240,7 +221,6 @@ std::string CD::CodeGeneration::get_string_value(const int lex_id)
 
 
 
-// = значение или = результат_выражения
 bool CD::is_assignment(const std::string& expr) {
 	constexpr char operators[] = "+-*/";
 	for (char op : operators) {
@@ -252,23 +232,20 @@ bool CD::is_assignment(const std::string& expr) {
 }
 
 int getEscapeCode(const std::string& input) {
-	// Проверяем, что строка начинается с '\'
 	if (input.size() < 2 || input[0] != '\\') {
-		return (int)input[0]; // Возвращаем -1, если это не escape-символ
+		return (int)input[0];
 	}
 
-	// Карта для отображения escape-последовательностей в их ASCII-коды
 	static const std::unordered_map<char, int> escapeCodes = {
-		{'n', (int)'\n'}, // Новая строка
-		{'t', (int)'\t'},  // Табуляция
-		{'r', (int)'\r'}  // Возврат каретки
+		{'n', (int)'\n'},
+		{'t', (int)'\t'},
+		{'r', (int)'\r'}
 	};
 
-	// Проверяем наличие второго символа в карте
 	auto it = escapeCodes.find(input[1]);
 	if (it != escapeCodes.end()) {
-		return it->second; // Возвращаем соответствующий ASCII-код
+		return it->second;
 	}
 
-	return -1; // Если символ не найден, возвращаем -1
+	return -1;
 }

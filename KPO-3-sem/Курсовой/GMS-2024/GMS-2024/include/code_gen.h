@@ -5,7 +5,7 @@
 #include <fstream>
 #include <format>
 #include <stack>
-#include "Parm.h"
+#include "parm.h"
 
 using namespace std;
 
@@ -24,7 +24,6 @@ namespace CD
 	bool is_assignment(const string& expr);
 
 	struct UserDefinedFunctions;
-
 	struct ExceptionsNames;
 
 	struct CodeGeneration {
@@ -36,16 +35,17 @@ namespace CD
 		LT::LexTable LEX_TABLE;
 		std::ofstream OUT_ASM_FILE;
 		const Parm::PARM* parm;
+		Log::LOG* log;
 
 		UserDefinedFunctions* currentFunction = nullptr;
 
 		std::unordered_map<string, UserDefinedFunctions*> user_functions;
 		std::vector<UserDefinedFunctions*> __user_functions;
 
-		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM* parm)
-			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), parm(parm), ifElseGen(*this)
+		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM* parm, Log::LOG* log)
+			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), parm(parm), log(log), ifElseGen(*this)
 		{
-			this->OUT_ASM_FILE.open(parm->masmDest);
+			this->OUT_ASM_FILE.open(parm->_masmDest);
 		}
 
 		static string get_id_name_in_data_segment(const IT::Entry& entry);
@@ -63,7 +63,9 @@ namespace CD
 		void parse_function_body(UserDefinedFunctions* function, int start_index, int end_index);
 
 		void parse_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
-		void parse_lexem_equal__(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
+		void __parse_lexem_equal(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
+		void __parse_return_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize);
+		void __parse_id_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize);
 
 		struct ParseExpressionReturnParms
 		{
@@ -91,60 +93,32 @@ namespace CD
 			string resultStorage;
 		};
 
-		/// <summary>
-		/// выражение присваивани€, параметры функции print, услови€  
-		/// </summary>
-		/// <param name="ids"></param>
-		/// <param name="instructions"></param>
-		/// <returns></returns>
 		ParseExpressionReturnParms parse_expression(vector<int> ids, vector<string>& instructions, int tabsize = 0);
 		void parse_print_lexem__(std::vector<std::string>& result_instructions, int& i, int tabsize = 0);
 
-		/// <summary>
-		/// ¬озвращает строку, представл€ющую собой текущее значение строковой переменной в виде имени литерала
-		/// </summary>
-		/// <param name="lex_id"></param>
-		/// <returns></returns>
 		string get_string_value(const int lex_id);
-		//// <summary>
-		/// ѕреобразует входной вектор индексов лексем в строку, представл€ющую выражение с именами на асм.
-		/// »спользуетс€ дл€ генерации польской натации по выражению
-		/// </summary>
-		/// <param name="ids">индексы лесем</param>
-		/// <returns></returns>
 		string lexems_vector_to_string(const vector<int>& ids);
 
 		void generateCode(const std::wstring& OUT_FILEPATH);
 
-		/// <summary>
-		/// √енератор условных операторов
-		/// </summary>
 		struct IfElseGeneration {
-			CodeGeneration& parent; // —сылка на внешнюю структуру
+			CodeGeneration& parent;
 
 			IfElseGeneration(CodeGeneration& p) : parent(p) {}
 
-			int IFLabelsCount = 0; // счетчик меток, используетс€ дли уникального именовани€ if-else меток
-			int currentElseLabel = 0; // счетчик меток else, дл€ хранени€ текущей метки else
-			int nestingLevel = 0; // уровень вложенности, используетс€ дл€ отступов
+			int IFLabelsCount = 0;
+			int currentElseLabel = 0;
+			int nestingLevel = 0;
 
 			std::stack<string> if_stack;
 
 			string cmp_op_to_jmp(string comparison);
 
-			//void generate_condition__(
-			//	const vector<string>& operands, // два операнда - левый и правый 
-			//	const string& comparison, // операци€ сравнени€ (>, <, ==, !=, >=, <=)
-			//	const string& trueLabel, // им€ метки если условие выполн€етс€
-			//	const string& falseLabel, // если не выполн€етс€
-			//	vector<string>& instructions, bool isStringCmp = false
-			//);
-
 			void compare_ints(vector<string>& instructions, const vector<vector<int> >& operands);
 			void compare_strings(vector<string>& instructions, const string& str1Name, const string& str2Name);
 
-			void __start_if(const vector<int>& operands, // операци€ (>, <, ==, !=, >=, <=)
-				vector<string>& // вектор с инструкци€ми, в которые будет добавлен сгенерированные новые
+			void __start_if(const vector<int>& operands,
+				vector<string>&
 			);
 
 			void __start_else(vector<string>& instructions);
@@ -184,6 +158,8 @@ namespace CD
 		static const string DivideByZero;
 	};
 
+#define COMPILE_COMMAND R"(cmd /c "ml /c /nologo /Zi /Fo {} {}")"
+#define LINK_COMMAND R"(cmd /c "link /nologo /DEBUG /subsystem:console /OUT:{} {} gms2024stdlib.lib libucrt.lib libcmt.lib libvcruntime.lib kernel32.lib /NODEFAULTLIB:libcmtd /NODEFAULTLIB:MSVCRTD /OPT:NOREF")"
 #define BASE R"(.586
 .model flat, stdcall
 ExitProcess PROTO : DWORD

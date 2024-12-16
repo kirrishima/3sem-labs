@@ -1,100 +1,40 @@
-.586
+.686P
 .model flat, stdcall
-includelib libucrt.lib
 includelib ../../Debug/GMSStandardLib.lib
-ExitProcess PROTO : DWORD
-__PrintNumber PROTO :SDWORD
-__PrintBool PROTO :BYTE
-__PrintArray PROTO :DWORD, :DWORD, :DWORD
-__Print PROTO :DWORD
-__StrCmp PROTO :DWORD, :DWORD
-__PrintChar PROTO :DWORD
-.stack 8192
+includelib libucrt.lib
 
-.const
-    __INT_L0 sword 1
-    __INT_L1 sword 2
-    __INT_L2 sword 10
-    __INT_L3 sword -1
-    __INT_L4 sword -7
-    __INT_L5 sword 12
-    __INT_L6 sword -5
+ExitProcess PROTO :DWORD     ; Прототип ExitProcess
+__StreamWriteStr PROTO :DWORD
+__NullDevisionException PROTO
 
 .data
-    @bool_RESERVED byte ? 
-    _INT_PARAM_@sum__x sword 0
-    _INT_PARAM_@sum__y sword 0
-
+    dividend DWORD 100         ; Делимое
+    divisor DWORD 0            ; Делитель
+    errMsg BYTE "Division by zero detected. Exiting program...", 0
 
 .code
-sum proc
-start:
-    mov ax, [esp + 4]
-    mov _INT_PARAM_@sum__x, ax
-    mov ax, [esp + 6]
-    mov _INT_PARAM_@sum__y, ax
-    mov ax, _INT_PARAM_@sum__x
-    mov bx, _INT_PARAM_@sum__y
-    add ax, bx
-sum_END:
-    ret 4
-sum endp
+main PROC
+    ; Проверяем делитель перед делением
+    mov eax, divisor           ; Загружаем делитель
+    cmp eax, 0                 ; Проверяем, равен ли делитель 0
+    je division_error          ; Если да, переходим на обработку ошибки
 
-main proc
-start:
-    ; function call
-    push __INT_L1
-    push __INT_L0
-    call sum
-    push ax
-    push __INT_L2
-    pop bx
-    pop ax
-    imul bx
-    push ax
-    push __INT_L0
-    push __INT_L3
-    push __INT_L4
-    pop bx
-    pop ax
-    imul bx
-    push ax
-    pop bx
-    pop ax
-    sub ax, bx
-    push ax
-    push __INT_L1
-    pop bx
-    pop ax
-    imul bx
-    push ax
-    pop bx
-    pop ax
-    sub ax, bx
-    push eax
-    call __PrintNumber
-    ; function call
-    push __INT_L0
-    push __INT_L5
-    call sum
-    push ax
-    push __INT_L1
-    pop bx
-    pop ax
-    imul bx
-    push ax
-    ; function call
-    push __INT_L6
-    push __INT_L3
-    call sum
-    push ax
-    pop bx
-    pop ax
-    sub ax, bx
-    push eax
-    call __PrintNumber
-    push 0
-main_END:
-    call ExitProcess
-main endp
-    END main
+    ; Выполнение деления
+    mov eax, dividend          ; Загружаем делимое в EAX
+    xor edx, edx               ; Очищаем старшие биты
+    div dword ptr divisor      ; Выполняем деление
+
+    ; Завершение программы
+    invoke ExitProcess, 0
+
+division_error:
+    call __NullDevisionException
+    ; Обработка ошибки деления на ноль
+    push OFFSET errMsg         ; Загружаем сообщение об ошибке
+    call __StreamWriteStr      ; Выводим сообщение
+    add esp, 4                 ; Корректировка стека
+    invoke ExitProcess, 1      ; Завершение программы с кодом ошибки
+
+main ENDP
+END main
+

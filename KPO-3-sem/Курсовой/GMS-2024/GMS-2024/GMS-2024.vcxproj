@@ -18,11 +18,63 @@
       <Platform>x64</Platform>
     </ProjectConfiguration>
   </ItemGroup>
+  <ItemGroup>
+    <ClCompile Include="CodeGeneration\code_gen.cpp" />
+    <ClCompile Include="CodeGeneration\data_const_segments.cpp" />
+    <ClCompile Include="CodeGeneration\exceptions_names_consts.cpp" />
+    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_equal.cpp" />
+    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_id.cpp" />
+    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_lexem.cpp" />
+    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_print.cpp" />
+    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_return.cpp" />
+    <ClCompile Include="CodeGeneration\parse_arithmetic_expressions.cpp" />
+    <ClCompile Include="CodeGeneration\parse_expression.cpp" />
+    <ClCompile Include="CodeGeneration\parse_function.cpp" />
+    <ClCompile Include="CodeGeneration\parse_if_else.cpp" />
+    <ClCompile Include="CodeGeneration\parse_utils.cpp" />
+    <ClCompile Include="error.cpp" />
+    <ClCompile Include="FST.cpp" />
+    <ClCompile Include="GRB.cpp" />
+    <ClCompile Include="In.cpp" />
+    <ClCompile Include="IT.cpp" />
+    <ClCompile Include="lexer_automata.cpp" />
+    <ClCompile Include="log.cpp" />
+    <ClCompile Include="LT.cpp" />
+    <ClCompile Include="main.cpp" />
+    <ClCompile Include="MFST.cpp" />
+    <ClCompile Include="out.cpp" />
+    <ClCompile Include="param.cpp" />
+    <ClCompile Include="regex.cpp" />
+    <ClCompile Include="semantic.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
+    </ClCompile>
+    <ClCompile Include="utils.cpp" />
+  </ItemGroup>
+  <ItemGroup>
+    <ClInclude Include="include\code_gen.h" />
+    <ClInclude Include="include\error.h" />
+    <ClInclude Include="include\FST.h" />
+    <ClInclude Include="include\GRB.h" />
+    <ClInclude Include="include\in.h" />
+    <ClInclude Include="include\IT.h" />
+    <ClInclude Include="include\lexer_automata.h" />
+    <ClInclude Include="include\log.h" />
+    <ClInclude Include="include\LT.h" />
+    <ClInclude Include="include\MFST.h" />
+    <ClInclude Include="include\out.h" />
+    <ClInclude Include="include\parm.h" />
+    <ClInclude Include="include\regex.h" />
+    <ClInclude Include="include\rule.h" />
+    <ClInclude Include="include\semantic.h" />
+    <ClInclude Include="include\stdafx.h" />
+    <ClInclude Include="include\utils.h" />
+  </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
     <Keyword>Win32Proj</Keyword>
-    <ProjectGuid>{d751460a-99dc-4710-b88b-dac75a05a77f}</ProjectGuid>
-    <RootNamespace>SELab17</RootNamespace>
+    <ProjectGuid>{fba18749-4112-4b79-8b91-9841717ac5a6}</ProjectGuid>
+    <RootNamespace>GMS2024</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
@@ -71,16 +123,10 @@
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
-    <IncludePath>include;$(ProjectDir)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
-    <IncludePath>include;$(ProjectDir)</IncludePath>
+    <IncludePath>$(ProjectDir);include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">
-    <IncludePath>include;$(ProjectDir)</IncludePath>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
-    <IncludePath>include;$(ProjectDir)</IncludePath>
+    <IncludePath>$(ProjectDir)include;$(IncludePath)</IncludePath>
   </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
@@ -90,7 +136,6 @@
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp20</LanguageStandard>
       <PrecompiledHeader>Use</PrecompiledHeader>
-      <AdditionalOptions>/we4706 %(AdditionalOptions)</AdditionalOptions>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -105,8 +150,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <LanguageStandard>stdcpp20</LanguageStandard>
-      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -121,8 +164,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -137,8 +178,6 @@
       <SDLCheck>true</SDLCheck>
       <PreprocessorDefinitions>NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
-      <PrecompiledHeader>Use</PrecompiledHeader>
-      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -147,59 +186,6 @@
       <GenerateDebugInformation>true</GenerateDebugInformation>
     </Link>
   </ItemDefinitionGroup>
-  <ItemGroup>
-    <ClCompile Include="CodeGeneration\arithmetic_expressions.cpp" />
-    <ClCompile Include="CodeGeneration\CodeGen.cpp" />
-    <ClCompile Include="CodeGeneration\data_const_segments.cpp" />
-    <ClCompile Include="CodeGeneration\exceptions_names_consts.cpp" />
-    <ClCompile Include="CodeGeneration\if_expression_generation.cpp" />
-    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_equal.cpp" />
-    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_lexem.cpp" />
-    <ClCompile Include="CodeGeneration\Lexems Parsing\parse_print.cpp" />
-    <ClCompile Include="CodeGeneration\parse_expression_inside_parentheses.cpp" />
-    <ClCompile Include="CodeGeneration\parse_function.cpp" />
-    <ClCompile Include="CodeGeneration\parse_utils.cpp" />
-    <ClCompile Include="Error.cpp" />
-    <ClCompile Include="FST.cpp" />
-    <ClCompile Include="GRB.cpp" />
-    <ClCompile Include="In.cpp" />
-    <ClCompile Include="IT.cpp" />
-    <ClCompile Include="LexerAutomata.cpp" />
-    <ClCompile Include="Log.cpp" />
-    <ClCompile Include="LT.cpp" />
-    <ClCompile Include="MFST.cpp" />
-    <ClCompile Include="Out.cpp" />
-    <ClCompile Include="Parm.cpp" />
-    <ClCompile Include="semantic.cpp" />
-    <ClCompile Include="SE_Lab14.cpp" />
-    <ClCompile Include="stdafx.cpp">
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
-      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">Create</PrecompiledHeader>
-    </ClCompile>
-    <ClCompile Include="regex.cpp" />
-    <ClCompile Include="Utils.cpp" />
-  </ItemGroup>
-  <ItemGroup>
-    <ClInclude Include="include\code_gen.h" />
-    <ClInclude Include="include\Error.h" />
-    <ClInclude Include="include\FST.h" />
-    <ClInclude Include="include\GRB.h" />
-    <ClInclude Include="include\In.h" />
-    <ClInclude Include="include\IT.h" />
-    <ClInclude Include="include\LexerAutomata.h" />
-    <ClInclude Include="include\Log.h" />
-    <ClInclude Include="include\LT.h" />
-    <ClInclude Include="include\MFST.h" />
-    <ClInclude Include="include\Out.h" />
-    <ClInclude Include="include\Parm.h" />
-    <ClInclude Include="include\Rule.h" />
-    <ClInclude Include="include\semantic.h" />
-    <ClInclude Include="include\regex.h" />
-    <ClInclude Include="include\Utils.h" />
-    <ClInclude Include="stdafx.h" />
-  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

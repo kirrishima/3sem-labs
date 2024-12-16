@@ -1,6 +1,5 @@
 ﻿#include "pch.h"
 #include "framework.h"
-#include <Windows.h>
 
 extern "C" {
 	void __stdcall __StreamWriteStr(char* arr)

@@ -10,7 +10,7 @@ namespace utils
 	std::string wstring_to_string(const std::wstring& wstr);
 }
 
-namespace LexAn::Utils
+namespace lex_analysis::utils
 {
 	void printToFile(const IT::ID_Table& ID_Table, const std::wstring& IT_filename,
 		const LT::LexTable& LexTable, const std::wstring& LT_filename, const In::IN& in);

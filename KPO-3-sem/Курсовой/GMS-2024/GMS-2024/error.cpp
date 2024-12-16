@@ -1,5 +1,5 @@
 #include "stdafx.h" 
-#include "Error.h"
+#include "error.h"
 namespace Error
 {
 	// серии ошибок: 0 - 99 системные ошибки
@@ -28,7 +28,7 @@ namespace Error
 	ERROR_ENTRY(119, "Указанный путь таблицы идентификаторов не существует или указано неверное расширение: оно должно быть .html"),
 	ERROR_ENTRY(120, "Указан неверный размер стека: минимальный размер 1024, максимальный 8192"),
 	ERROR_ENTRY(121, "Значения двух или более параметров совпадают"),
-	ERROR_ENTRY_NODEF(122),ERROR_ENTRY_NODEF(123),ERROR_ENTRY_NODEF(124),ERROR_ENTRY_NODEF(125),
+	ERROR_ENTRY(122, "Указан неверный выходной файл в параметре -fo или директория не существует"),ERROR_ENTRY_NODEF(123),ERROR_ENTRY_NODEF(124),ERROR_ENTRY_NODEF(125),
 	ERROR_ENTRY_NODEF(126), ERROR_ENTRY_NODEF(127), ERROR_ENTRY_NODEF(128), ERROR_ENTRY_NODEF(129), ERROR_ENTRY_NODEF10(130),
 	ERROR_ENTRY(140, "Может быть только одна точка входа main"),
 	ERROR_ENTRY(141, "Строковые и символьные литералы не могу быть пустыми"),

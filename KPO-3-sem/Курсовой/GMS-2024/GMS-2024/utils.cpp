@@ -1,5 +1,5 @@
 ﻿#include "stdafx.h"
-#include "Utils.h"
+#include "utils.h"
 #include <iomanip>
 #include <format>
 #include <bitset>
@@ -36,7 +36,7 @@ namespace utils
 	}
 }
 
-namespace LexAn::Utils
+namespace lex_analysis::utils
 {
 	void printToFile(const IT::ID_Table& ID_Table, const std::wstring& IT_filename,
 		const LT::LexTable& LexTable, const std::wstring& LT_filename, const In::IN& in) {

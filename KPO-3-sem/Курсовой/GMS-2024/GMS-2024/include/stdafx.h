@@ -21,16 +21,16 @@
 #include <sstream>
 #include <format>
 
-#include "Out.h"
-#include "Error.h"		//обработка ошибок
-//#include "Parm.h"		//обработка параметров
-#include "Log.h"		//работа с протоколом
-#include "In.h"			//ввод исходного файла
+#include "out.h"
+#include "error.h"
+#include "parm.h"
+#include "log.h"		
+#include "in.h"			
 #include "FST.h"
 #include "IT.h"
 #include "LT.h"
 #include "regex.h"
-#include "LexerAutomata.h"
-#include "Utils.h"
+#include "lexer_automata.h"
+#include "utils.h"
 
 #endif // !STDAFX_H
