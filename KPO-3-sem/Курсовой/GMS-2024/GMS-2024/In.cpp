@@ -79,7 +79,9 @@ namespace In
 					{
 						in.ignore += p.second - position;
 						position = p.second + 1;
+						break;
 					}
+					in.text[in.size++] = ch;
 					break;
 				}
 				case IN::Asterisk:

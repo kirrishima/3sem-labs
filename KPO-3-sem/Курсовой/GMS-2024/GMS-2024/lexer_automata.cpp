@@ -144,7 +144,6 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 
 	for (int i = 0; i < in.size; i++)
 	{
-
 		if (((in.text[i] >= 'A' && in.text[i] <= 'Z') || (in.text[i] >= 'a' && in.text[i] <= 'z') ||
 			(in.text[i] >= '0' && in.text[i] <= '9') || in.text[i] == '_') && in.text[i] != ' ')
 		{

@@ -156,7 +156,7 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 
 		case LEX_EQUAL:
 		{
-			int tmpIDindex = i - 1;
+			int tmpIDindex = i++;
 			handle_expression(i, LEX_Table.table[i - 1].idxTI, false, false, ID_ENTRY_BY_LEX_ID(i - 1).iddatatype);
 			isInitialized[&ID_Table.table[LEX_Table.table[tmpIDindex].idxTI]] = true;
 			break;

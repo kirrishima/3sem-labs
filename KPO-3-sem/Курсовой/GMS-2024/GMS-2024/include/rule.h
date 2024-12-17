@@ -86,10 +86,6 @@ namespace GRB
 			Rule::Chain(4, TS(':'), TS('{'), NS('N'), TS('}')),          // X → : {N}
 			Rule::Chain(3, TS(':'), TS('?'), NS('Y'))                   // X → : ?Y
 		),
-		//Rule(TS(';'), GRB_ERROR_SERIES + 9,			// Альтернативный блок
-		//	1, // X → : {N} | : ?Y
-		//	Rule::Chain(1, TS(';'))                 // X → : ?Y
-		//),
 
 		Rule(NS('W'), GRB_ERROR_SERIES + 3,			// Подвыражение
 			4, // W → i,W | l,W | i | l

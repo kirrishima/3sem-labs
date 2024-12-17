@@ -10,7 +10,7 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 	int countBraces = 0;
 
 	vector< std::string> tmp;
-	if (params_start_index > 0 && params_start_index < params_end_index)
+	if (params_start_index > 0 && params_start_index <= params_end_index)
 	{
 		for (int i = params_start_index; i <= params_end_index; i++)
 		{
@@ -95,7 +95,7 @@ std::vector<std::string> CD::CodeGeneration::parse_function_call(UserDefinedFunc
 	return tmp;
 }
 
-void CD::CodeGeneration::parse_function_body(UserDefinedFunctions* function, int start_index, int end_index)
+void CD::CodeGeneration::__parse_function_body(UserDefinedFunctions* function, int start_index, int end_index)
 {
 	for (int i = start_index; i < end_index; i++)
 	{
@@ -166,7 +166,7 @@ void CD::CodeGeneration::parse_function(int start_index, int end_index)
 	function->push_code(format("{} proc", function->name));
 	function->push_code("start:");
 	function->code.insert(function->code.end(), params_names.begin(), params_names.end());
-	parse_function_body(function, start_index, end_index);
+	__parse_function_body(function, start_index, end_index);
 
 	if (isMain)
 	{

@@ -15,7 +15,7 @@ bool isValidIdentifier(const string& identifier);
 bool isFunctionStart(const string& line);
 bool isFunctionEnd(const string& line);
 int get_id_size_in_bytes(IT::IDDATATYPE type);
-int getEscapeCode(const std::string& input);
+int getEscapeCode(const string& input);
 
 string operator*(const string& str, int times);
 
@@ -33,14 +33,14 @@ namespace CD
 
 		IT::ID_Table ID_TABLE;
 		LT::LexTable LEX_TABLE;
-		std::ofstream OUT_ASM_FILE;
+		ofstream OUT_ASM_FILE;
 		const Parm::PARM* parm;
 		Log::LOG* log;
 
 		UserDefinedFunctions* currentFunction = nullptr;
 
-		std::unordered_map<string, UserDefinedFunctions*> user_functions;
-		std::vector<UserDefinedFunctions*> __user_functions;
+		unordered_map<string, UserDefinedFunctions*> user_functions;
+		vector<UserDefinedFunctions*> __user_functions;
 
 		CodeGeneration(const IT::ID_Table& ID_TABLE, const LT::LexTable& LEX_TABLE, const Parm::PARM* parm, Log::LOG* log)
 			: ID_TABLE(ID_TABLE), LEX_TABLE(LEX_TABLE), parm(parm), log(log), ifElseGen(*this)
@@ -60,12 +60,12 @@ namespace CD
 
 		vector<string> parse_function_call(UserDefinedFunctions* function, int params_start_index, int params_end_index);
 		void parse_function(int start_index, int end_index);
-		void parse_function_body(UserDefinedFunctions* function, int start_index, int end_index);
+		void __parse_function_body(UserDefinedFunctions* function, int start_index, int end_index);
 
-		void parse_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
-		void __parse_lexem_equal(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
-		void __parse_return_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize);
-		void __parse_id_lexem(std::vector<std::string>& result_instructions, int& index_in_lex_table, int tabsize);
+		void parse_lexem(vector<string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
+		void __parse_lexem_equal(vector<string>& result_instructions, int& index_in_lex_table, int tabsize = 0);
+		void __parse_return_lexem(vector<string>& result_instructions, int& index_in_lex_table, int tabsize);
+		void __parse_id_lexem(vector<string>& result_instructions, int& index_in_lex_table, int tabsize);
 
 		struct ParseExpressionReturnParms
 		{
@@ -94,12 +94,12 @@ namespace CD
 		};
 
 		ParseExpressionReturnParms parse_expression(vector<int> ids, vector<string>& instructions, int tabsize = 0);
-		void parse_print_lexem__(std::vector<std::string>& result_instructions, int& i, int tabsize = 0);
+		void parse_print_lexem__(vector<string>& result_instructions, int& i, int tabsize = 0);
 
 		string get_string_value(const int lex_id);
 		string lexems_vector_to_string(const vector<int>& ids);
 
-		void generateCode(const std::wstring& OUT_FILEPATH);
+		void generateCode();
 
 		struct IfElseGeneration {
 			CodeGeneration& parent;
@@ -110,7 +110,7 @@ namespace CD
 			int currentElseLabel = 0;
 			int nestingLevel = 0;
 
-			std::stack<string> if_stack;
+			stack<string> if_stack;
 
 			string cmp_op_to_jmp(string comparison);
 
@@ -159,9 +159,10 @@ namespace CD
 	};
 
 #define COMPILE_COMMAND R"(cmd /c "ml /c /nologo /Zi /Fo {} {}")"
-#define LINK_COMMAND R"(cmd /c "link /nologo /DEBUG /subsystem:console /OUT:{} {} gms2024stdlib.lib libucrt.lib libcmt.lib libvcruntime.lib kernel32.lib /NODEFAULTLIB:libcmtd /NODEFAULTLIB:MSVCRTD /OPT:NOREF")"
+#define LINK_COMMAND R"(cmd /c "link /nologo /DEBUG /subsystem:console /OUT:{} {} libucrt.lib")"
 #define BASE R"(.586
 .model flat, stdcall
+includelib  gms2024stdlib.lib
 ExitProcess PROTO : DWORD
 __PrintNumber PROTO :SDWORD
 __PrintBool PROTO :BYTE

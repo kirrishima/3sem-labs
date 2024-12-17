@@ -179,7 +179,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		//cout << "Ошибок: " << x << endl;
 
 		CD::CodeGeneration cd(IdTable, LexTable, &parm, &log);
-		cd.generateCode(parm._masmDest);
+		cd.generateCode();
 
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);

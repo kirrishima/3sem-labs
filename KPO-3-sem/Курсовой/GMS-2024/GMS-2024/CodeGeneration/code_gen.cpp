@@ -83,7 +83,7 @@ bool executeCommand(const std::string& command, std::unique_ptr<std::ofstream>& 
 
 namespace CD
 {
-	void CodeGeneration::generateCode(const std::wstring& OUT_FILEPATH)
+	void CodeGeneration::generateCode()
 	{
 		if (!OUT_ASM_FILE.is_open() || OUT_ASM_FILE.fail() || OUT_ASM_FILE.bad()) {
 			cout << "Не удалось открыть файл\n";
