@@ -60,7 +60,7 @@ namespace GRB
 			Rule::Chain(3, TS('('), NS('E'), TS(')'))                     // E → (E)
 		),
 		/*i(E)*/
-		Rule(NS('A'), GRB_ERROR_SERIES + 10,			// Выражение
+		Rule(NS('A'), GRB_ERROR_SERIES + 9,			// Выражение
 			4,
 			Rule::Chain(1, TS('l')),                                      // E → l
 			Rule::Chain(1, TS('i')),                                      // E → i
@@ -68,7 +68,7 @@ namespace GRB
 			Rule::Chain(3, TS('i'), TS('('), TS(')'))  // E → i(W 
 		),
 
-		Rule(NS('B'), GRB_ERROR_SERIES + 11,			// Выражение
+		Rule(NS('B'), GRB_ERROR_SERIES + 10,			// Выражение
 			1,
 			Rule::Chain(6, TS('s'), TS('('), NS('A'), TS(','), NS('A'), TS(')'))
 		),
