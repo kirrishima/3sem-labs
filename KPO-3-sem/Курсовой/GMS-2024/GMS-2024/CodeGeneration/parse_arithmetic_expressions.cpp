@@ -222,7 +222,14 @@ namespace CD
 	{
 		std::vector<std::string> masmCode;
 		vector<string> result = __parse_math_expression(expr);
-
+		ofstream f("polish.txt", ios::ate | ios::app);
+		f << lexems_vector_to_source_string(expr) << "   ";
+		for (const auto& r : result)
+		{
+			f << r;
+		}
+		f << "\n";
+		f.close();
 		generateMASM(masmCode, result);
 		//for (const auto e : result)
 		//{

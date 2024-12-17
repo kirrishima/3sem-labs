@@ -87,7 +87,7 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 				expression.ids.push_back(i);
 				if (ID_ENTRY_BY_LEX_ID(i).idtype == IT::F) {
 					if (LEX_Table.table[i + 1].lexema[0] != LEX_LEFTTHESIS) {
-						printError(format("Строка {}: Присваивание значения функции непосредственно переменной недопустимо",
+						printError(format("Ошибка 710. Строка {}: Присваивание значения функции непосредственно переменной недопустимо",
 							LEX_Table.table[i].sn));
 						errors++;
 					}
@@ -355,7 +355,7 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 		if (expr.iddatatype != id_entry.iddatatype && expr.iddatatype != IT::ANY) {
 			if (expr.isFunctionCallArg) {
 				printError(format(
-					"Строка {}: аргумент функции {} имеет тип {}, но ожидается {}",
+					"Ошибка 709. Строка {}: аргумент функции {} имеет тип {}, но ожидается {}",
 					line_number,
 					expr.funcName,
 					iddatatype_to_str(id_entry.iddatatype),
@@ -363,7 +363,7 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 			}
 			else {
 				printError(format(
-					"Строка {}: тип {} не совместим с типом {}",
+					"Ошибка 708. Строка {}: тип {} не совместим с типом {}",
 					line_number,
 					id_entry.idtype == IT::L ? std::string("литерала") : "идентификатора",
 					iddatatype_to_str(expr.iddatatype)));
@@ -397,7 +397,7 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 					|| (isInitialized.find(&ID_Table.table[LEX_Table.table[id].idxTI]) != isInitialized.end() &&
 						isInitialized[&ID_Table.table[LEX_Table.table[id].idxTI]] == false)))
 			{
-				printError(format("Строка {}: переменная {} не может быть использована в выражении, так как она неинициализирована.",
+				printError(format("Ошибка 700. Строка {}: переменная {} не может быть использована в выражении, так как она неинициализирована.",
 					lex_entry.sn, ID_Table.table[LEX_Table.table[id].idxTI].id));
 				errors++;
 			}
@@ -405,7 +405,7 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 
 		case LEX_MATH:
 			if (types[IT::STR] != 0 || types[IT::CHAR] != 0 || (id != expr.ids.back() && ID_ENTRY_BY_LEX_ID(id + 1).iddatatype != IT::INT)) {
-				printError(format("Строка {}: выражение содержит тип(ы), которые не поддерживают операцию {}",
+				printError(format("Ошибка 707. Строка {}: выражение содержит тип(ы), которые не поддерживают операцию {}",
 					lex_entry.sn, lex_entry.v));
 				errors++;
 			}
@@ -413,7 +413,7 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 
 		case LEX_COMPARE:
 			if (!expr.isCompare) {
-				printError(format("Строка {}: результат сравнения используется вне контекста сравнения.",
+				printError(format("Ошибка 706. Строка {}: результат сравнения используется вне контекста сравнения.",
 					lex_entry.sn));
 				errors++;
 			}
@@ -421,7 +421,13 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 			break;
 
 		case LEX_PRINT:
-			printError(format("Строка {}: функция print не может учавствовать в выражениях.",
+			printError(format("Ошибка 705. Строка {}: функция print не может участвовать в выражениях.",
+				lex_entry.sn));
+			errors++;
+			break;
+
+		case LEX_WRITE:
+			printError(format("Ошибка 704. Строка {}: оператор write не может участвовать в выражениях.",
 				lex_entry.sn));
 			errors++;
 			break;
@@ -455,7 +461,7 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 	for (const auto& [type, count] : types) {
 		if (type == IT::CHAR && count && metCompare)
 		{
-			printError(format("Строка {}: операции сравнения не могут быть применены данным типа char",
+			printError(format("Ошибка 703. Строка {}: операции сравнения не могут быть применены данным типа char",
 				LEX_Table.table[expr.ids[0]].sn));
 			errors++;
 		}
@@ -463,13 +469,13 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 			if (++non_zero_count > 1) {
 				if (expr.isCompare && metCompare)
 				{
-					printError(format("Строка {}: операции сравнения не могут быть применены к данным разных типов.",
+					printError(format("ошибка 702. Строка {}: операции сравнения не могут быть применены к данным разных типов.",
 						LEX_Table.table[expr.ids[0]].sn));
 					errors++;
 				}
 				if (metMath)
 				{
-					printError(format("Строка {}: арифметические операции не могут быть применены к данным разных типов или сравнениям.",
+					printError(format("Ошибка 711. Строка {}: арифметические операции не могут быть применены к данным разных типов или сравнениям.",
 						LEX_Table.table[expr.ids[0]].sn));
 					errors++;
 				}
@@ -499,7 +505,7 @@ void check_function_call(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_T
 
 	if (params.size() != paramsCount)
 	{
-		printError(format("Строка {}, число передаваемых аргументов в функцию {} не соответствует ее прототипу\n",
+		printError(format("Ошибка 712. Строка {}, число передаваемых аргументов в функцию {} не соответствует ее прототипу\n",
 			LEX_Table.table[funcID].sn, entry->id));
 		errors++;
 	}
@@ -544,7 +550,7 @@ void detect_cycles_in_references(const IT::ID_Table& ID_Table, const LT::LexTabl
 			for (const auto& callee : references.at(node)) {
 				if (recursion_stack.count(callee.first) || !visited.count(callee.first) && has_cycle_ref(callee.first, has_cycle_ref)) {
 					printError(format(
-						"Строка {}: Функция {} ссылается на {} и образует цикл.",
+						"Ошибка 713. Строка {}: Функция {} ссылается на {} и образует цикл.",
 						callee.second,
 						node->id,
 						callee.first->id));
