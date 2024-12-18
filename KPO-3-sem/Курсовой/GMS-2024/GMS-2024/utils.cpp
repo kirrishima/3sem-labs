@@ -149,10 +149,8 @@ namespace lex_analysis::utils
 
 	bool isValidShort(const std::string& str, short& result, int base = 10) {
 		try {
-			// Преобразуем строку в число с учетом основания
 			long long value = std::stoll(str, nullptr, base);
 
-			// Проверяем, входит ли число в диапазон short
 			if (value >= std::numeric_limits<short>::min() && value <= std::numeric_limits<short>::max()) {
 				result = static_cast<short>(value);
 				return true;

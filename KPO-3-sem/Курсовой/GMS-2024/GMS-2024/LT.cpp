@@ -11,7 +11,7 @@ namespace LT
 			throw ERROR_THROW(114);
 		}
 
-		LexTable lextable/* = { size, 0, new Entry[size] }*/;
+		LexTable lextable;
 		lextable.maxsize = size;
 		lextable.size = 0;
 		lextable.table = new Entry[size];

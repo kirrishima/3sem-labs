@@ -29,14 +29,13 @@ std::string CD::CodeGeneration::IfElseGeneration::cmp_op_to_jmp(std::string comp
 }
 
 
-// Начало `if`
 void CD::CodeGeneration::IfElseGeneration::__start_if(
-	const vector<int>& operands, // операция сравнения (>, <, ==, !=, >=, <=)
-	std::vector<std::string>& instructions // текущие инструкции
+	const vector<int>& operands,
+	std::vector<std::string>& instructions
 ) {
 	string trueLabel = generate_label("IF_TRUE", IFLabelsCount);
 	string endLabel = generate_label("IF_END", IFLabelsCount);
-	currentElseLabel = IFLabelsCount++; // увеличиваем номер else
+	currentElseLabel = IFLabelsCount++;
 	if_stack.push(endLabel);
 
 	vector<string> comments_operands;
@@ -50,7 +49,6 @@ void CD::CodeGeneration::IfElseGeneration::__start_if(
 	auto p = parent.parse_expression(operands, instructions, nestingLevel);
 	instructions.push_back(parent.tab * nestingLevel + format("; Начало if{} ({}) ", currentElseLabel, tmp));
 
-	// Генерация условия
 	instructions.push_back(parent.tab * nestingLevel + "cmp " + parent.reservedBoolName + ", 1");
 	instructions.push_back(parent.tab * nestingLevel + "je " + trueLabel);
 	instructions.push_back(parent.tab * nestingLevel + "jmp " + endLabel);
@@ -105,21 +103,18 @@ void CD::CodeGeneration::IfElseGeneration::compare_strings(std::vector<std::stri
 	instructions.push_back(parent.tab * nestingLevel + "call __StrCmp");
 }
 
-// Генерация блока `else`
 void CD::CodeGeneration::IfElseGeneration::__start_else(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
 	}
 	string endLabel = if_stack.top();
-	string elseLabel = generate_label("ELSE", currentElseLabel); // -1 так как уже счетчик перешел к следующим, 
-	//еще не созданным if, а else на 1 меньше
-
+	string elseLabel = generate_label("ELSE", currentElseLabel);
 	for (size_t i = 0; i < instructions.size(); i++)
 	{
 		if (instructions[i].find(endLabel) != std::string::npos)
 		{
-			size_t pos = instructions[i].find(endLabel); // Найти позицию вхождения endLabel
-			instructions[i].replace(pos, endLabel.length(), elseLabel); // Заменить на elseLabel
+			size_t pos = instructions[i].find(endLabel);
+			instructions[i].replace(pos, endLabel.length(), elseLabel);
 			break;
 		}
 
@@ -127,7 +122,6 @@ void CD::CodeGeneration::IfElseGeneration::__start_else(std::vector<std::string>
 	instructions.push_back(parent.tab * (nestingLevel - 1) + elseLabel + ':');
 }
 
-// Завершение `if` или `else`
 void CD::CodeGeneration::IfElseGeneration::__end_if_or_else(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
@@ -138,7 +132,6 @@ void CD::CodeGeneration::IfElseGeneration::__end_if_or_else(std::vector<std::str
 		parent.tab + "; Переход к выходу из " + to_string(currentElseLabel) + " if-else");
 }
 
-// Завершение `if` или `else`
 void CD::CodeGeneration::IfElseGeneration::__end_expression(std::vector<std::string>& instructions) {
 	if (if_stack.empty()) {
 		throw std::runtime_error("Ошибка: стек if-переходов пуст!");
@@ -160,7 +153,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 	while (true) {
 		if (parent.LEX_TABLE.table[i].lexema[0] == '?')
 		{
-			i += 2; // пропускаем '(' и переходим к первому символу условия
+			i += 2;
 			std::vector<int> ops;
 			std::string operation;
 			int currentOperand = 0;
@@ -178,7 +171,7 @@ std::vector<std::string> CD::CodeGeneration::IfElseGeneration::generate_if_state
 					break;
 				}
 				i++;
-			} // while
+			}
 			ifcounts++;
 			__start_if(ops, instructions);
 		}

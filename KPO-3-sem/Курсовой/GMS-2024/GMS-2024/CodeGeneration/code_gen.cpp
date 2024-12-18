@@ -14,60 +14,50 @@ bool executeCommand(const std::string& command, std::unique_ptr<std::ofstream>& 
 	PROCESS_INFORMATION pi = { 0 };
 	SECURITY_ATTRIBUTES sa = { sizeof(SECURITY_ATTRIBUTES), nullptr, TRUE };
 
-	// Создаем анонимный канал для перенаправления вывода
 	HANDLE hWritePipe = nullptr, hReadPipe = nullptr;
 	if (!CreatePipe(&hReadPipe, &hWritePipe, &sa, 0)) {
-		std::cerr << "Не удалось создать канал." << std::endl;
 		return false;
 	}
 
-	// Настраиваем дескриптор записи как наследуемый
 	if (!SetHandleInformation(hReadPipe, HANDLE_FLAG_INHERIT, 0)) {
-		std::cerr << "Не удалось настроить дескриптор канала." << std::endl;
 		CloseHandle(hReadPipe);
 		CloseHandle(hWritePipe);
 		return false;
 	}
 
-	// Перенаправляем стандартный вывод процесса
 	si.hStdOutput = hWritePipe;
 	si.hStdError = hWritePipe;
 	si.dwFlags |= STARTF_USESTDHANDLES;
 
-	// Запускаем процесс
 	if (!CreateProcessA(
 		nullptr,
 		const_cast<char*>(command.c_str()),
 		nullptr,
 		nullptr,
-		TRUE, // Наследование дескрипторов
+		TRUE,
 		0,
 		nullptr,
 		nullptr,
 		&si,
 		&pi
 	)) {
-		std::cerr << "Не удалось выполнить команду: " << command << std::endl;
 		CloseHandle(hReadPipe);
 		CloseHandle(hWritePipe);
 		return false;
 	}
 
-	// Закрываем дескриптор записи в родительском процессе
 	CloseHandle(hWritePipe);
 
-	// Читаем вывод процесса из канала и пишем в переданный поток
 	char buffer[4096];
 	DWORD bytesRead;
 	while (ReadFile(hReadPipe, buffer, sizeof(buffer) - 1, &bytesRead, nullptr) && bytesRead > 0) {
-		buffer[bytesRead] = '\0'; // Нулевой символ для безопасности
+		buffer[bytesRead] = '\0';
 		if (outputStream && outputStream->is_open()) {
 			(*outputStream) << buffer;
-			outputStream->flush(); // Сбрасываем данные в файл сразу
+			outputStream->flush();
 		}
 	}
 
-	// Закрываем дескрипторы
 	CloseHandle(hReadPipe);
 	WaitForSingleObject(pi.hProcess, INFINITE);
 
@@ -86,7 +76,7 @@ namespace CD
 	void CodeGeneration::generateCode()
 	{
 		if (!OUT_ASM_FILE.is_open() || OUT_ASM_FILE.fail() || OUT_ASM_FILE.bad()) {
-			cout << "Не удалось открыть файл\n";
+			cout << "Не удалось открыть файл .asm для записи\n";
 			return;
 		}
 

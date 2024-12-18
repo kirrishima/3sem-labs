@@ -24,17 +24,17 @@ void CD::CodeGeneration::__parse_lexem_equal(std::vector<std::string>& result_in
 		if (p.isINT)
 		{
 			result_instructions.push_back(format("{}mov ax, {}", tab * tabsize, p.resultStorage));
-			result_instructions.push_back(format("{}mov {}, ax", tab * tabsize, destName)); // -2 от литерала/id
+			result_instructions.push_back(format("{}mov {}, ax", tab * tabsize, destName));
 		}
 		else if (p.isSTR)
 		{
 			result_instructions.push_back(format("{}mov eax, {}", tab * tabsize, p.resultStorage));
-			result_instructions.push_back(format("{}mov {}, eax", tab * tabsize, destName)); // -2 от литерала/id
+			result_instructions.push_back(format("{}mov {}, eax", tab * tabsize, destName));
 		}
 		else if (p.isCHAR)
 		{
 			result_instructions.push_back(format("{}mov al, {}", tab * tabsize, p.resultStorage));
-			result_instructions.push_back(format("{}mov {}, al", tab * tabsize, destName)); // -2 от литерала/id
+			result_instructions.push_back(format("{}mov {}, al", tab * tabsize, destName));
 		}
 	}
 	else if (p.isResultInEAX)
