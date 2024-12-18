@@ -197,7 +197,7 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 
 				try
 				{
-					IT_entry.value.vint = utils::stringToNumber(str);
+					IT_entry.value.vint = utils::parseSignedTwoByteNumber(str).value();
 				}
 				catch (const std::out_of_range& ex)
 				{
@@ -206,7 +206,12 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 				}
 				catch (const std::string& ex)
 				{
-					std::cout << "Ошибка в числовом литерале '" << str << "'. " << ex << currentLine << std::endl;
+					std::cout << "Ошибка в числовом литерале '" << str << "'. " << ex << std::endl;
+					throw ERROR_THROW_LINE(149, currentLine);
+				}
+				catch (const char* ex)
+				{
+					std::cout << "Ошибка в числовом литерале '" << str << "'. " << ex << std::endl;
 					throw ERROR_THROW_LINE(149, currentLine);
 				}
 				catch (const std::exception& ex)

@@ -3,6 +3,7 @@
 #include <iomanip>
 #include <format>
 #include <bitset>
+#include <optional>
 
 namespace utils
 {
@@ -147,53 +148,38 @@ namespace lex_analysis::utils
 		LT_file.close();
 	}
 
-	bool isValidShort(const std::string& str, short& result, int base = 10) {
-		try {
-			long long value = std::stoll(str, nullptr, base);
 
-			if (value >= std::numeric_limits<short>::min() && value <= std::numeric_limits<short>::max()) {
-				result = static_cast<short>(value);
-				return true;
-			}
-			else {
-				throw std::out_of_range(std::format(
-					"Литерал выходит за границы числа. Диапазон допустимых значений: [{}; {}]",
-					std::numeric_limits<short>::min(),
-					std::numeric_limits<short>::max()
-				));
+	std::optional<int16_t> parseSignedTwoByteNumber(const std::string& str) {
+		using namespace boost::spirit::qi;
+
+		int16_t result = 0;
+		auto begin = str.begin();
+		auto end = str.end();
+
+		bool parsed = parse(begin, end,
+			(lit("0b") >> bin
+				| lit("0x") >> hex
+				| '0' >> oct
+				| int_
+				), result);
+
+		if (!parsed || begin != end) {
+			throw "Строка не распознана как число заданной системы счисления";
+		}
+
+		if (result < std::numeric_limits<int16_t>::min() || result > std::numeric_limits<int16_t>::max()
+			|| str.starts_with("0x") && str.length() > 6
+			|| str.starts_with("0b") && str.length() > 18) {
+			throw "Число выходит за пределы диапазона для signed 16-битного целого числа";
+		}
+
+		if (parsed && begin == end) {
+			if (result >= std::numeric_limits<int16_t>::min() && result <= std::numeric_limits<int16_t>::max()) {
+				return static_cast<int16_t>(result);
 			}
 		}
-		catch (const std::invalid_argument&) {
-			throw std::invalid_argument(std::format("Недопустимый формат числа: '{}'", str));
-		}
-		catch (const std::out_of_range&) {
-			throw std::out_of_range(std::format("Значение слишком большое для типа", str));
-		}
-	}
 
-	int stringToNumber(const std::string& str) {
-
-		int base = 10;
-		std::size_t startIndex = 0;
-
-		if (str.size() > 2 && str[0] == '0') {
-			if (str[1] == 'b' || str[1] == 'B') {
-				base = 2;
-				startIndex = 2;
-			}
-			else if (str[1] == 'x' || str[1] == 'X') {
-				base = 16;
-				startIndex = 2;
-			}
-			else if (std::isdigit(str[1])) {
-				base = 8;
-				startIndex = 1;
-			}
-		}
-		short number;
-		bool isValid = isValidShort(str.substr(startIndex), number, base);
-
-		return number;
+		return std::nullopt;
 	}
 
 	bool isSingleCharacter(const unsigned char* input, std::size_t endPos) {

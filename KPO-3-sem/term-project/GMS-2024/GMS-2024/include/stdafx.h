@@ -21,6 +21,8 @@
 #include <sstream>
 #include <format>
 
+#include <boost/spirit/include/qi.hpp>
+
 #include "out.h"
 #include "error.h"
 #include "parm.h"

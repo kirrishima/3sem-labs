@@ -2,6 +2,7 @@
 #include <string>
 #include <IT.h>
 #include <LT.h>
+#include <optional>
 
 namespace utils
 {
@@ -16,5 +17,6 @@ namespace lex_analysis::utils
 		const LT::LexTable& LexTable, const std::wstring& LT_filename, const In::IN& in);
 
 	int stringToNumber(const std::string& str);
+	std::optional<int16_t> parseSignedTwoByteNumber(const std::string& str);
 	bool isSingleCharacter(const unsigned char* input, std::size_t endPos);
 }
