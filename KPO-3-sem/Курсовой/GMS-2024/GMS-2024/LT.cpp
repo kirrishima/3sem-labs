@@ -19,7 +19,7 @@ namespace LT
 		return lextable;
 	}
 
-	void Add(LexTable& lextable, Entry entry)
+	void Add(LexTable &lextable, Entry entry)
 	{
 		if (lextable.size > LT_MAXSIZE)
 		{
@@ -28,7 +28,7 @@ namespace LT
 		lextable.table[lextable.size++] = entry;
 	}
 
-	Entry GetEntry(const LexTable& lextable, int n)
+	Entry GetEntry(const LexTable &lextable, int n)
 	{
 		if (n > LT_MAXSIZE || n < 0)
 		{
@@ -37,7 +37,7 @@ namespace LT
 		return lextable.table[n];
 	}
 
-	bool hasMainLexem(const LexTable& table)
+	bool hasMainLexem(const LexTable &table)
 	{
 		for (int i = 0; i < table.size; i++)
 		{
@@ -49,7 +49,7 @@ namespace LT
 		return false;
 	}
 
-	void Delete(LexTable& lextable)
+	void Delete(LexTable &lextable)
 	{
 		delete[] lextable.table;
 		lextable.table = nullptr;

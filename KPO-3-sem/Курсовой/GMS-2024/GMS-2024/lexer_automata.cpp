@@ -9,7 +9,7 @@
 #include "IT.h"
 #include <format>
 
-#define P(S) std::cout<<S<<std::endl;
+#define P(S) std::cout << S << std::endl;
 
 using namespace REGEX;
 using FST::execute;
@@ -26,27 +26,27 @@ using namespace std;
 
 unordered_map<string, bool> long_ids;
 
-char* str = new char[MAX_LEX_SIZE];
+char *str = new char[MAX_LEX_SIZE];
 
-FST::FST* IntegerFST(CreateIntegerFST(str));
-FST::FST* StringFST(CreateStringFST(str));
-FST::FST* CharFST(CreateCharFST(str));
+FST::FST *IntegerFST(CreateIntegerFST(str));
+FST::FST *StringFST(CreateStringFST(str));
+FST::FST *CharFST(CreateCharFST(str));
 
-FST::FST* PrintFST(CreatePrintFST(str));
-FST::FST* WriteFST(CreateWriteFST(str));
-FST::FST* StrcmpFST(CreateStrcmpFST(str));
-FST::FST* MainFST(CreateMainFST(str));
-FST::FST* ReturnFST(CreateReturnFST(str));
+FST::FST *PrintFST(CreatePrintFST(str));
+FST::FST *WriteFST(CreateWriteFST(str));
+FST::FST *StrcmpFST(CreateStrcmpFST(str));
+FST::FST *MainFST(CreateMainFST(str));
+FST::FST *ReturnFST(CreateReturnFST(str));
 
-FST::FST* IntDECIMALLiteralFST(CreateIntDECIMALLiteralFST(str));
-FST::FST* IntBINARYLiteralFST(CreateIntBINARYLiteralFST(str));
-FST::FST* IntOCTALLiteralFST(CreateIntOCTALLiteralFST(str));
-FST::FST* IntHEXLiteralFST(CreateIntHEXLiteralFST(str));
+FST::FST *IntDECIMALLiteralFST(CreateIntDECIMALLiteralFST(str));
+FST::FST *IntBINARYLiteralFST(CreateIntBINARYLiteralFST(str));
+FST::FST *IntOCTALLiteralFST(CreateIntOCTALLiteralFST(str));
+FST::FST *IntHEXLiteralFST(CreateIntHEXLiteralFST(str));
 
-FST::FST* IdentifierFST(CreateIdentifierFST(str));
+FST::FST *IdentifierFST(CreateIdentifierFST(str));
 
-FST::FST* ifFST(CreateIfFST(str));
-FST::FST* elseFST(CreateElseFST(str));
+FST::FST *ifFST(CreateIfFST(str));
+FST::FST *elseFST(CreateElseFST(str));
 char lex_analysis::determineLexeme()
 {
 	if (execute(*IntegerFST))
@@ -60,8 +60,7 @@ char lex_analysis::determineLexeme()
 		return LEX_STRING;
 	}
 
-	if (execute(*IntDECIMALLiteralFST) || execute(*IntHEXLiteralFST)
-		|| execute(*IntOCTALLiteralFST) || execute(*IntBINARYLiteralFST))
+	if (execute(*IntDECIMALLiteralFST) || execute(*IntHEXLiteralFST) || execute(*IntOCTALLiteralFST) || execute(*IntBINARYLiteralFST))
 	{
 		return LEX_LITERAL;
 	}
@@ -97,7 +96,6 @@ char lex_analysis::determineLexeme()
 		return LEX_CHAR;
 	}
 
-
 	if (execute(*MainFST))
 	{
 		return LEX_MAIN;
@@ -116,9 +114,9 @@ char lex_analysis::determineLexeme()
 	return '\0';
 }
 
-void processLiteral(int& i, unsigned char* text, int& currentLine, char delimiter, int& literalsCount, IT::Entry& IT_entry, LT::Entry& LT_entry, In::IN& in);
+void processLiteral(int &i, unsigned char *text, int &currentLine, char delimiter, int &literalsCount, IT::Entry &IT_entry, LT::Entry &LT_entry, In::IN &in);
 
-std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param, In::IN in, Log::LOG& log)
+std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param, In::IN in, Log::LOG &log)
 {
 	int indexIT;
 
@@ -129,7 +127,7 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 	LT_entry.idxTI = 0;
 	LT_entry.lexema[0] = NULL;
 
-	std::stack<IT::Entry*> scope;
+	std::stack<IT::Entry *> scope;
 	scope.push(NULL);
 	int block = 0;
 	int openningParentthesis = 0;
@@ -145,11 +143,13 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 	for (int i = 0; i < in.size; i++)
 	{
 		if (((in.text[i] >= 'A' && in.text[i] <= 'Z') || (in.text[i] >= 'a' && in.text[i] <= 'z') ||
-			(in.text[i] >= '0' && in.text[i] <= '9') || in.text[i] == '_') && in.text[i] != ' ')
+			 (in.text[i] >= '0' && in.text[i] <= '9') || in.text[i] == '_') &&
+			in.text[i] != ' ')
 		{
 			str[bufferIndex++] = in.text[i];
 
-			if (bufferIndex >= MAX_LEX_SIZE) {
+			if (bufferIndex >= MAX_LEX_SIZE)
+			{
 				throw ERROR_THROW(145);
 			}
 		}
@@ -158,7 +158,8 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 			str[bufferIndex] = '\0';
 			LT_entry.lexema[0] = determineLexeme();
 
-			switch (LT_entry.lexema[0]) {
+			switch (LT_entry.lexema[0])
+			{
 
 			case LEX_MAIN:
 			{
@@ -200,29 +201,29 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 				{
 					IT_entry.value.vint = utils::stringToNumber(str);
 				}
-				catch (const std::out_of_range& ex)
+				catch (const std::out_of_range &ex)
 				{
 					std::cout << "Ошибка в числовом литерале '" << str << "': " << ex.what() << std::endl;
 					throw ERROR_THROW_LINE(149, currentLine);
 				}
-				catch (const std::string& ex) {
+				catch (const std::string &ex)
+				{
 					std::cout << "Ошибка в числовом литерале '" << str << "'. " << ex << currentLine << std::endl;
 					throw ERROR_THROW_LINE(149, currentLine);
 				}
-				catch (const std::exception& ex) {
+				catch (const std::exception &ex)
+				{
 					std::cout << "Ошибка в числовом литерале '" << str << "'" << std::endl;
 					std::cout << "Допустимые значения: " << format("[{}; {}]", SHRT_MIN, SHRT_MAX)
-						<< ". Допустимые форматы записи: десятичная, двоичная (префикс '0b'), шестнадцатеричная (префикс '0x'), восьмеричная (префикс '0')" << std::endl;
+							  << ". Допустимые форматы записи: десятичная, двоичная (префикс '0b'), шестнадцатеричная (префикс '0x'), восьмеричная (префикс '0')" << std::endl;
 					throw ERROR_THROW_LINE(149, currentLine);
 				}
 
 				int index = i - 1;
-				while (index > 0 && isdigit(in.text[index])) index--;
+				while (index > 0 && isdigit(in.text[index]))
+					index--;
 
-				if (in.text[index] == '-' && (in.text[index - 1] == EQUAL
-					|| in.text[index - 1] == LEFTTHESIS || in.text[index - 1] == COMMA
-					|| (LexTable.table[LexTable.size - 1].v == MINUS && LexTable.table[LexTable.size - 2].lexema[0] == LEX_RETURN))
-					)
+				if (in.text[index] == '-' && (in.text[index - 1] == EQUAL || in.text[index - 1] == LEFTTHESIS || in.text[index - 1] == COMMA || (LexTable.table[LexTable.size - 1].v == MINUS && LexTable.table[LexTable.size - 2].lexema[0] == LEX_RETURN)))
 				{
 					IT_entry.value.vint *= -1;
 					if (LexTable.table[LexTable.size - 1].lexema[0] == LEX_MATH && LexTable.table[LexTable.size - 1].v == MINUS)
@@ -278,7 +279,8 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 					{
 						long_ids[string(str)] = true;
 						std::cout << str << " слишком длинное имя идентификатора - допустимый размер - 5 символов."
-							"Оно будет обрезано до " << IT_entry.id << ". Возможен конфликт имен и сопутствущие ошибки." << std::endl;
+											"Оно будет обрезано до "
+								  << IT_entry.id << ". Возможен конфликт имен и сопутствущие ошибки." << std::endl;
 					}
 				}
 
@@ -315,25 +317,21 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 				}
 				else if (in.text[i] == LEX_EQUAL)
 				{
-					if (IT::search(ID_Table, IT_entry) == -1
-						&& LexTable.size > 1 && LexTable.table[LexTable.size - 2].lexema[0] != LEX_TYPE)
+					if (IT::search(ID_Table, IT_entry) == -1 && LexTable.size > 1 && LexTable.table[LexTable.size - 2].lexema[0] != LEX_TYPE)
 					{
 						std::cout << "Идентификатор " << IT_entry.id
-							<< " использован до объявления в строке " << currentLine << std::endl;
+								  << " использован до объявления в строке " << currentLine << std::endl;
 						throw ERROR_THROW_LINE(142, currentLine);
 					}
 				}
 				if (LexTable.size >= 3 && LexTable.table[LexTable.size - 1].lexema[0] == LEX_TYPE &&
 					LexTable.table[LexTable.size - 2].lexema[0] == LEX_LEFTTHESIS &&
-					LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID
-					&& ID_Table.table[ID_Table.size - 2].idtype == IT::F)
+					LexTable.table[LexTable.size - 3].lexema[0] == LEX_ID && ID_Table.table[ID_Table.size - 2].idtype == IT::F)
 				{
 					ID_Table.table[ID_Table.size - 1].idtype = IT::P;
-
 				}
 
-				if (LexTable.size >= 3 && LexTable.table[LexTable.size - 2].lexema[0] == LEX_COMMA
-					&& ID_Table.table[LexTable.table[LexTable.size - 3].idxTI].idtype == IT::P)
+				if (LexTable.size >= 3 && LexTable.table[LexTable.size - 2].lexema[0] == LEX_COMMA && ID_Table.table[LexTable.table[LexTable.size - 3].idxTI].idtype == IT::P)
 				{
 					IT_entry.idtype = IT::P;
 
@@ -394,7 +392,6 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 			LT_entry.sn = currentLine;
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
-
 		}
 
 		switch (in.text[i])
@@ -489,7 +486,7 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 		{
 			if (!scope.empty() && openningParentthesis != 0)
 			{
-				IT::Entry* code_of_block = new IT::Entry();
+				IT::Entry *code_of_block = new IT::Entry();
 				code_of_block->scope = NULL;
 				code_of_block->scope = scope.top();
 				scope.push(code_of_block);
@@ -527,8 +524,7 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 			LT::Add(LexTable, LT_entry);
 			LT_entry.lexema[0] = NULL;
 
-			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID
-				&& LexTable.table[LexTable.size - 3].lexema[0] == LEX_TYPE)
+			if (LexTable.table[LexTable.size - 2].lexema[0] == LEX_ID && LexTable.table[LexTable.size - 3].lexema[0] == LEX_TYPE)
 			{
 				ID_Table.table[LexTable.table[LexTable.size - 2].idxTI].idtype = IT::F;
 				scope.push(&ID_Table.table[LexTable.table[LexTable.size - 2].idxTI]);
@@ -560,7 +556,10 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 		}
 	}
 
-	catch (...) { cout << "Внимание: не удалось сохранить таблицу лексем и/или идентификаторов."; }
+	catch (...)
+	{
+		cout << "Внимание: не удалось сохранить таблицу лексем и/или идентификаторов.";
+	}
 
 	delete[] str;
 
@@ -588,12 +587,12 @@ std::pair<LT::LexTable, IT::ID_Table> lex_analysis::lexAnalize(Parm::PARM param,
 	return std::make_pair(LexTable, ID_Table);
 }
 
-void processLiteral(int& i, unsigned char* text, int& currentLine, char delimiter, int& literalsCount, IT::Entry& IT_entry, LT::Entry& LT_entry, In::IN& in)
+void processLiteral(int &i, unsigned char *text, int &currentLine, char delimiter, int &literalsCount, IT::Entry &IT_entry, LT::Entry &LT_entry, In::IN &in)
 {
 	int index = i + 1;
 
 	while (index < MAX_LEX_SIZE - 1 && in.size > index &&
-		(text[index] != delimiter || (text[index - 1] == '\\' && text[index - 2] != '\\')))
+		   (text[index] != delimiter || (text[index - 1] == '\\' && text[index - 2] != '\\')))
 	{
 		index++;
 	}
@@ -602,8 +601,12 @@ void processLiteral(int& i, unsigned char* text, int& currentLine, char delimite
 	{
 		throw ERROR_THROW_LINE(151, currentLine);
 	}
-
-	strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char*>(text + i + 1), index - i - 1);
+	if (index - i - 1 > 255)
+	{
+		std::cout << "Слишком длинная строка\n";
+		ERROR_THROW_LINE(149, currentLine);
+	}
+	strncpy(IT_entry.value.vstr->str, reinterpret_cast<const char *>(text + i + 1), index - i - 1);
 	IT_entry.value.vstr->str[index - i - 1] = '\0';
 	IT_entry.value.vstr->len = strlen(IT_entry.value.vstr->str);
 

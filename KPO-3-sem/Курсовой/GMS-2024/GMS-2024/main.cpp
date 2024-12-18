@@ -16,8 +16,8 @@ using namespace GRB;
 
 namespace fs = std::filesystem;
 
-
-int _tmain(int argc, _TCHAR* argv[]) {
+int _tmain(int argc, _TCHAR *argv[])
+{
 
 	int returnCode = 0;
 	setlocale(LC_ALL, "rus");
@@ -32,7 +32,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 	Log::LOG log;
 	Out::OUT out;
 
-	try {
+	try
+	{
 		Parm::PARM parm = Parm::getparm(argc, argv);
 		In::IN in = In::getin(parm.in);
 		out = Out::getout(parm.out);
@@ -46,7 +47,6 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		auto [LexTable, IdTable] = lex_analysis::lexAnalize(parm, in, log);
 
 		cout << '\n';
-
 
 		MFST::Mfst mfst(LexTable, GRB::getGreibach());
 
@@ -77,11 +77,11 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);
 	}
-	catch (const char* e)
+	catch (const char *e)
 	{
 		cout << "Произошла ошибка: " << e;
 	}
-	catch (std::string& e)
+	catch (std::string &e)
 	{
 		cout << "Произошла ошибка: " << e;
 	}
@@ -97,9 +97,8 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		Out::writeError(out, e);
 		Log::close(log);
 		Out::close(out);
-
 	}
-	catch (std::runtime_error& e)
+	catch (std::runtime_error &e)
 	{
 		cout << "Ошибка: " << e.what() << endl;
 	}
