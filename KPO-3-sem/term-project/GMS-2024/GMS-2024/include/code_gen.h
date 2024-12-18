@@ -159,7 +159,7 @@ namespace CD
 	};
 
 #define COMPILE_COMMAND R"(cmd /c "ml /c /nologo /Zi /Fo {} {}")"
-#define LINK_COMMAND R"(cmd /c "link /nologo /DEBUG /subsystem:console /OUT:{} {} libucrt.lib")"
+#define LINK_COMMAND R"(cmd /c "link /nologo /DEBUG /subsystem:console /OUT:{} {} libucrt.lib libcmt.lib libvcruntime.lib kernel32.lib /OPT:REF /OPT:ICF /NODEFAULTLIB:libcmtd /NODEFAULTLIB:MSVCRTD")"
 #define BASE R"(.586
 .model flat, stdcall
 includelib  gms2024stdlib.lib

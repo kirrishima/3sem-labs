@@ -32,5 +32,6 @@
 #include "regex.h"
 #include "lexer_automata.h"
 #include "utils.h"
+#include "semantic.h"
 
 #endif // !STDAFX_H

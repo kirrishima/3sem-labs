@@ -2,25 +2,16 @@
 #include "MFST.h"
 #include "code_gen.h"
 #include "algorithm"
-#include <filesystem>
-#include <set>
-#include <locale>
-#include <chrono>
-#include "regex.h"
-#include <map>
-#include "semantic.h"
 
 using namespace std;
 using namespace MFST;
 using namespace GRB;
 
-namespace fs = std::filesystem;
-
 int _tmain(int argc, _TCHAR* argv[])
 {
-
-	int returnCode = 0;
 	setlocale(LC_ALL, "rus");
+
+	int exitCode = 0;
 
 	cout << R"(
 *************************************************************
@@ -57,11 +48,11 @@ int _tmain(int argc, _TCHAR* argv[])
 			mfst.savededucation();
 			mfst.printrules();
 		}
-
+		cout << endl;
 		int x = semantic::check(IdTable, LexTable, &log);
 		if (x)
 		{
-			cout << x << " ошибок, выход...\n";
+			cout << "\nВсего ошибок: " << x << endl;
 			IT::Delete(IdTable);
 			LT::Delete(LexTable);
 			exit(1);
@@ -69,24 +60,24 @@ int _tmain(int argc, _TCHAR* argv[])
 
 		CD::CodeGeneration cd(IdTable, LexTable, &parm, &log);
 
-		if (cd.generateCode() != 0)
-		{
-			exit(1);
-		}
+		exitCode = cd.generateCode();
 
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);
 	}
 	catch (const char* e)
 	{
+		exitCode = 1;
 		cout << "Произошла ошибка: " << e;
 	}
 	catch (std::string& e)
 	{
+		exitCode = 1;
 		cout << "Произошла ошибка: " << e;
 	}
 	catch (Error::ERROR e)
 	{
+		exitCode = 1;
 		cout << "Ошибка " << e.id << ": " << e.message;
 		if (e.sourceLine > 0)
 		{
@@ -100,12 +91,14 @@ int _tmain(int argc, _TCHAR* argv[])
 	}
 	catch (std::runtime_error& e)
 	{
+		exitCode = 1;
 		cout << "Ошибка: " << e.what() << endl;
 	}
 	catch (std::exception& e)
 	{
+		exitCode = 1;
 		cout << "Ошибка: " << e.what() << endl;
 	}
 
-	return 0;
+	return exitCode;
 }
