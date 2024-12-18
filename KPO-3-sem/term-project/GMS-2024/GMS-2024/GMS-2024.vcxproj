@@ -32,6 +32,7 @@
     <ClCompile Include="CodeGeneration\parse_function.cpp" />
     <ClCompile Include="CodeGeneration\parse_if_else.cpp" />
     <ClCompile Include="CodeGeneration\parse_utils.cpp" />
+    <ClCompile Include="console.cpp" />
     <ClCompile Include="error.cpp" />
     <ClCompile Include="FST.cpp" />
     <ClCompile Include="GRB.cpp" />
@@ -53,6 +54,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\code_gen.h" />
+    <ClInclude Include="include\console.h" />
     <ClInclude Include="include\error.h" />
     <ClInclude Include="include\FST.h" />
     <ClInclude Include="include\GRB.h" />

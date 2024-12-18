@@ -137,26 +137,30 @@ namespace CD
 			if (used_functions.find(rpn[0]) != used_functions.end()
 				&& used_functions.find(rpn[1]) != used_functions.end())
 			{
-				masmCode.push_back("; function call");
+				masmCode.push_back("; вызов функции");
 				masmCode.insert(masmCode.end(), used_functions[rpn[1]].begin(), used_functions[rpn[1]].end());
 				masmCode.push_back("push ax");
+				masmCode.push_back("; конец вызова функции");
 
-				masmCode.push_back("; function call");
+				masmCode.push_back("; вызов функции");
 				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end());
 				masmCode.push_back("pop bx");
+				masmCode.push_back("; конец вызова функции");
 			}
 			else if (used_functions.find(rpn[0]) != used_functions.end())
 			{
-				masmCode.push_back("; function call");
+				masmCode.push_back("; вызов функции");
 				masmCode.insert(masmCode.end(), used_functions[rpn[0]].begin(), used_functions[rpn[0]].end());
 				masmCode.push_back("mov bx, " + rpn[1]);
+				masmCode.push_back("; конец вызова функции");
 			}
 			else if (used_functions.find(rpn[1]) != used_functions.end())
 			{
-				masmCode.push_back("; function call");
+				masmCode.push_back("; вызов функции");
 				masmCode.insert(masmCode.end(), used_functions[rpn[1]].begin(), used_functions[rpn[1]].end());
 				masmCode.push_back("mov bx, ax");
 				masmCode.push_back("mov ax, " + rpn[0]);
+				masmCode.push_back("; конец вызова функции");
 			}
 			else
 			{
@@ -172,9 +176,10 @@ namespace CD
 			if (token.size() > 1) {
 				if (used_functions.find(token) != used_functions.end())
 				{
-					masmCode.push_back("; function call");
+					masmCode.push_back("; вызов функции");
 					masmCode.insert(masmCode.end(), used_functions[token].begin(), used_functions[token].end());
 					masmCode.push_back("push ax");
+					masmCode.push_back("; конец вызова функции");
 				}
 				else
 				{

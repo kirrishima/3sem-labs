@@ -5,26 +5,35 @@
 #include <filesystem>
 #include <map>
 #include <algorithm>
+#include <set>
 
 namespace fs = std::filesystem;
+using namespace std;
 
-bool validatePath(const std::wstring &filePath);
-bool validateHtmlPath(const std::filesystem::path &path);
-void validatePaths(const Parm::PARM &parameters);
-bool areDirectoriesValid(const fs::path &path);
+bool validatePath(const std::wstring& filePath);
+bool validateHtmlPath(const std::filesystem::path& path);
+void validatePaths(const Parm::PARM& parameters);
+bool areDirectoriesValid(const fs::path& path);
 
 namespace Parm
 {
 
-	PARM getparm(int argc, _TCHAR *argv[])
+	PARM getparm(int argc, _TCHAR* argv[])
 	{
-
 		PARM parm;
 
 		bool in = false, out = false, log = false;
 
 		std::map<std::wstring, std::wstring> namedParams;
 		std::map<std::wstring, bool> flags;
+
+		std::set<std::wstring> validKeys = {
+			PARM_IN, PARM_OUT, PARM_LOG, PARM_EXE, PARM_LT, PARM_IT, PARM_STACK
+		};
+
+		std::set<std::wstring> validFlags = {
+			PARM_CST, PARM_LEX
+		};
 
 		for (int i = 1; i < argc; i++)
 		{
@@ -36,21 +45,33 @@ namespace Parm
 				std::wstring key = arg.substr(1, colonPos - 1);
 
 				std::transform(key.begin(), key.end(), key.begin(),
-							   [](TCHAR c)
-							   { return std::tolower(c, std::locale()); });
+					[](TCHAR c)
+					{ return std::tolower(c, std::locale()); });
 
 				std::wstring value = arg.substr(colonPos + 1);
 				namedParams[key] = value;
+
+				if (validKeys.find(key) != validKeys.end()) {
+					namedParams[key] = value;
+				}
+				else {
+					wcout << L"Нераспознанный параметр " << arg << L" пропущен.\n";
+				}
 			}
 			else if (arg[0] == L'/' && arg.length() > 1)
 			{
 				std::wstring flag = arg.substr(1);
 
 				std::transform(flag.begin(), flag.end(), flag.begin(),
-							   [](TCHAR c)
-							   { return std::tolower(c, std::locale()); });
+					[](TCHAR c)
+					{ return std::tolower(c, std::locale()); });
 
-				flags[flag] = true;
+				if (validFlags.find(flag) != validFlags.end()) {
+					flags[flag] = true;
+				}
+				else {
+					wcout << L"Нераспознанный флаг " << arg << L" пропущен.\n";
+				}
 			}
 			else
 			{
@@ -148,7 +169,7 @@ namespace Parm
 
 				parm.stackSize = stackSize;
 			}
-			catch (const std::exception &)
+			catch (const std::exception&)
 			{
 				throw ERROR_THROW(121);
 			}
@@ -175,7 +196,7 @@ namespace Parm
 	}
 }
 
-bool areDirectoriesValid(const fs::path &path)
+bool areDirectoriesValid(const fs::path& path)
 {
 	fs::path parentPath = path.parent_path();
 	while (!parentPath.empty())
@@ -189,12 +210,12 @@ bool areDirectoriesValid(const fs::path &path)
 	return true;
 }
 
-bool isFilePath(const fs::path &path)
+bool isFilePath(const fs::path& path)
 {
 	return path.has_filename();
 }
 
-bool validatePath(const std::wstring &filePath)
+bool validatePath(const std::wstring& filePath)
 {
 	std::filesystem::path path(filePath);
 
@@ -212,7 +233,7 @@ bool validatePath(const std::wstring &filePath)
 	return true;
 }
 
-bool validateHtmlPath(const std::filesystem::path &path)
+bool validateHtmlPath(const std::filesystem::path& path)
 {
 
 	if (isFilePath(path) && areDirectoriesValid(path))
@@ -223,7 +244,7 @@ bool validateHtmlPath(const std::filesystem::path &path)
 	return false;
 }
 
-void validatePaths(const Parm::PARM &parameters)
+void validatePaths(const Parm::PARM& parameters)
 {
 	std::unordered_map<std::wstring, std::vector<std::wstring>> pathMap;
 
@@ -234,13 +255,13 @@ void validatePaths(const Parm::PARM &parameters)
 	pathMap[parameters.lt].push_back(L"lt");
 
 	bool hasDuplicates = false;
-	for (const auto &[path, fields] : pathMap)
+	for (const auto& [path, fields] : pathMap)
 	{
 		if (fields.size() > 1)
 		{
 			hasDuplicates = true;
 			std::wcout << L"Ошибка: путь '" << path << L"' совпадает в параметрах: ";
-			for (const auto &field : fields)
+			for (const auto& field : fields)
 			{
 				std::wcout << field << L" ";
 			}

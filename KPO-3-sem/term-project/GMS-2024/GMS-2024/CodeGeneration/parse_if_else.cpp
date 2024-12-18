@@ -11,7 +11,7 @@ std::string CD::CodeGeneration::IfElseGeneration::cmp_op_to_jmp(std::string comp
 	else if (comparison == "<") {
 		return "jl";
 	}
-	else if (comparison == "=") {
+	else if (comparison == "==") {
 		return "je";
 	}
 	else if (comparison == "!=") {

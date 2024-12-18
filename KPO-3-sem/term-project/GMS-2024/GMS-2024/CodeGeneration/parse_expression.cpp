@@ -73,6 +73,7 @@ CD::CodeGeneration::ParseExpressionReturnParms CD::CodeGeneration::parse_express
 		}
 	}
 
+	instructions.push_back(tab * tabsize + "; " + params.stringRepresentation);
 	if (params.isCompare)
 	{
 		vector<vector<int>> operands(2, vector<int>());

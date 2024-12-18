@@ -16,7 +16,7 @@ using namespace GRB;
 
 namespace fs = std::filesystem;
 
-int _tmain(int argc, _TCHAR *argv[])
+int _tmain(int argc, _TCHAR* argv[])
 {
 
 	int returnCode = 0;
@@ -24,7 +24,7 @@ int _tmain(int argc, _TCHAR *argv[])
 
 	cout << R"(
 *************************************************************
-*                    Compiler GM-2024                       *
+*                  x86 Compiler GMS-2024                    *
 *     Course project for Software Engineering at BSTU       *
 *************************************************************
 )" << '\n';
@@ -46,11 +46,7 @@ int _tmain(int argc, _TCHAR *argv[])
 
 		auto [LexTable, IdTable] = lex_analysis::lexAnalize(parm, in, log);
 
-		cout << '\n';
-
 		MFST::Mfst mfst(LexTable, GRB::getGreibach());
-
-		cout << '\n';
 
 		if (!mfst.start(log))
 		{
@@ -72,16 +68,20 @@ int _tmain(int argc, _TCHAR *argv[])
 		}
 
 		CD::CodeGeneration cd(IdTable, LexTable, &parm, &log);
-		cd.generateCode();
+
+		if (cd.generateCode() != 0)
+		{
+			exit(1);
+		}
 
 		IT::Delete(IdTable);
 		LT::Delete(LexTable);
 	}
-	catch (const char *e)
+	catch (const char* e)
 	{
 		cout << "Произошла ошибка: " << e;
 	}
-	catch (std::string &e)
+	catch (std::string& e)
 	{
 		cout << "Произошла ошибка: " << e;
 	}
@@ -98,7 +98,11 @@ int _tmain(int argc, _TCHAR *argv[])
 		Log::close(log);
 		Out::close(out);
 	}
-	catch (std::runtime_error &e)
+	catch (std::runtime_error& e)
+	{
+		cout << "Ошибка: " << e.what() << endl;
+	}
+	catch (std::exception& e)
 	{
 		cout << "Ошибка: " << e.what() << endl;
 	}

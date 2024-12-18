@@ -86,7 +86,7 @@ bool isFunctionEnd(const std::string& line) {
 	return isValidIdentifier(identifier);
 }
 
-std::string CD::CodeGeneration::lexems_vector_to_string(const vector<int>& ids)
+std::string CD::CodeGeneration::lexems_vector_to_string(const vector<int>& ids, bool comment)
 {
 	string result = "";
 	for (size_t i = 0; i < ids.size(); i++)
@@ -110,7 +110,14 @@ std::string CD::CodeGeneration::lexems_vector_to_string(const vector<int>& ids)
 			}
 			break;
 		case LEX_ID:
-			result += get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[lexId].idxTI]);
+			if (comment)
+			{
+				result += ID_TABLE.table[LEX_TABLE.table[lexId].idxTI].id;
+			}
+			else
+			{
+				result += get_id_name_in_data_segment(ID_TABLE.table[LEX_TABLE.table[lexId].idxTI]);
+			}
 			break;
 		case LEX_MATH:
 			result += LEX_TABLE.table[lexId].v;

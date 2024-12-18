@@ -97,9 +97,9 @@ namespace CD
 		void parse_print_lexem__(vector<string>& result_instructions, int& i, int tabsize = 0);
 
 		string get_string_value(const int lex_id);
-		string lexems_vector_to_string(const vector<int>& ids);
+		string lexems_vector_to_string(const vector<int>& ids, bool comments = false);
 
-		void generateCode();
+		int generateCode();
 
 		struct IfElseGeneration {
 			CodeGeneration& parent;

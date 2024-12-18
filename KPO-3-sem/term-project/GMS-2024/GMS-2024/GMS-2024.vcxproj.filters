@@ -108,6 +108,9 @@
     <ClCompile Include="CodeGeneration\Lexems Parsing\parse_return.cpp">
       <Filter>Source Files\Code Generation\Lexems Parsing</Filter>
     </ClCompile>
+    <ClCompile Include="console.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\code_gen.h">
@@ -159,6 +162,9 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="include\utils.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\console.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

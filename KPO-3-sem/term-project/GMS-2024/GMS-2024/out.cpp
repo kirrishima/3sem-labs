@@ -3,7 +3,7 @@
 
 namespace Out
 {
-	OUT getout(const std::wstring &outfile)
+	OUT getout(const std::wstring& outfile)
 	{
 		OUT a;
 		a.stream = std::make_unique<std::ofstream>();
@@ -16,12 +16,15 @@ namespace Out
 		return a;
 	}
 
-	void writeOut(OUT &out, In::IN &in)
+	void writeOut(OUT& out, In::IN& in)
 	{
-		*out.stream << in.text << std::endl;
+		if (out.stream)
+		{
+			*out.stream << in.text << std::endl;
+		}
 	}
 
-	void writeError(OUT &out, Error::ERROR &error)
+	void writeError(OUT& out, Error::ERROR& error)
 	{
 		if (out.stream)
 		{
@@ -30,13 +33,13 @@ namespace Out
 			if (error.inext.col >= 0 && error.inext.line >= 0)
 			{
 				*out.stream << "Строка: " << error.inext.line << std::endl
-							<< "Столбец: " << error.inext.col << std::endl
-							<< std::endl;
+					<< "Столбец: " << error.inext.col << std::endl
+					<< std::endl;
 			}
 		}
 	}
 
-	void close(OUT &out)
+	void close(OUT& out)
 	{
 		if (out.stream)
 		{
