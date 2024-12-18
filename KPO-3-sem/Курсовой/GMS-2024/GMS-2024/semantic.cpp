@@ -117,7 +117,7 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 
 		if ((bracesCount != 0 && LEX_Table.table[expression.ids.back()].lexema[0] == LEX_RIGHTTHESIS) ||
 			LEX_Table.table[expression.ids.back()].lexema[0] == LEX_LEFTBRACE) {
-			expression.ids.pop_back();  // Убираем лишний элемент, если это не сравнение или возврат
+			expression.ids.pop_back();
 		}
 
 		check_expression(ID_Table, LEX_Table, expression);
@@ -170,7 +170,6 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 		case LEX_STRCMP:
 			i += 2;
 			check_function_call(ID_Table, LEX_Table, -1, get_function_params(ID_Table, LEX_Table, i));
-			//handle_expression(i, -1, false, true, IT::STR);
 			break;
 		case LEX_WRITE:
 			i += 1;
@@ -196,7 +195,6 @@ int semantic::check(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table,
 
 
 void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table) {
-	// Вспомогательная функция для извлечения параметров функции
 	auto extract_parameters = [&](int& index) -> std::vector<IT::IDDATATYPE> {
 		std::vector<IT::IDDATATYPE> parameters;
 		int counter = 1;
@@ -219,7 +217,6 @@ void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table
 		return parameters;
 		};
 
-	// Вспомогательная функция для извлечения ссылок внутри функции
 	auto extract_references = [&](int& index) -> std::vector<std::pair<IT::Entry*, int>> {
 		std::vector<std::pair<IT::Entry*, int>> refs;
 		int braces = 1;
@@ -252,7 +249,6 @@ void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table
 
 	int start = 0;
 
-	// Обработка прототипов функций
 	for (int i = 0; i < LEX_Table.size; i++) {
 		if (LEX_Table.table[i].lexema[0] == LEX_ID
 			&& LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
@@ -261,16 +257,8 @@ void parse_functions(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Table
 			i += 2;
 			protos[&ID_Table.table[LEX_Table.table[tmpI].idxTI]] = extract_parameters(i);
 		}
-		//else if (LEX_Table.table[i].lexema[0] == LEX_STRCMP && protos.find)
-		//{
-		//	IT::Entry* strcmp = new IT::Entry();
-		//	strcpy(strcmp->id, "strcmp");
-		//	strcmp->iddatatype = IT::INT;
-		//	protos[strcmp] = { IT::IDDATATYPE::STR, IT::IDDATATYPE::STR };
-		//}
 	}
 
-	// Обработка вызовов функций внутри других функций
 	for (int i = 0; i < LEX_Table.size; i++) {
 		if (LEX_Table.table[i].lexema[0] == LEX_ID
 			&& LEX_Table.table[i - 1].lexema[0] == LEX_TYPE
@@ -302,7 +290,6 @@ std::vector<std::vector<int>> get_function_params(const IT::ID_Table& ID_Table, 
 				int tmpStart = start;
 				start += 2;
 				check_function_call(ID_Table, LEX_Table, tmpStart, get_function_params(ID_Table, LEX_Table, start));
-				//start--;
 			}
 			break;
 
@@ -346,7 +333,6 @@ void check_expression(const IT::ID_Table& ID_Table, const LT::LexTable& LEX_Tabl
 	int countBraces = 0;
 	bool metCompare = false;
 	bool metMath = false;
-	// Проверка на один идентификатор
 	if (expr.ids.size() == 1) {
 		const auto& id_entry = ID_ENTRY_BY_LEX_ID(expr.ids[0]);
 		const int line_number = LEX_Table.table[expr.ids[0]].sn;
@@ -543,7 +529,6 @@ void detect_cycles_in_references(const IT::ID_Table& ID_Table, const LT::LexTabl
 	std::set<IT::Entry*> visited;
 	std::set<IT::Entry*> recursion_stack;
 
-	// Лямбда для поиска цикла через DFS
 	auto has_cycle = [&](IT::Entry* node, auto& has_cycle_ref) -> bool {
 		recursion_stack.insert(node);
 		if (references.count(node)) {

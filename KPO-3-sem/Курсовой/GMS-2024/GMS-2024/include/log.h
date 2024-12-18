@@ -6,25 +6,25 @@
 #include "error.h"
 #include <string>
 
-namespace Log	// Работа с протоколом
+namespace Log
 {
-	struct LOG // протокол
+	struct LOG
 	{
-		std::wstring logfile;  // имя файла протокола
-		std::unique_ptr<std::ofstream> stream; // выходной поток протокола
+		std::wstring logfile;
+		std::unique_ptr<std::ofstream> stream;
 	};
 
-	static const LOG INIT_LOG{ L"", nullptr };// структура для начальной инициализации LOG
-	LOG getlog(const std::wstring& logfile);// сформировать структуру LOG
-	void writeLine(LOG& log, char* c, ...);// вывести в протокол конкатенацию строк
-	void writeLine(LOG& log, wchar_t* с, ...); //вывести в протокол конкатенацию строк
+	static const LOG INIT_LOG{ L"", nullptr };
+	LOG getlog(const std::wstring& logfile);
+	void writeLine(LOG& log, char* c, ...);
+	void writeLine(LOG& log, wchar_t* с, ...);
 	void writeLine(LOG& log, const std::string& str);
 	void writeLine(LOG& log, const std::wstring& str);
-	void writeLog(LOG& log);// вывести в протокол заголовок
-	void writeParm(LOG& log, Parm::PARM parm); // вывести в протокол информацию о входных параметрах
-	void writeIn(LOG& log, In::IN& in);// вывести в протокол информацию о входном потоке
-	void writeError(LOG& log, Error::ERROR& error); // вывести в протокол информацию об ошибке
+	void writeLog(LOG& log);
+	void writeParm(LOG& log, Parm::PARM parm);
+	void writeIn(LOG& log, In::IN& in);
+	void writeError(LOG& log, Error::ERROR& error);
 	void close(LOG& log);
 };
 
-#endif // !LOG_H
+#endif  

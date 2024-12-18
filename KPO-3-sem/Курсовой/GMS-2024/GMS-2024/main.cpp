@@ -90,7 +90,7 @@ int _tmain(int argc, _TCHAR* argv[]) {
 		cout << "Ошибка " << e.id << ": " << e.message;
 		if (e.sourceLine > 0)
 		{
-			cout << "\nСтрока: " << e.sourceLine;
+			cout << ". Строка: " << e.sourceLine;
 		}
 		cout << endl;
 		Log::writeError(log, e);

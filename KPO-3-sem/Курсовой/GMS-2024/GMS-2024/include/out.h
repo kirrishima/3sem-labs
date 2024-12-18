@@ -10,14 +10,14 @@ namespace Out
 {
 	struct OUT
 	{
-		std::wstring outfile;    // имя выходного файла
-		std::unique_ptr<std::ofstream> stream;   // выходной поток
+		std::wstring outfile;
+		std::unique_ptr<std::ofstream> stream;
 	};
 	static const OUT INIT_OUT = { L"", NULL };
-	OUT getout(const std::wstring& outfile); // функция для открытия выходного файла
-	void writeOut(OUT& out, In::IN& in);       // запись данных из входного потока в выходной файл
-	void writeError(OUT& out, Error::ERROR& error); // запись ошибок в выходной файл
-	void close(OUT& out);                     // закрытие выходного файла
+	OUT getout(const std::wstring& outfile);
+	void writeOut(OUT& out, In::IN& in);
+	void writeError(OUT& out, Error::ERROR& error);
+	void close(OUT& out);
 };
 
-#endif // !OUT_H
+#endif  
