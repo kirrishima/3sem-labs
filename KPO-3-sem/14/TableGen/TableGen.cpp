@@ -12,7 +12,7 @@ int _tmain(int argc, _TCHAR* argv[])
 	setlocale(LC_ALL, "ru");
 
 	const int tableSize = 256;
-	const uchar data[] = "MaximGormozaМаксимГормоза2006";
+	const uchar data[] = "тут надо ввести фио";
 
 	string str(reinterpret_cast<const char*>(data));
 	vector<int> codes;

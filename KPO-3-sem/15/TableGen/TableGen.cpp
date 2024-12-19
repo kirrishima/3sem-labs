@@ -7,17 +7,18 @@ using namespace std;
 
 typedef unsigned char uchar;
 
-int _tmain(int argc, _TCHAR* argv[])
+int _tmain(int argc, _TCHAR *argv[])
 {
 	setlocale(LC_ALL, "ru");
 
 	const int tableSize = 256;
-	const uchar data[] = "MaximGormozaМаксимГормоза2006";
+	const uchar data[] = "фио";
 
-	string str(reinterpret_cast<const char*>(data));
+	string str(reinterpret_cast<const char *>(data));
 	vector<int> codes;
 
-	for (auto c : str) {
+	for (auto c : str)
+	{
 		codes.push_back(static_cast<int>(static_cast<uchar>(c)));
 	}
 
