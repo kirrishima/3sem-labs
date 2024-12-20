@@ -70,7 +70,7 @@ namespace CD {
 		*log->stream << "\n----    Начало компиляции и сборки    ----\n";
 
 		auto executeStep = [&](const  string& stepName, const  string& command) -> bool {
-			*log->stream << "\n" << stepName << "...\n";
+			*log->stream << "\n" << stepName << " используя " << command << endl;
 			cout << stepName << "...\n";
 
 			if (!console.executeCommand(command, output)) {
@@ -100,6 +100,7 @@ namespace CD {
 		}
 
 		*log->stream << "\nКомпиляция и линковка завершена успешно.\n";
+		*log->stream << "Выходной файл: " << utils::wstring_to_string(parm->exeName) << '\n';
 		cout << "Компиляция и линковка завершена успешно.\n";
 		cout << "Выходной файл: " << utils::wstring_to_string(parm->exeName) << '\n';
 		return 0;

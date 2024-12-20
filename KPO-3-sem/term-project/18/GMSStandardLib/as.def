@@ -1,6 +1,0 @@
-LIBRARY GMSStandardLib
-EXPORTS
-    __PrintNumber
-    __PrintBool
-    __PrintArray
-    __StrCmp
