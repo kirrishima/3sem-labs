@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Список дел</title>
+    <style>
+      body {
+        font-family: Arial, sans-serif;
+        margin: 20px;
+        text-align: center;
+      }
+      .todo-container {
+        max-width: 600px;
+        margin: 0 auto;
+        text-align: left;
+      }
+      .task {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        margin: 10px 0;
+      }
+      .task input[type="checkbox"] {
+        margin-right: 10px;
+      }
+      .task button {
+        margin-left: 5px;
+      }
+      .filter-buttons button {
+        margin: 5px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="todo-container">
+      <h1>Список дел</h1>
+
+      <input type="text" id="taskNameInput" placeholder="Введите название задачи" />
+      <button id="addTaskButton">Добавить</button>
+
+      <div class="filter-buttons">
+        <button id="showAll">Показать все</button>
+        <button id="showCompleted">Показать выполненные</button>
+        <button id="showNotCompleted">Показать невыполненные</button>
+      </div>
+
+      <ul id="taskList"></ul>
+    </div>
+
+    <script src="lab_13.js"></script>
+  </body>
+</html>

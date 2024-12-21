@@ -26,28 +26,38 @@
             evenThread.Join();
             oddThread.Join();
 
+            Console.WriteLine('\n');
+            evenThread = new Thread(() => EvenNumbersNL(100));
+            oddThread = new Thread(() => OddNumbersNL(100));
+
+            evenThread.Start();
+            oddThread.Start();
+
+            evenThread.Join();
+            oddThread.Join();
+            Console.WriteLine();
             _writer.Close();
         }
 
         public static void EvenNumbers(int n)
-        {                
+        {
             lock (_lockObject)
             {
-            for (int i = 0; i <= n; i += 2)
-            {
+                for (int i = 0; i <= n; i += 2)
+                {
 
-                /*    while (!_evenTurn)
+                    while (!_evenTurn)
                     {
                         Monitor.Wait(_lockObject);
-                    }*/
+                    }
 
                     Console.Write($"{i} ");
                     _writer?.Write($"{i} ");
-                    //_evenTurn = false;
-                    //Monitor.Pulse(_lockObject);
+                    _evenTurn = false;
+                    Monitor.Pulse(_lockObject);
                 }
 
-                /*Thread.Sleep(100);*/
+                Thread.Sleep(100);
             }
         }
 
@@ -57,18 +67,48 @@
             {
                 lock (_lockObject)
                 {
-/*                    while (_evenTurn)
+                    while (_evenTurn)
                     {
                         Monitor.Wait(_lockObject);
-                    }*/
+                    }
 
                     Console.Write($"{i} ");
                     _writer?.Write($"{i} ");
-/*                    _evenTurn = true;
-                    Monitor.Pulse(_lockObject);*/
+                    _evenTurn = true;
+                    Monitor.Pulse(_lockObject);
                 }
 
                 Thread.Sleep(50);
+            }
+        }
+
+
+        public static void EvenNumbersNL(int n)
+        {
+            lock (_lockObject)
+            {
+                for (int i = 0; i <= n; i += 2)
+                {
+                    Console.Write($"{i} ");
+                    _writer?.Write($"{i} ");
+                }
+
+                Thread.Sleep(100);
+            }
+        }
+
+        public static void OddNumbersNL(int n)
+        {             lock (_lockObject)
+                {
+            for (int i = 1; i <= n; i += 2)
+            {
+   
+                    Console.Write($"{i} ");
+                    _writer?.Write($"{i} ");
+                    Thread.Sleep(50);
+                }
+
+                
             }
         }
     }
