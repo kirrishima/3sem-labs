@@ -9,7 +9,7 @@
 
 using namespace std;
 
-int numNodes; // Количество узлов
+int numNodes;   
 double alpha = 1, beta = 1;
 double initialPheromone = 0.2;
 double numIterations = 3;
@@ -54,11 +54,13 @@ struct TransitionStep {
 };
 
 struct CityEdge {
-	double pheromone;   // Уровень феромонов на пути
-	double distance;    // Расстояние между двумя городами
+	double pheromone;       
+	double distance;        
 
 	CityEdge(double pheromone, double distance)
 		: pheromone(pheromone), distance(distance) {}
+
+	CityEdge() : pheromone(0), distance(0){}
 };
 
 struct Graph {
@@ -121,7 +123,6 @@ void calculateDistance(Graph& graph, Ant& ant) {
 	}
 }
 
-// Расчет вероятностей переходов
 vector<TransitionStep> calculateProbabilities(const Graph& graph, const Ant& ant) {
 	vector<TransitionStep> transitionSteps;
 	double probabilitySum = 0;
@@ -142,7 +143,6 @@ vector<TransitionStep> calculateProbabilities(const Graph& graph, const Ant& ant
 	return transitionSteps;
 }
 
-// Выбор следующей вершины
 int selectNextNode(const vector<TransitionStep>& transitionSteps) {
 	random_device rd;
 	mt19937 gen(rd());
@@ -159,7 +159,6 @@ int selectNextNode(const vector<TransitionStep>& transitionSteps) {
 	return transitionSteps.front().to;
 }
 
-// Обновление лучшего пути
 void updateBestPath(const vector<AntPath>& paths, AntPath& bestPath) {
 	for (const auto& path : paths) {
 		if (path.totalDistance < bestPath.totalDistance) {
@@ -181,10 +180,10 @@ int main() {
 	cin >> beta;
 	cout << "Введите количество итераций: ";
 	cin >> numIterations;
-
+	cout << endl;
 	Graph graph(numNodes);
 	graph.printGraph();
-
+	cout << endl;
 	for (size_t iter = 0; iter < numIterations; iter++) {
 		graph.updatePheromones();
 		vector<AntPath> antPaths;
@@ -203,11 +202,11 @@ int main() {
 			graph.addPheromones(ant);
 		}
 		updateBestPath(antPaths, graph.bestPath);
-		cout << iter << "  Лучший маршрут: ";
+		cout <<"Итерация " << iter + 1 << ". Лучший маршрут: ";
 		for (auto node : graph.bestPath.nodes) {
 			cout << node << ' ';
 		}
-		cout << "расстояние: " << graph.bestPath.totalDistance << endl;
+		cout << "(Расстояние = " << graph.bestPath.totalDistance << ")\n";
 	}
 
 	return 0;
